@@ -126,8 +126,8 @@ def file_select(path=None,set_cols=[0,1],cut_first_row=True):
         data_fix = data[cut_first_row:,:]
     return data_fix
 
-def fit_data(function=None,x_list=[],y_list=[],g_list=[],abs_var=True,N=100,mxf=5000):
-    popt, pcov = curve_fit(f=function,xdata=x_list,ydata=y_list,p0=g_list,absolute_sigma=abs_var,maxfev=mxf)
+def fit_data(function=None,x_list=[],y_list=[],g_list=[],rel_var=False,N=100,mxf=5000):
+    popt, pcov = curve_fit(f=function,xdata=x_list,ydata=y_list,p0=g_list,absolute_sigma=rel_var,maxfev=mxf)
     pcov_fix = [pcov[i][i] for i in range(len(popt))]
     pstd = [np.sqrt(pcov_fix[i]) for i in range(len(popt))]
     xs_fit = np.linspace(np.min(x_list),np.max(x_list),N)
