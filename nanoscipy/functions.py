@@ -85,19 +85,18 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         plt.axvline(x=0,ymin=0,ymax=1,color=v_ax[1],linestyle=v_ax[2],linewidth=1,alpha=v_ax[3]) 
     plt.figure(figure_number_global_output, dpi=300)
         
-def file_select(path=None,file_type=None,cut_first_row=True): 
+def file_select(path=None,set_cols=[0,1],cut_first_row=True): 
     if path == None: 
         print('Error: No path selected')
         return
-    if file_type == 'excel':
-        data = pd.read_excel(path,usecols=[0,1]).to_numpy()
-    elif file_type == 'csv':
-        data = pd.read_csv(path,usecols=[0,1]).to_numpy()
-    elif file_type == None: 
-        print('Error: No file type selected')
-        return
     else:
-        print('Error: Selected file type is not valid')
+        filename, file_extension = os.path.splitext(path)
+    if file_extension == '.excel':
+        data = pd.read_excel(path,usecols=set_cols).to_numpy()
+    elif file_extension == '.csv':
+        data = pd.read_csv(path,usecols=set_cols, sep=';').to_numpy()
+    else:
+        print('Error: Selected file type is not valid (use help function to see allowed file types)')
         return
     if cut_first_row == True:
         data_fix = data[1:,:]
