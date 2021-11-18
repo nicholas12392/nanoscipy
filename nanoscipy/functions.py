@@ -129,10 +129,14 @@ def fit_data(function=None,x_list=[],y_list=[],g_list=[],abs_var=True,N=100,mxf=
         return
     return popt, pcov_fix, pstd, xs_fit, ys_fit
 
-def data_extrema(function): 
+def data_extrema(function,pos_index=False): 
     data = function
     max_id = np.where(max(data[:,1]) == data)[0][0] # index max val
     max_val = [data[max_id,0],data[max_id,1]] # find max val coord
     min_id = np.where(min(data[:,1]) == data)[0][0] # index min val
     min_val = [data[min_id,0],data[min_id,1]] # find min val coord
-    return [min_val,max_val]
+    if pos_index == False:
+        return [min_val,max_val]
+    elif pos_index == True:
+        index = [np.where(data[:,0] == min_val[0]),np.where(data[:,0] == max_val[0])] # index extremas
+        return [min_val,max_val], index
