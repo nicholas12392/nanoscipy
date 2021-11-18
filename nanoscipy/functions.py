@@ -1,17 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Nov 10 11:02:51 2021
-
-@author: nicho
-"""
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
 
-# grid definer
 def plot_grid(nr=0,r=1,s=1,share=0):
     global figure_global_output
     global ax_global_output
@@ -34,24 +26,17 @@ def plot_grid(nr=0,r=1,s=1,share=0):
     global boundary_ax_global_fix
     boundary_ax_global_fix = r*s
 
-# master plot function
 def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
                   ylab=None,ms=[],lw=[],ls=[],dcol=[],
                   plt_type=0,beta=0,tight=True,mark=[],v_ax=[True,'black','dashed',0.5],
                   h_ax=[True,'black','dashed',0.5],no_ticks=False):
-        ## needs to correspond with nr from plot_grid()
-    
-    # this statement fixes the subplots, if they're broken
     if len(ax_global_output) != boundary_ax_global_fix:
         axs = ax_global_output.flatten()
     else:
         axs = ax_global_output
-        
-    datas = len(xs) # find amount of data sets
-    non = np.repeat(None,datas) # construct None-list for amount of data sets
-    one = np.repeat(1,datas) # construct 1-list for amount of data sets
-    
-    # these statements sets standard values, if none are defined for function
+    datas = len(xs)
+    non = np.repeat(None,datas)
+    one = np.repeat(1,datas)
     if not dlab:
         dlab = non
     if not mark:
@@ -66,45 +51,29 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         dcol = np.repeat('black',datas)
     if not ls:
         ls = np.repeat('solid',datas)
-
-    # this creates a plot title for the subplot p
-    axs[p].set_title(ttl) # plot-title
-    ds = range(datas) # create list for for loops (per data set)
-    
-    # construct plots with plt.plot
+    axs[p].set_title(ttl) 
+    ds = range(datas) 
     if plt_type == 0 or plt_type == 'plot': 
         [axs[p].plot(xs[n],ys[n],c=dcol[n],label=dlab[n],linewidth=lw[n],markersize=ms[n],
                      marker=mark[n],linestyle=ls[n]) for n in ds]  
-    
-    # construct plots with plt.scatter
     if plt_type == 1 or plt_type == 'scatter' or plt_type == 3 or plt_type == 'fit':
         [axs[p].scatter(xs[n],ys[n],c=dcol[n],label=dlab[n],s=ms[n]) for n in ds]  
-        # if plt_type == 3 or plt_type == 'fit':
-            
-    # construct plots with qqplot
     if plt_type == 2 or plt_type == 'qqplot':
         [qqplot(data=xs[n],line='r',ax=axs[p],marker=mark[n],color=dcol[n],label=dlab[n]) for n in ds]
         axs[p+1].boxplot([xs[n] for n in ds],labels=[dlab[n] for n in ds]) 
-    
-    # don't mind this for now
     if beta == 1:
-        axs[p+beta].set_xlabel(xlab) # x-axis label
-        axs[p].set_ylabel(ylab) # y-axis label
+        axs[p+beta].set_xlabel(xlab)
+        axs[p].set_ylabel(ylab)
         axs[p+beta].set_ylabel(ylab)
     if beta == 0: 
-        axs[p].set_xlabel(xlab) # x-axis label
-        axs[p].set_ylabel(ylab) # y-axis label
-    [axs[p+i].legend() for i in range(0,beta+1)] # show ax labels
-    
-    # this statement will trigger tight_layout() if True
+        axs[p].set_xlabel(xlab)
+        axs[p].set_ylabel(ylab)
+    [axs[p+i].legend() for i in range(0,beta+1)]
     if tight == True:
         plt.tight_layout()
-    
     if no_ticks == True:
         axs[p].set_yticks([])
         axs[p].set_xticks([])
-    
-    # construct axis if set to True
     if h_ax == False:
         h_ax == [False]
     elif h_ax[0] == True:
@@ -112,11 +81,9 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     if v_ax == False:
         v_ax = [False]
     elif v_ax[0] == True:
-        plt.axvline(x=0,ymin=0,ymax=1,color=v_ax[1],linestyle=v_ax[2],linewidth=1,alpha=v_ax[3])
-    
-    plt.figure(figure_number_global_output, dpi=300) # sets the figure number and higher dpi
+        plt.axvline(x=0,ymin=0,ymax=1,color=v_ax[1],linestyle=v_ax[2],linewidth=1,alpha=v_ax[3]) 
+    plt.figure(figure_number_global_output, dpi=300)
         
-# file-selector function
 def file_select(path=None,cut_first_row=True,file_type=None): 
     if path == None: 
         print('Error: No path selected')
@@ -132,7 +99,7 @@ def file_select(path=None,cut_first_row=True,file_type=None):
         print('Error: Selected file type is not valid')
         return
     if cut_first_row == True:
-        data_fix = data[1:,:] # fix the dataset (remove column names)
+        data_fix = data[1:,:]
     elif cut_first_row == False: 
         data_fix = data
     elif isinstance(cut_first_row,int) == True:
@@ -143,7 +110,6 @@ def fit_data(function=None,x_list=[],y_list=[],g_list=[],abs_var=True,N=100,mxf=
     popt, pcov = curve_fit(f=function,xdata=x_list,ydata=y_list,p0=g_list,absolute_sigma=abs_var,maxfev=mxf)
     pcov_fix = [pcov[i][i] for i in range(len(popt))]
     pstd = [np.sqrt(pcov_fix[i]) for i in range(len(popt))]
-    
     xs_fit = np.linspace(np.min(x_list),np.max(x_list),N)
     if len(popt) == 1:
         ys_fit = function(xs_fit,popt[0])
@@ -162,6 +128,4 @@ def fit_data(function=None,x_list=[],y_list=[],g_list=[],abs_var=True,N=100,mxf=
     else: 
         print('Error: Too many constants to fit')
         return
-    # slope, intercept, r_val, p_value, std_err = stats.linregress([x_list],[y_list])
-    # R_squared = r_val**2
     return popt, pcov_fix, pstd, xs_fit, ys_fit
