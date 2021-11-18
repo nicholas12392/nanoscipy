@@ -140,4 +140,4 @@ def data_extrema(function,pos_index=False):
     elif pos_index == True:
         index_raw = [np.where(data[:,0] == min_val[0]),np.where(data[:,0] == max_val[0])] # index extremas
         index_list = [index_raw[0][0],index_raw[1][0]]
-        return [min_val,max_val], index
+        return [min_val,max_val], index_list
