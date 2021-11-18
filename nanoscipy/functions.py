@@ -12,17 +12,17 @@ def plot_grid(nr=0,r=1,s=1,share=0):
     figure_number_global_output = nr
     
     if r == 1 and s == 1:
-        figure_global_output, _ax_global_output = plt.subplots(num=nr)
+        figure_global_output, _ax_global_output = plt.subplots(num=nr, dpi=300)
         ax_global_output = [_ax_global_output]
     if r > 1 or s > 1:
         if share == 'x' or share == 1:
-            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True)
+            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True, dpi=300)
         if share == 'y' or share == 2:
-            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharey=True)
+            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharey=True, dpi=300)
         if share == 'xy' or share == 'yx' or share == 'both' or share == 3:
-            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True,sharey=True)
+            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True,sharey=True, dpi=300)
         if share == 'no' or share == 0:
-            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=False,sharey=False)
+            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=False,sharey=False, dpi=300)
     
     global boundary_ax_global_fix
     boundary_ax_global_fix = r*s
@@ -83,7 +83,6 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         v_ax = [False]
     elif v_ax[0] == True:
         plt.axvline(x=0,ymin=0,ymax=1,color=v_ax[1],linestyle=v_ax[2],linewidth=1,alpha=v_ax[3]) 
-    axs[p].figure(figure_number_global_output, dpi=300)
         
 def file_select(path=None,set_cols=[0,1],cut_first_row=True): 
     if path == None: 
