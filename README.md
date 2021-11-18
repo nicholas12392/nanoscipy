@@ -9,6 +9,9 @@ Rerun this command to check for and install  updates .
 ```bash
 pip install git+https://github.com/nicholas12392/nanoscipy
 ```
-
+Note that if you're using anaconda, you might have to install git: 
+```bash
+conda install git
+```
 ## Usage
 Currently being updated.
