@@ -7,7 +7,7 @@ This package is being readily updated at the moment, so be sure to keep up, as n
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install nanoscipy like below. 
 Rerun this command to check for and install  updates .
 ```bash
-pip install git+https://github.com/Muls/toolbox
+pip install git+https://github.com/nicholas12392/nanoscipy/toolbox
 ```
 
 ## Usage
