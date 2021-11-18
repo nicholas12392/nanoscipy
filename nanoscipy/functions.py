@@ -5,24 +5,24 @@ import os
 from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
 
-def plot_grid(nr=0,r=1,s=1,share=0):
+def plot_grid(nr=0,r=1,s=1,share=0,set_dpi=300):
     global figure_global_output
     global ax_global_output
     global figure_number_global_output
     figure_number_global_output = nr
     
     if r == 1 and s == 1:
-        figure_global_output, _ax_global_output = plt.subplots(num=nr, dpi=300)
+        figure_global_output, _ax_global_output = plt.subplots(num=nr, dpi=set_dpi)
         ax_global_output = [_ax_global_output]
     if r > 1 or s > 1:
         if share == 'x' or share == 1:
-            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True, dpi=300)
+            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True, dpi=set_dpi)
         if share == 'y' or share == 2:
-            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharey=True, dpi=300)
+            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharey=True, dpi=set_dpi)
         if share == 'xy' or share == 'yx' or share == 'both' or share == 3:
-            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True,sharey=True, dpi=300)
+            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True,sharey=True, dpi=set_dpi)
         if share == 'no' or share == 0:
-            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=False,sharey=False, dpi=300)
+            figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=False,sharey=False, dpi=set_dpi)
     
     global boundary_ax_global_fix
     boundary_ax_global_fix = r*s
