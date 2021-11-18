@@ -128,3 +128,11 @@ def fit_data(function=None,x_list=[],y_list=[],g_list=[],abs_var=True,N=100,mxf=
         print('Error: Too many constants to fit')
         return
     return popt, pcov_fix, pstd, xs_fit, ys_fit
+
+def data_extrema(rate,nr): 
+    data = file_select(rate,nr)
+    max_id = np.where(max(data[:,1]) == data)[0][0] # index max val
+    max_val = [data[max_id,0],data[max_id,1]] # find max val coord
+    min_id = np.where(min(data[:,1]) == data)[0][0] # index min val
+    min_val = [data[min_id,0],data[min_id,1]] # find min val coord
+    return [min_val,max_val]
