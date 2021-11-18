@@ -84,7 +84,7 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         plt.axvline(x=0,ymin=0,ymax=1,color=v_ax[1],linestyle=v_ax[2],linewidth=1,alpha=v_ax[3]) 
     plt.figure(figure_number_global_output, dpi=300)
         
-def file_select(path=None,cut_first_row=True,file_type=None): 
+def file_select(path=None,file_type=None,cut_first_row=True): 
     if path == None: 
         print('Error: No path selected')
         return
