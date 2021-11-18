@@ -11,11 +11,11 @@ setuptools.setup(
     description='A package containing costum compiled functions, to make data-handling and analysis easier.',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/Muls/toolbox',
+    url='https://github.com/nicholas12392/nanoscipy',
     project_urls = {
-        "Bug Tracker": "https://github.com/Muls/toolbox/issues"
+        "Bug Tracker": "https://github.com/nicholas12392/nanoscipy/issues"
     },
     license='MIT',
-    packages=['toolbox'],
+    packages=['nanoscipy'],
     install_requires=['requests'],
 )
