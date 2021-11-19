@@ -7,11 +7,11 @@ This package is being readily updated at the moment, so be sure to keep up, as n
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install nanoscipy like below. 
 Rerun this command to check for and install  updates .
 ```bash
-pip install git+https://github.com/nicholas12392/nanoscipy
+pip install nanoscipy
 ```
-Note that if you're using anaconda, you might have to install git: 
+Note that if you're using anaconda, you might have to install the module from the anaconda terminal instead: 
 ```bash
-conda install git
+(base) C:\Users\'user'> pip install nanoscipy
 ```
 ## Usage
 Currently being updated.
