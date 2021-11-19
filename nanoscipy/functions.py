@@ -10,6 +10,9 @@ def plot_grid(nr=0,r=1,s=1,share=0,set_dpi=300):
     global ax_global_output
     global figure_number_global_output
     global share_axis_bool_output
+    global boundary_ax_global_fix
+    
+    boundary_ax_global_fix = r*s
     figure_number_global_output = nr
     share_axis_bool_output = share
     
@@ -28,12 +31,9 @@ def plot_grid(nr=0,r=1,s=1,share=0,set_dpi=300):
         else: 
             print('Wrong <share> key, check _help() for more information')
             return
-    else: 
+    elif r == 0 or s == 0: 
         print('Wrong <r> or <s> key, check _help() for more information')
         return
-    
-    global boundary_ax_global_fix
-    boundary_ax_global_fix = r*s
 
 def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
                   ylab=None,ms=[],lw=[],ls=[],dcol=[],
