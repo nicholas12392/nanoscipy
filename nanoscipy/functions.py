@@ -28,6 +28,8 @@ def plot_grid(nr=0,r=1,s=1,share=0,set_dpi=300):
         else: 
             print('Wrong <share> key, check _help() for more information')
             return
+    else: 
+        print('Wrong <r> or <s> key, check _help() for more information')
     
     global boundary_ax_global_fix
     boundary_ax_global_fix = r*s
