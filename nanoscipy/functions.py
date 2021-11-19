@@ -25,6 +25,9 @@ def plot_grid(nr=0,r=1,s=1,share=0,set_dpi=300):
             figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True,sharey=True, dpi=set_dpi)
         elif share == 'no' or share == 0:
             figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=False,sharey=False, dpi=set_dpi)
+        else: 
+            print('Wrong <share> key, check _help() for more information')
+            return
     
     global boundary_ax_global_fix
     boundary_ax_global_fix = r*s
