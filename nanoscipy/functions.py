@@ -43,7 +43,25 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         axs = ax_global_output.flatten()
     else:
         axs = ax_global_output
-    datas = len(xs)
+    
+    # chek for correct list input, and try fix if data-list is not in list
+    if not isinstance(xs,list):
+        print('Error: Wrong <xs> key, check _help() for more information')
+    else:
+        if any(isinstance(i, list) for i in xs):
+            xs_fix = [xs]
+        else: 
+            xs_fix = xs
+    if plt_type != 2 or plt_type != 'qqplot':
+        if not isinstance(ys,list):
+            print('Error: Wrong <ys> key, check _help() for more information')
+        else:
+            if any(isinstance(i, list) for i in ys):
+                ys_fix = [ys]
+            else: 
+                ys_fix = ys
+            
+    datas = len(xs_fix)
     non = np.repeat(None,datas)
     one = np.repeat(1,datas)
     if not dlab:
@@ -69,13 +87,13 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         
     ds = range(datas) 
     if plt_type == 0 or plt_type == 'plot': 
-        [axs[p].plot(xs[n],ys[n],c=dcol[n],label=dlab[n],linewidth=lw[n],markersize=ms[n],
+        [axs[p].plot(xs_fix[n],ys_fix[n],c=dcol[n],label=dlab[n],linewidth=lw[n],markersize=ms[n],
                      marker=mark[n],linestyle=ls[n]) for n in ds]  
     if plt_type == 1 or plt_type == 'scatter':
-        [axs[p].scatter(xs[n],ys[n],c=dcol[n],label=dlab[n],s=ms[n]) for n in ds]  
+        [axs[p].scatter(xs_fix[n],ys_fix[n],c=dcol[n],label=dlab[n],s=ms[n]) for n in ds]  
     if plt_type == 2 or plt_type == 'qqplot':
-        [qqplot(data=xs[n],line='r',ax=axs[p],marker=mark[n],color=dcol[n],label=dlab[n]) for n in ds]
-        axs[p+1].boxplot([xs[n] for n in ds],labels=[dlab[n] for n in ds]) 
+        [qqplot(data=xs_fix[n],line='r',ax=axs[p],marker=mark[n],color=dcol[n],label=dlab[n]) for n in ds]
+        axs[p+1].boxplot([xs_fix[n] for n in ds],labels=[dlab[n] for n in ds]) 
     
     # fix labels according to share_axis_bool_output
     if share_axis_bool_output == 'x' or share_axis_bool_output == 1:
