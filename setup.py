@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='nanoscipy',
-    version='1.1.0a3',
+    version='1.1.0a4',
     author='Nicholas Hansen',
     author_email='nicholas.2000@live.dk',
     description='A package containing costum compiled functions, to make data-handling and analysis easier.',
