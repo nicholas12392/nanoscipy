@@ -72,7 +72,7 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         ms = one
     if not lw: 
         lw = one
-    if not mark:
+    if not mark.all():
         mark = ['.']*datas
     if not dcol: 
         dcol = ['black']*datas
@@ -132,11 +132,11 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     if v_ax == None:
         v_ax = axs[p].axvline(visible=False)
     elif v_ax == 0:
-        axs[p].axhline(x=0,ymin=0,ymax=1,color='black',linestyle='solid',linewidth=0.5,alpha=1)
+        axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='solid',linewidth=0.5,alpha=1)
     elif v_ax == 1:
         axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='dashed',linewidth=1,alpha=0.5) 
     elif v_ax == 2:
-        axs[p].axhline(x=0,ymin=0,ymax=1,color='black',linestyle='dotted',linewidth=1,alpha=1)
+        axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='dotted',linewidth=1,alpha=1)
     
     # set legends
     axs[p].legend() 
