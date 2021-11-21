@@ -37,8 +37,8 @@ def plot_grid(nr=0,r=1,s=1,share=0,set_dpi=300):
 
 def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
                   ylab=None,ms=[],lw=[],ls=[],dcol=[],
-                  plt_type=0,tight=True,mark=[],v_ax=[True,'black','dashed',0.5],
-                  h_ax=[True,'black','dashed',0.5],no_ticks=False,share_ttl=False):
+                  plt_type=0,tight=True,mark=[],trsp=[] ,v_ax=None,
+                  h_ax=None,no_ticks=False,share_ttl=False):
     if len(ax_global_output) != boundary_ax_global_fix:
         axs = ax_global_output.flatten()
     else:
@@ -72,12 +72,14 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         ms = one
     if not lw: 
         lw = one
-    if not mark.any():
-        mark = np.repeat('.',datas)
+    if not mark:
+        mark = ['.']*datas
     if not dcol: 
-        dcol = np.repeat('black',datas)
+        dcol = ['black']*datas
     if not ls:
-        ls = np.repeat('solid',datas)
+        ls = ['solid']*datas
+    if not trsp: 
+        trsp = one
     
     # set title according to share_ttl
     if share_ttl == False:
@@ -88,11 +90,11 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     ds = range(datas) 
     if plt_type == 0 or plt_type == 'plot': 
         [axs[p].plot(xs_fix[n],ys_fix[n],c=dcol[n],label=dlab[n],linewidth=lw[n],markersize=ms[n],
-                     marker=mark[n],linestyle=ls[n]) for n in ds]  
+                     marker=mark[n],linestyle=ls[n],alpha=trsp[n]) for n in ds]  
     if plt_type == 1 or plt_type == 'scatter':
-        [axs[p].scatter(xs_fix[n],ys_fix[n],c=dcol[n],label=dlab[n],s=ms[n]) for n in ds]  
+        [axs[p].scatter(xs_fix[n],ys_fix[n],c=dcol[n],label=dlab[n],s=ms[n],alpha=trsp[n]) for n in ds]  
     if plt_type == 2 or plt_type == 'qqplot':
-        [qqplot(data=xs_fix[n],line='r',ax=axs[p],marker=mark[n],color=dcol[n],label=dlab[n]) for n in ds]
+        [qqplot(data=xs_fix[n],line='r',ax=axs[p],marker=mark[n],color=dcol[n],label=dlab[n],alpha=trsp[n]) for n in ds]
         axs[p+1].boxplot([xs_fix[n] for n in ds],labels=[dlab[n] for n in ds]) 
     
     # fix labels according to share_axis_bool_output
@@ -117,14 +119,24 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     if no_ticks == True:
         axs[p].set_yticks([])
         axs[p].set_xticks([])
-    if h_ax == False:
-        h_ax == [False]
-    elif h_ax[0] == True:
-        plt.axhline(y=0,xmin=0,xmax=1,color=h_ax[1],linestyle=h_ax[2],linewidth=1,alpha=v_ax[3])
-    if v_ax == False:
-        v_ax = [False]
-    elif v_ax[0] == True:
-        plt.axvline(x=0,ymin=0,ymax=1,color=v_ax[1],linestyle=v_ax[2],linewidth=1,alpha=v_ax[3]) 
+        
+    # define preset axis, according to input
+    if h_ax == None:
+        h_ax == axs[p].axhline(visible=False)
+    elif h_ax == 0:
+        axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='solid',linewidth=0.5,alpha=1)
+    elif h_ax == 1:
+        axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='dashed',linewidth=1,alpha=0.5)
+    elif h_ax == 2: 
+        axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='dotted',linewidth=1,alpha=1)
+    if v_ax == None:
+        v_ax = axs[p].axvline(visible=False)
+    elif v_ax == 0:
+        axs[p].axhline(x=0,ymin=0,ymax=1,color='black',linestyle='solid',linewidth=0.5,alpha=1)
+    elif v_ax == 1:
+        axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='dashed',linewidth=1,alpha=0.5) 
+    elif v_ax == 2:
+        axs[p].axhline(x=0,ymin=0,ymax=1,color='black',linestyle='dotted',linewidth=1,alpha=1)
     
     # set legends
     axs[p].legend() 
