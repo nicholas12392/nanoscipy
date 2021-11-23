@@ -28,6 +28,10 @@ def _help_plot_grid():
         print('<share> defines which axis´ should be shared')
         print('-- Input: if int(1) or string(x), x-axis´ are shared, if int(2) or string(y), y-axis´ are shared, if int(3), string(xy), string(yx) or string(both), xy-axis´ are shared, if int(0) or string(no),  no axis´ are shared')
         print('-- Default: int(0)')
+        print()
+        print('<set_dpi> sets the dpi of the figure')
+        print('--- Input: numerical value greater than 0')
+        print('--- Default: int(300)')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
             _help_terminator()
