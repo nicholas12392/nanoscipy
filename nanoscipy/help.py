@@ -209,7 +209,8 @@ def _help_file_select():
             _help_file_select()
     elif help_id_inner == '3':
         print('-------- Notes --------')
-        print('In the current patch, there is an issue, where if you are to import data from a file that contains a string as the first row, every list-element will be a string. Thus, if this issue occurs, simply set cut_rows >= int(1)')
+        print('In the current patch, there is an issue, where if you are to import data from a file that contains a string as the first row, every list-element will be a string. Thus, if this issue occurs, simply set cut_rows >= 1')
+        print('If the error type: \'Usecols do not match columns, columns expected but not found:\' occur, then the function is most likely using the wrong separator/delimiter (assuming values exist in these columns initially)')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
             _help_terminator()
