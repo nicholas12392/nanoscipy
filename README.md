@@ -22,7 +22,7 @@ The same scheme goes for updates:
 (base) C:\Users\'user'> pip install --upgrade nanoscipy
 ```
 ## Usage
-# Import
+### Import
 Do note that the module currently consists of two sub-modules, and so unless you are importing the entire module, you will need to specify either
 ```bash
 import nanoscipy.functions
