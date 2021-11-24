@@ -147,7 +147,7 @@ def file_select(path=None,set_cols=[0,1],cut_first_row=True,separator=','):
         return
     else:
         filename, file_extension = os.path.splitext(path)
-    if file_extension == '.excel':
+    if file_extension == '.excel' or file_extension == '.xlsx':
         data = pd.read_excel(path,usecols=set_cols).to_numpy()
     elif file_extension == '.csv':
         data = pd.read_csv(path,usecols=set_cols, sep=separator).to_numpy()
