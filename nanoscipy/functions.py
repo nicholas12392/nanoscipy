@@ -141,26 +141,27 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     # set legends
     axs[p].legend() 
         
-def file_select(path=None,set_cols=[0,1],cut_first_row=True,separator=','): 
+def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None): 
     if path == None: 
         print('Error: No path selected')
         return
     else:
         filename, file_extension = os.path.splitext(path)
+    
+    # try to define standard delimiter, if none is defined
+    if separator == None: 
+        if file_extension == '.csv':
+            separator = ','
+        elif file_extension == '.txt':
+            separator = '\t'
     if file_extension == '.excel' or file_extension == '.xlsx':
-        data = pd.read_excel(path,usecols=set_cols).to_numpy()
-    elif file_extension == '.csv':
-        data = pd.read_csv(path,usecols=set_cols, sep=separator).to_numpy()
+        data = pd.read_excel(path,header=cut_rows,usecols=set_cols).to_numpy()
+    elif file_extension == '.csv' or file_extension == '.txt':
+        data = pd.read_csv(path,header=cut_rows,usecols=set_cols, sep=separator).to_numpy()
     else:
         print('Error: Selected file type is not valid (use help function to see allowed file types)')
         return
-    if cut_first_row == True:
-        data_fix = data[1:,:]
-    elif cut_first_row == False: 
-        data_fix = data
-    elif isinstance(cut_first_row,int) == True:
-        data_fix = data[cut_first_row:,:]
-    return data_fix
+    return data
 
 def fit_data(function=None,x_list=[],y_list=[],g_list=[],rel_var=False,N=100,mxf=5000):
     popt, pcov = curve_fit(f=function,xdata=x_list,ydata=y_list,p0=g_list,absolute_sigma=rel_var,maxfev=mxf)
