@@ -2,6 +2,42 @@ def _help_terminator():
     print('≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡ HELP FUNCTION INACTIVE ≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡')
     return
 
+def _help_global_help_prompt():
+    print('================ global_help_prompt() ================')
+    print('This function enables or disables help prompts on error.')
+    print('More options below:')
+    print('1: Variables')
+    print('2: Output')
+    print('3: Notes')
+    print('0: Terminate _help()')
+    print('-1: Go back')
+    help_id_inner = input('Choose from list: ')
+    if help_id_inner == '1':
+        print('-------- Variables --------')
+        print('<prompt_id> determines whether or not, the help prompts should occur')
+        print('--- Input: bool')
+        print('--- Default: True')
+        help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
+        if help_terminator == '0':
+            return _help_terminator()
+        elif help_terminator == '-1':
+            return _help_plot_grid()
+    elif help_id_inner == '2':
+        print('-------- Output --------')
+        print('<nanoscipy_help_prompt_global_output> (global) defined by <prompt_id>, which is read by all functions in nanoscipy.functions')
+        help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
+        if help_terminator == '0':
+            return _help_terminator()
+        elif help_terminator == '-1':
+            return _help_plot_grid()
+    elif help_id_inner == '3':
+        print('-------- Notes --------')
+        print('Note that as this yields a global output, you only need to run the function once, to disable or enable the prompts. The function can conveniently be run in the console.')
+    elif help_id_inner == '-1':
+        return _help(1)
+    elif help_id_inner == '0':
+        return _help_terminator()
+
 def _help_plot_grid():
     print('================ plot_grid() ================')
     print('This function serves the purpose of defining a "grid" for the plot_data() function, which allows for plotting of multiple data sets in however many different plots desired.')
@@ -30,9 +66,9 @@ def _help_plot_grid():
         print('--- Default: None')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
-            _help_terminator()
+            return _help_terminator()
         elif help_terminator == '-1':
-            _help_plot_grid()
+            return _help_plot_grid()
     elif help_id_inner == '2':
         print('-------- Output --------')
         print('<figure_global_output> (global) defined by matplotlib.pyplot.subplots() figure')
@@ -46,13 +82,13 @@ def _help_plot_grid():
         print('<boundary_ax_global_fix> (global) defined as product of <r> and <s>')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
-            _help_terminator()
+            return _help_terminator()
         elif help_terminator == '-1':
-            _help_plot_grid()
+            return _help_plot_grid()
     elif help_id_inner == '-1':
-        _help(1)
+        return _help(1)
     elif help_id_inner == '0':
-        _help_terminator()
+        return _help_terminator()
 
 def _help_plot_data():
     print('================ plot_data() ================')
@@ -143,29 +179,29 @@ def _help_plot_data():
         print('--- Default: False')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
-            _help_terminator()
+            return _help_terminator()
         elif help_terminator == '-1':
-            _help_plot_data()
+            return _help_plot_data()
     elif help_id_inner == '2':
         print('-------- Output --------')
         print('A simple or advanced plot of data with the corresponding inputs, in one or multiple plots')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
-            _help_terminator()
+            return _help_terminator()
         elif help_terminator == '-1':
-            _help_plot_data()
+            return _help_plot_data()
     elif help_id_inner == '3':
         print('-------- Notes --------')
         print('It is important to note that this function is based on matplotlib.pyplot, and will therefore work with additions such as .set_xlim or .vlines etc.')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
-            _help_terminator()
+            return _help_terminator()
         elif help_terminator == '-1':
-            _help_plot_data()
+            return _help_plot_data()
     elif help_id_inner == '-1':
-        _help(1)
+        return _help(1)
     elif help_id_inner == '0':
-        _help_terminator()
+        return _help_terminator()
 
 def _help_file_select():
     print('================ file_select() ================')
@@ -196,47 +232,135 @@ def _help_file_select():
         print('--- Default: if .csv; \',\', if .txt; \'\\t\'')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
-            _help_terminator()
+            return _help_terminator()
         elif help_terminator == '-1':
-            _help_file_select()
+            return _help_file_select()
     elif help_id_inner == '2':
         print('-------- Output --------')
         print('<data> (local) the data gained from the file to lists')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
-            _help_terminator()
+            return _help_terminator()
         elif help_terminator == '-1':
-            _help_file_select()
+            return _help_file_select()
     elif help_id_inner == '3':
         print('-------- Notes --------')
-        print('In the current patch, there is an issue, where if you are to import data from a file that contains a string as the first row, every list-element will be a string. Thus, if this issue occurs, simply set cut_rows >= 1')
-        print('If the error type: \'Usecols do not match columns, columns expected but not found:\' occur, then the function is most likely using the wrong separator/delimiter (assuming values exist in these columns initially)')
+        print('In the current patch, there is an issue, where if you are to import data from a file that contains a string as the first row, every list-element will be a string. Thus, if this issue occurs, simply set cut_rows >= 1.')
+        print('If the error type: \'Usecols do not match columns, columns expected but not found:\' occur, then the function is most likely using the wrong separator/delimiter (assuming values exist in these columns initially.)')
+        print('Currently, the function only takes the file types .csv, .txt, .excel, .xlsx.')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
-            _help_terminator()
+            return _help_terminator()
         elif help_terminator == '-1':
-            _help_file_select()
+            return _help_file_select()
     elif help_id_inner == '-1':
-        _help(1)
+        return _help(1)
     elif help_id_inner == '0':
-        _help_terminator()
+        return _help_terminator()
 
+def _help_fit_data():
+    print('================ fit_data() ================')
+    print('This function allows for easy fitting of data. (Currently fits data up to seven variables.)')
+    print('More options below:')
+    print('1: Variables')
+    print('2: Output')
+    print('3: Notes')
+    print('0: Terminate _help()')
+    print('-1: Go back')
+    help_id_inner = input('Choose from list: ')
+    if help_id_inner == '1': 
+        print('-------- Variables --------')
+        print('<funtion> defines the function to provide fit after')
+        print('--- Input: function (can be lambda function)')
+        print('--- Default: None')
+        print()
+        print('<x_list> defines the observed x-values to fit after')
+        print('--- Input: list')
+        print('--- Default: []')
+        print()
+        print('<y_list> defines the observed y-values to fit after')
+        print('--- Input: list')
+        print('--- Default: []')
+        print()
+        print('<g_list> define the guess values for fit, note that this is not optional, as this variable is used to control the output')
+        print('--- Input: string')
+        print('--- Default: []')
+        print()
+        print('<rel_var> determines whether the function should output the relative variance or the absolute variance')
+        print('Input: bool')
+        print('Default: False')
+        print()
+        print('<N> is the frame number, and defines the number of values the fitted x- and y-list should contain')
+        print('Input: integer')
+        print('Default: 100')
+        print()
+        print('<mxf> is the maximum number of iterations scipy.optimize.curve_fit will run, to find the best fit using least squares method')
+        print('Input: integer')
+        print('Default: 1000')
+        help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
+        if help_terminator == '0':
+            return _help_terminator()
+        elif help_terminator == '-1':
+            return _help_fit_data()
+    elif help_id_inner == '2':
+        print('-------- Output --------')
+        print('<popt> (local) the fitted variables (a 1D list)')
+        print()
+        print('<pcov_fix> (local) the variance of the fitted variables (a 1D list)')
+        print()
+        print('<pstd> (local) the standard deviation of the fitted variables (a 1D list)')
+        print()
+        print('<xs_fit> (local) the fitted x-values (a 1D list)')
+        print()
+        print('<ys_fit> (local) the fitted y-values (a 1D list)')
+        help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
+        if help_terminator == '0':
+            return _help_terminator()
+        elif help_terminator == '-1':
+            return _help_fit_data()
+    elif help_id_inner == '3':
+        print('-------- Notes --------')
+        print('Note that the fitted variables, variances, and standard deviations are ordered in the output list, correspondingly to the order of the <g_list> (which should indeed be ordered correspondingly to the defined function to fit after.)')
+        help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
+        if help_terminator == '0':
+            return _help_terminator()
+        elif help_terminator == '-1':
+            return _help_fit_data()
+    elif help_id_inner == '-1':
+        return _help(1)
+    elif help_id_inner == '0':
+        return _help_terminator()
+        
 def _help(x=0):
     if x == 0:
         print('≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡ HELP FUNCTION ACTIVE ≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡')
-    print('1: plot_grid()')
-    print('2: plot_data()')
-    print('3: file_select()')
+    print('1: global_help_prompt()')
+    print('2: plot_grid()')
+    print('3: plot_data()')
+    print('4: file_select()')
+    print('5: fit_data()')
     print('0: Terminate function')
     help_id_outer = input('Choose from list above: ')
     if help_id_outer == '1':
-        _help_plot_grid()
-        return
+        return _help_global_help_prompt()
     elif help_id_outer == '2':
-        _help_plot_data()
-        return
+        return _help_plot_grid()
     elif help_id_outer == '3':
-        _help_file_select()
-        return
+        return _help_plot_data()
+    elif help_id_outer == '4':
+        return _help_file_select()
+    elif help_id_outer == '5':
+        return _help_fit_data()
     elif help_id_outer == '0':
-        _help_terminator()
+        return _help_terminator()
+
+def _help_runner(x=True):
+    if x == True:
+        help_id_checker = input('Do you want to run _help() now? [y/n]:')
+        if help_id_checker == 'y':
+            return _help()
+        elif help_id_checker == 'n':
+            print('To disable these prompts run function global_help_prompt(False)')
+            return
+    elif x == False: 
+        return
