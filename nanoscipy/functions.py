@@ -47,19 +47,17 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     # chek for correct list input, and try fix if data-list is not in list
     if not isinstance(xs,list):
         print('Error: Wrong <xs> key, check _help() for more information')
-    else:
-        if any(isinstance(i, list) for i in xs):
-            xs_fix = [xs]
-        else: 
-            xs_fix = xs
-    if plt_type != 2 or plt_type != 'qqplot':
+    elif not isinstance(xs[0],(list,np.ndarray)):
+        xs_fix = [xs]
+    else: 
+        xs_fix = xs
+    if plt_type == 0 or plt_type == 'plot' or plt_type == 1 or plt_type == 'scatter':
         if not isinstance(ys,list):
             print('Error: Wrong <ys> key, check _help() for more information')
-        else:
-            if any(isinstance(i, list) for i in ys):
-                ys_fix = [ys]
-            else: 
-                ys_fix = ys
+        elif not isinstance(ys[0],(list,np.ndarray)):
+            ys_fix = [ys]
+        else: 
+            ys_fix = ys
             
     datas = len(xs_fix)
     non = np.repeat(None,datas)
