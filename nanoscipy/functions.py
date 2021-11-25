@@ -45,16 +45,24 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         axs = ax_global_output
     
     # chek for correct list input, and try fix if data-list is not in list
-    if not isinstance(xs,list):
+    if not isinstance(xs,(list,np.ndarray)):
         print('Error: Wrong <xs> key, check _help() for more information')
-    elif not isinstance(xs[0],(list,np.ndarray)):
+        return
+    elif any(isinstance(i, (list,np.ndarray)) for i in xs) and any(isinstance(i, (float,int,np.integer,np.float)) for i in xs):
+        print('Error: <xs> key only takes uniform input types, check _help() for more information')
+        return
+    elif not all(isinstance(i, (list,np.ndarray)) for i in xs):
         xs_fix = [xs]
     else: 
         xs_fix = xs
     if plt_type == 0 or plt_type == 'plot' or plt_type == 1 or plt_type == 'scatter':
-        if not isinstance(ys,list):
+        if not isinstance(ys,(list,np.ndarray)):
             print('Error: Wrong <ys> key, check _help() for more information')
-        elif not isinstance(ys[0],(list,np.ndarray)):
+            return
+        elif any(isinstance(i, (list,np.ndarray)) for i in ys) and any(isinstance(i, (float,int,np.integer,np.float)) for i in ys):
+            print('Error: <ys> key only takes uniform input types, check _help() for more information')
+            return
+        elif not all(isinstance(i, (list,np.ndarray)) for i in ys):
             ys_fix = [ys]
         else: 
             ys_fix = ys
