@@ -4,8 +4,18 @@ import numpy as np
 import os
 from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
+import nanoscipy.help as nsh
+from itertools import chain
+import csv
 
-def plot_grid(nr=0,r=1,s=1,share=0,set_dpi=300):
+def global_help_prompt(prompt_id):
+    global nanoscipy_help_prompt_global_output
+    nanoscipy_help_prompt_global_output = prompt_id
+    return
+
+global_help_prompt(True)
+
+def plot_grid(nr=0,r=1,s=1,share=None,set_dpi=300):
     global figure_global_output
     global ax_global_output
     global figure_number_global_output
@@ -26,18 +36,18 @@ def plot_grid(nr=0,r=1,s=1,share=0,set_dpi=300):
             figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharey=True, dpi=set_dpi)
         elif share == 'xy' or share == 'yx' or share == 'both' or share == 3:
             figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True,sharey=True, dpi=set_dpi)
-        elif share == 'no' or share == 0:
+        elif share == None or share == 0:
             figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=False,sharey=False, dpi=set_dpi)
         else: 
             print('Wrong <share> key, check _help() for more information')
-            return
+            return nsh._help_runner(nanoscipy_help_prompt_global_output)
     elif r == 0 or s == 0: 
         print('Wrong <r> or <s> key, check _help() for more information')
-        return
+        return nsh._help_runner(nanoscipy_help_prompt_global_output)
+    return
 
-def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
-                  ylab=None,ms=[],lw=[],ls=[],dcol=[],
-                  plt_type=0,tight=True,mark=[],trsp=[] ,v_ax=None,
+def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,ylab=None,ms=[],lw=[],ls=[],dcol=[],
+                  plt_type=0,tight=True,mark=[],trsp=[],v_ax=None,
                   h_ax=None,no_ticks=False,share_ttl=False):
     if len(ax_global_output) != boundary_ax_global_fix:
         axs = ax_global_output.flatten()
@@ -47,10 +57,10 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     # chek for correct list input, and try fix if data-list is not in list
     if not isinstance(xs,(list,np.ndarray)):
         print('Error: Wrong <xs> key, check _help() for more information')
-        return
+        return nsh._help_runner(nanoscipy_help_prompt_global_output)
     elif any(isinstance(i, (list,np.ndarray)) for i in xs) and any(isinstance(i, (float,int,np.integer,np.float)) for i in xs):
         print('Error: <xs> key only takes uniform input types, check _help() for more information')
-        return
+        return nsh._help_runner(nanoscipy_help_prompt_global_output)
     elif not all(isinstance(i, (list,np.ndarray)) for i in xs):
         xs_fix = [xs]
     else: 
@@ -58,35 +68,30 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     if plt_type == 0 or plt_type == 'plot' or plt_type == 1 or plt_type == 'scatter':
         if not isinstance(ys,(list,np.ndarray)):
             print('Error: Wrong <ys> key, check _help() for more information')
-            return
+            return nsh._help_runner(nanoscipy_help_prompt_global_output)
         elif any(isinstance(i, (list,np.ndarray)) for i in ys) and any(isinstance(i, (float,int,np.integer,np.float)) for i in ys):
             print('Error: <ys> key only takes uniform input types, check _help() for more information')
-            return
+            return nsh._help_runner(nanoscipy_help_prompt_global_output)
         elif not all(isinstance(i, (list,np.ndarray)) for i in ys):
             ys_fix = [ys]
         else: 
             ys_fix = ys
-            
+    
     datas = len(xs_fix)
     non = np.repeat(None,datas)
-    one = np.repeat(1,datas)
-    if not dlab:
-        dlab = non
-    if not mark:
-        mark = non
-    if not ms: 
-        ms = one
-    if not lw: 
-        lw = one
-    if not mark.all():
-        mark = ['.']*datas
-    if not dcol: 
-        dcol = ['black']*datas
-    if not ls:
-        ls = ['solid']*datas
-    if not trsp: 
-        trsp = one
+    ones = np.repeat(1,datas)
     
+    opt_vars = [dlab,mark,ms,lw,dcol,ls,trsp]
+    opt_vars_default = [non,['.']*datas,ones,ones,['black']*datas,['solid']*datas,ones]
+    opt_vars_fix = []
+    for i,j in zip(opt_vars,opt_vars_default):
+        if not i:
+            opt_vars_fix.append(j)
+        elif not isinstance(i, (list,np.ndarray)):
+            opt_vars_fix.append([i])
+        else:
+            opt_vars_fix.append(i)
+            
     # set title according to share_ttl
     if share_ttl == False:
         axs[p].set_title(ttl) 
@@ -95,13 +100,13 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
         
     ds = range(datas) 
     if plt_type == 0 or plt_type == 'plot': 
-        [axs[p].plot(xs_fix[n],ys_fix[n],c=dcol[n],label=dlab[n],linewidth=lw[n],markersize=ms[n],
-                     marker=mark[n],linestyle=ls[n],alpha=trsp[n]) for n in ds]  
+        [axs[p].plot(xs_fix[n],ys_fix[n],c=opt_vars_fix[4][n],label=opt_vars_fix[0][n],linewidth=opt_vars_fix[3][n],markersize=opt_vars_fix[2][n],
+                     marker=opt_vars_fix[1][n],linestyle=opt_vars_fix[5][n],alpha=opt_vars_fix[6][n]) for n in ds]  
     if plt_type == 1 or plt_type == 'scatter':
-        [axs[p].scatter(xs_fix[n],ys_fix[n],c=dcol[n],label=dlab[n],s=ms[n],alpha=trsp[n]) for n in ds]  
+        [axs[p].scatter(xs_fix[n],ys_fix[n],c=opt_vars_fix[4][n],label=opt_vars_fix[0][n],s=opt_vars_fix[2][n],alpha=opt_vars_fix[6][n]) for n in ds]  
     if plt_type == 2 or plt_type == 'qqplot':
-        [qqplot(data=xs_fix[n],line='r',ax=axs[p],marker=mark[n],color=dcol[n],label=dlab[n],alpha=trsp[n]) for n in ds]
-        axs[p+1].boxplot([xs_fix[n] for n in ds],labels=[dlab[n] for n in ds]) 
+        [qqplot(data=xs_fix[n],line='r',ax=axs[p],marker=opt_vars_fix[1][n],color=opt_vars_fix[4][n],label=opt_vars_fix[0][n],alpha=opt_vars_fix[6][n]) for n in ds]
+        axs[p+1].boxplot([xs_fix[n] for n in ds],labels=[opt_vars_fix[0][n] for n in ds]) 
     
     # fix labels according to share_axis_bool_output
     if share_axis_bool_output == 'x' or share_axis_bool_output == 1:
@@ -125,27 +130,23 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,
     if no_ticks == True:
         axs[p].set_yticks([])
         axs[p].set_xticks([])
-        
-    # define preset axis, according to input
-    if h_ax == None:
-        h_ax == axs[p].axhline(visible=False)
-    elif h_ax == 0:
+    
+    if h_ax == 0:
         axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='solid',linewidth=0.5,alpha=1)
     elif h_ax == 1:
         axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='dashed',linewidth=1,alpha=0.5)
     elif h_ax == 2: 
         axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='dotted',linewidth=1,alpha=1)
-    if v_ax == None:
-        v_ax = axs[p].axvline(visible=False)
-    elif v_ax == 0:
-        axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='solid',linewidth=0.5,alpha=1)
+    if v_ax == 0:
+        axs[p].axhline(x=0,ymin=0,ymax=1,color='black',linestyle='solid',linewidth=0.5,alpha=1)
     elif v_ax == 1:
         axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='dashed',linewidth=1,alpha=0.5) 
     elif v_ax == 2:
-        axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='dotted',linewidth=1,alpha=1)
+        axs[p].axhline(x=0,ymin=0,ymax=1,color='black',linestyle='dotted',linewidth=1,alpha=1)
     
     # set legends
     axs[p].legend() 
+    return
         
 def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None): 
     if path == None: 
@@ -166,7 +167,7 @@ def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None):
         data = pd.read_csv(path,header=cut_rows,usecols=set_cols, sep=separator).to_numpy()
     else:
         print('Error: Selected file type is not valid (use help function to see allowed file types)')
-        return
+        return nsh._help_runner(nanoscipy_help_prompt_global_output)
     return data
 
 def fit_data(function=None,x_list=[],y_list=[],g_list=[],rel_var=False,N=100,mxf=5000):
@@ -189,7 +190,7 @@ def fit_data(function=None,x_list=[],y_list=[],g_list=[],rel_var=False,N=100,mxf
     elif len(popt) == 7:
         ys_fit = function(xs_fit,popt[0],popt[1],popt[2],popt[3],popt[4],popt[5],popt[6])
     else: 
-        print('Error: Too many constants to fit')
+        print('Error: Too many constants to fit (max is 7)')
         return
     return popt, pcov_fix, pstd, xs_fit, ys_fit
 
