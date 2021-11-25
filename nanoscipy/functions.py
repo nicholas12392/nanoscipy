@@ -170,7 +170,7 @@ def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None):
         return nsh._help_runner(nanoscipy_help_prompt_global_output)
     return data
 
-def fit_data(function=None,x_list=[],y_list=[],g_list=[],rel_var=False,N=100,mxf=5000):
+def fit_data(function=None,x_list=[],y_list=[],g_list=[],rel_var=False,N=100,mxf=1000):
     popt, pcov = curve_fit(f=function,xdata=x_list,ydata=y_list,p0=g_list,absolute_sigma=rel_var,maxfev=mxf)
     pcov_fix = [pcov[i][i] for i in range(len(popt))]
     pstd = [np.sqrt(pcov_fix[i]) for i in range(len(popt))]
