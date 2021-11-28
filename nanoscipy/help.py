@@ -230,6 +230,10 @@ def _help_file_select():
         print('<separator> define the deliminter of the data set (if nescessary)')
         print('--- Input: string')
         print('--- Default: if .csv; \',\', if .txt; \'\\t\'')
+        print()
+        print('<py_axlist> constructs a regular python list, consisting of lists of all values of a certian variable, instead of gaining rows of value-sets')
+        print('--- Input: bool')
+        print('--- Default: False')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
             return _help_terminator()
