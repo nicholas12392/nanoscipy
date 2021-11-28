@@ -148,7 +148,7 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,ylab=None,ms=[],lw=[],l
     axs[p].legend() 
     return
         
-def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None): 
+def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None,py_axlist=False): 
     if path == None: 
         print('Error: No path selected')
         return
@@ -168,7 +168,11 @@ def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None):
     else:
         print('Error: Selected file type is not valid (use help function to see allowed file types)')
         return nsh._help_runner(nanoscipy_help_prompt_global_output)
-    return data
+    if py_axlist == True: 
+        data_axlist = [data[:,i].tolist() for i in range(len(data[0]))]
+        return data, data_axlist
+    elif py_axlist == False: 
+        return data
 
 def fit_data(function=None,x_list=[],y_list=[],g_list=[],rel_var=False,N=100,mxf=1000):
     popt, pcov = curve_fit(f=function,xdata=x_list,ydata=y_list,p0=g_list,absolute_sigma=rel_var,maxfev=mxf)
