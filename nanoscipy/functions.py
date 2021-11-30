@@ -36,7 +36,7 @@ def plot_grid(nr=0,r=1,s=1,share=None,set_dpi=300):
             figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharey=True, dpi=set_dpi)
         elif share == 'xy' or share == 'yx' or share == 'both' or share == 3:
             figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=True,sharey=True, dpi=set_dpi)
-        elif share == None or share == 0:
+        elif share == None or share == 0 or not share:
             figure_global_output, ax_global_output = plt.subplots(r,s,num=nr,sharex=False,sharey=False, dpi=set_dpi)
         else: 
             print('Wrong <share> key, check _help() for more information')
