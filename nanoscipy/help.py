@@ -234,6 +234,10 @@ def _help_file_select():
         print('<py_axlist> constructs a regular python list, consisting of lists of all values of a certian variable, instead of gaining rows of value-sets')
         print('--- Input: bool')
         print('--- Default: False')
+        print()
+        print('<as_matrix> allows for loading of data as a matrix via numpy.loadtxt; note that this is only valid for .txt files')
+        print('--- Input: bool')
+        print('--- Default: False')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
             return _help_terminator()
