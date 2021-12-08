@@ -148,7 +148,7 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,ylab=None,ms=[],lw=[],l
     axs[p].legend() 
     return
         
-def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None,py_axlist=False): 
+def file_select(path=None,set_cols=[0,1],cut_rows=0,separator=None,py_axlist=False,as_matrix=False): 
     if path == None: 
         print('Error: No path selected')
         return
@@ -160,11 +160,17 @@ def file_select(path=None,set_cols=[0,1],cut_rows=1,separator=None,py_axlist=Fal
         if file_extension == '.csv':
             separator = ','
         elif file_extension == '.txt':
-            separator = '\t'
+            if as_matrix == True:
+                separator = None
+            elif as_matrix == False:
+                separator = '\t'
     if file_extension == '.excel' or file_extension == '.xlsx':
         data = pd.read_excel(path,header=cut_rows,usecols=set_cols).to_numpy()
     elif file_extension == '.csv' or file_extension == '.txt':
-        data = pd.read_csv(path,header=cut_rows,usecols=set_cols, sep=separator).to_numpy()
+        if as_matrix == True:
+            data = np.loadtxt(fname=path,delimiter=separator,skiprows=cut_rows)
+        elif as_matrix == False:
+            data = pd.read_csv(path,header=cut_rows,usecols=set_cols, sep=separator).to_numpy()
     else:
         print('Error: Selected file type is not valid (use help function to see allowed file types)')
         return nsh._help_runner(nanoscipy_help_prompt_global_output)
