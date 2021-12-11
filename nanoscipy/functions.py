@@ -105,8 +105,17 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,ylab=None,ms=[],lw=[],l
     if plt_type == 1 or plt_type == 'scatter':
         [axs[p].scatter(xs_fix[n],ys_fix[n],c=opt_vars_fix[4][n],label=opt_vars_fix[0][n],s=opt_vars_fix[2][n],alpha=opt_vars_fix[6][n]) for n in ds]  
     if plt_type == 2 or plt_type == 'qqplot':
-        [qqplot(data=xs_fix[n],line='r',ax=axs[p],marker=opt_vars_fix[1][n],color=opt_vars_fix[4][n],label=opt_vars_fix[0][n],alpha=opt_vars_fix[6][n]) for n in ds]
-        axs[p+1].boxplot([xs_fix[n] for n in ds],labels=[opt_vars_fix[0][n] for n in ds]) 
+        if isinstance(xs_fix,list):
+            np_xs_fix = np.asarray(xs_fix)
+        elif isinstance(xs_fix,np.ndarray):
+            np_xs_fix = xs_fix
+        if not ls:
+            line_type = ['r']*datas
+        elif not isinstance(ls, list):
+            line_type = [ls]
+        else:
+            line_type = ls
+        [qqplot(np_xs_fix[n],line=line_type[n],ax=axs[p],marker=opt_vars_fix[1][n],color=opt_vars_fix[4][n],label=opt_vars_fix[0][n],alpha=opt_vars_fix[6][n]) for n in ds]
     
     # fix labels according to share_axis_bool_output
     if share_axis_bool_output == 'x' or share_axis_bool_output == 1:
