@@ -147,7 +147,7 @@ def _help_plot_data():
         print('--- Default: \'black\'')
         print()
         print('<plt_type> defines the plot type')
-        print('--- Input: if 0 or \'plot\'; plots data as axs[].plot(), if 1 or \'scatter\' plots as axs.scatter(), 3 or \'qqplot\' plots a qqplot in axs[], and a axs[+1].boxplot()')
+        print('--- Input: if 0 or \'plot\'; plots data as axs[<p>].plot(), if 1 or \'scatter\' plots as axs.scatter(), 3 or \'qqplot\' plots a qqplot')
         print('--- Default: 0')
         print()
         print('<tight> fixes tight layout according to bool')
@@ -193,6 +193,7 @@ def _help_plot_data():
     elif help_id_inner == '3':
         print('-------- Notes --------')
         print('It is important to note that this function is based on matplotlib.pyplot, and will therefore work with additions such as .set_xlim or .vlines etc.')
+        print('Note further that when selecting the qqplot <plt_type>, the <xs> list will automatically be converted to a numpy.ndarray, if not already this type.')
         help_terminator = input('Terminate _help(): 0, back to parent: -1: ')
         if help_terminator == '0':
             return _help_terminator()
