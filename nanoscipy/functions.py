@@ -157,15 +157,47 @@ def plot_data(p=0,xs=[],ys=[],ttl=None,dlab=[],xlab=None,ylab=None,ms=[],lw=[],l
     axs[p].legend() 
     return
         
+def float_fix(potential_float):
+    try:
+        set_float = float(potential_float)
+        return set_float
+    except ValueError:
+        return potential_float
+     
 def file_select(path=None,set_cols=[0,1],cut_rows=0,separator=None,py_axlist=False,as_matrix=False): 
-    if path == None: 
-        print('Error: No path selected')
-        return
-    else:
-        filename, file_extension = os.path.splitext(path)
+    """
+    This function selects and extracts data, from a file at a specified path. It can be useful to index multiple data files in a way, that allows for easy extration in a for-loop.
+
+    Parameters
+    ----------
+    path : string
+        Defines the file path, note that you might want to do this as an r-string (and if for-loop; part as an f-string).
+    set_cols : list of ints, optional
+        List of the column indexes you want extracted (note that this is not a range, but specific selection). The default is [0,1].
+    cut_rows : int or list, optional
+        If integer; cut from row 0 to specified integer, if list; cut the specified rows from the list. The default is 0.
+    separator : string, optional
+        Define the deliminter of the data set (if nescessary). The default is if .csv; \',\', if .txt; \'\\t\'.
+    py_axlist : bool, optional
+        Constructs a regular python list, consisting of lists of all values of a certian variable, instead of gaining rows of value-sets. The default is False.
+    as_matrix : bool, optional
+        Allows for loading of data as a matrix via numpy.loadtxt; note that this is only valid for .txt files. The default is False.
+
+    Returns
+    -------
+    data : list
+        List (or list of lists) with the data from the selected file under the 
+        specified conditions.
+    data_axlist : list
+        Instead of containing data points from the data set, contains what corresponds to an x-, y-, z- etc. lists. Only relavant if py_axlist = True; then the function yields both data and data_axlist.
+
+    """
+    assert path, 'No path selected.'
+
+    filename, file_extension = os.path.splitext(path)
     
     # try to define standard delimiter, if none is defined
-    if separator == None: 
+    if not separator: 
         if file_extension == '.csv':
             separator = ','
         elif file_extension == '.txt':
@@ -185,7 +217,8 @@ def file_select(path=None,set_cols=[0,1],cut_rows=0,separator=None,py_axlist=Fal
         return nsh._help_runner(nanoscipy_help_prompt_global_output)
     if py_axlist == True: 
         data_axlist = [data[:,i].tolist() for i in range(len(data[0]))]
-        return data, data_axlist
+        data_axlist_fix = [[float_fix(i) for i in data_axlist[j]] for j in range(len(data_axlist))]
+        return data, data_axlist_fix
     elif py_axlist == False: 
         return data
 
