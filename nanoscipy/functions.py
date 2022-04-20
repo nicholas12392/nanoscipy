@@ -27,6 +27,31 @@ from scipy.optimize import curve_fit
 # import csv
 
 def plot_grid(plot_nr=None,plot_row=None,plot_col=None,share=0,set_dpi=300,fig_size=(6,2.5)):
+    '''
+    Defines a grid of figures to plot in with plot_data().
+
+    Parameters
+    ----------
+    plot_nr : int, optional
+        The specific figure-unit number (plot_data() inherits this value). The default is 0.
+    plot_row : int, optional
+        Defines the numnber of rows of plots within the figure. The default is 1.
+    plot_col : TYPE, optional
+        Defines the numnber of columns of plots within the figure. 
+        The default is 1.
+    share : int or string, optional
+        0; shares no axis, 'x' or 1, shares x-axis amongst different plots, 'y'; 
+        shares y-axis. 'xy', 'yx', 'both', 3; shares both axis. The default is 0.
+    set_dpi : int, optional
+        DESCRIPTION. The default is 300.
+    fig_size : list, optional
+        Set hight and width for the figure. The default is (6,2.5).
+
+    Returns
+    -------
+    Global variables used by plot_data().
+
+    '''
     global figure_global_output
     global ax_global_output
     global figure_number_global_output
