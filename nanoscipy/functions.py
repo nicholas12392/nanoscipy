@@ -16,15 +16,22 @@ fit_data()
 stepFinder()
 '''
 
+import statistics as sts
+import os
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import statistics as sts
-import os
 from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
 # from itertools import chain
 # import csv
+
+standardColorsHex = ['#5B84B1FF','#FC766AFF','#5F4B8BFF','#E69A8DFF',
+                     '#42EADDFF','#CDB599FF','#00A4CCFF','#F95700FF',
+                     '#00203FFF','#ADEFD1FF','#F4DF4EFF','#949398FF',
+                     '#ED2B33FF','#D85A7FFF','#2C5F2D','#97BC62FF',
+                     '#00539CFF','#EEA47FFF','#D198C5FF','#E0C568FF']
+# from https://www.designwizard.com/blog/design-trends/colour-combination
 
 def plot_grid(plot_nr=None,plot_row=None,plot_col=None,share=0,set_dpi=300,fig_size=(6,2.5)):
     '''
@@ -33,17 +40,20 @@ def plot_grid(plot_nr=None,plot_row=None,plot_col=None,share=0,set_dpi=300,fig_s
     Parameters
     ----------
     plot_nr : int, optional
-        The specific figure-unit number (plot_data() inherits this value). The default is 0.
+        The specific figure-unit number (plot_data() inherits this value).
+        The default is 0.
     plot_row : int, optional
-        Defines the numnber of rows of plots within the figure. The default is 1.
+        Defines the numnber of rows of plots within the figure. The default is
+        1.
     plot_col : TYPE, optional
-        Defines the numnber of columns of plots within the figure. 
+        Defines the numnber of columns of plots within the figure.
         The default is 1.
     share : int or string, optional
-        0; shares no axis, 'x' or 1, shares x-axis amongst different plots, 'y'; 
-        shares y-axis. 'xy', 'yx', 'both', 3; shares both axis. The default is 0.
+        0; shares no axis, 'x' or 1, shares x-axis amongst different plots,
+        'y'; shares y-axis. 'xy', 'yx', 'both', 3; shares both axis.
+        The default is 0.
     set_dpi : int, optional
-        DESCRIPTION. The default is 300.
+        Sets dpi for the entire figure. The default is 300.
     fig_size : list, optional
         Set hight and width for the figure. The default is (6,2.5).
 
@@ -52,78 +62,95 @@ def plot_grid(plot_nr=None,plot_row=None,plot_col=None,share=0,set_dpi=300,fig_s
     Global variables used by plot_data().
 
     '''
-    global figure_global_output
-    global ax_global_output
-    global figure_number_global_output
-    global share_axis_bool_output
-    global boundary_ax_global_fix
+    global __FIGURE_GLOBAL_OUTPUT__
+    global __AX_GLOBAL_OUTPUT__
+    global __FIGURE_NUMBER_GLOBAL_OUTPUT__
+    global __SHARE_AXIS_BOOL_OUTPUT__
+    global __BOUNDARY_AX_GLOBAL_FIX__
 
-    assert share in ('x',1,'y',2,'xy','yx','both',3,0), f'share={share} is invalid.'
-    assert plot_row !=0, f'r={plot_row} is invalid.'
-    assert plot_col !=0, f's={plot_col} is invalid.'
+    if share not in ('x',1,'y',2,'xy','yx','both',3,0):
+        raise ValueError(f'share={share} is invalid.')
+
+    if plot_row == 0:
+        raise ValueError(f'r={plot_row} is invalid.')
+
+    if plot_col == 0:
+        raise ValueError(f's={plot_col} is invalid.')
+
     if not plot_nr:
         plot_nr = 0
+
     if not plot_row:
         plot_row = 1
+
     if not plot_col:
         plot_col = 1
+
     if plot_row == 1 and plot_col == 1:
-        figure_global_output, _ax_global_output = plt.subplots(num=plot_nr, dpi=set_dpi,figsize=fig_size)
-        ax_global_output = [_ax_global_output]
+        __FIGURE_GLOBAL_OUTPUT__, temp_ax_global_output = plt.subplots(num=plot_nr, dpi=set_dpi,figsize=fig_size)
+        __AX_GLOBAL_OUTPUT__ = [temp_ax_global_output]
     if plot_row > 1 or plot_col > 1:
         if share in ('x',1):
-            figure_global_output,ax_global_output=plt.subplots(plot_row,plot_col,num=plot_nr,sharex=True, dpi=set_dpi)
+            __FIGURE_GLOBAL_OUTPUT__,__AX_GLOBAL_OUTPUT__=plt.subplots(plot_row,plot_col,num=plot_nr,sharex=True, dpi=set_dpi)
         elif share in ('y',2):
-            figure_global_output, ax_global_output = plt.subplots(plot_row,plot_col,num=plot_nr,sharey=True, dpi=set_dpi)
+            __FIGURE_GLOBAL_OUTPUT__,__AX_GLOBAL_OUTPUT__= plt.subplots(plot_row,plot_col,num=plot_nr,sharey=True, dpi=set_dpi)
         elif share in ('xy','yx','both',3):
-            figure_global_output, ax_global_output = plt.subplots(plot_row,plot_col,num=plot_nr,sharex=True,sharey=True, dpi=set_dpi)
+            __FIGURE_GLOBAL_OUTPUT__,__AX_GLOBAL_OUTPUT__= plt.subplots(plot_row,plot_col,num=plot_nr,sharex=True,sharey=True, dpi=set_dpi)
         elif share == 0:
-            figure_global_output, ax_global_output = plt.subplots(plot_row,plot_col,num=plot_nr,sharex=False,sharey=False, dpi=set_dpi)
-    boundary_ax_global_fix = plot_row*plot_col
-    figure_number_global_output = plot_nr
-    share_axis_bool_output = share
+            __FIGURE_GLOBAL_OUTPUT__,__AX_GLOBAL_OUTPUT__= plt.subplots(plot_row,plot_col,num=plot_nr,sharex=False,sharey=False, dpi=set_dpi)
+    __BOUNDARY_AX_GLOBAL_FIX__ = plot_row*plot_col
+    __FIGURE_NUMBER_GLOBAL_OUTPUT__ = plot_nr
+    __SHARE_AXIS_BOOL_OUTPUT__ = share
 
 def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=None,dcol=None,
                   plt_type=0,tight=True,mark=None,trsp=None,v_ax=None,
                   h_ax=None,no_ticks=False,share_ttl=False,legend_size=7):
-    if len(ax_global_output) != boundary_ax_global_fix:
-        axs = ax_global_output.flatten()
+    if len(__AX_GLOBAL_OUTPUT__) != __BOUNDARY_AX_GLOBAL_FIX__:
+        axs = __AX_GLOBAL_OUTPUT__.flatten()
     else:
-        axs = ax_global_output
+        axs = __AX_GLOBAL_OUTPUT__
+
     # chek for correct list input, and try fix if data-list is not in list
-    assert isinstance(xs,(list,np.ndarray)), 'Wrong <xs> key, check _help() for more information.'
-        # print('Error: ')
-        # return nsh._help_runner(nanoscipy_help_prompt_global_output)
-    if any(isinstance(i, (list,np.ndarray)) for i in xs) and any(isinstance(i, (float,int,np.integer,np.float)) for i in xs):
-        print('Error: <xs> key only takes uniform input types, check _help() for more information')
-        return
+    if not isinstance(xs,(list,np.ndarray)):
+        raise ValueError('xs must be a list or numpy.ndarray.')
+
+    if (any(isinstance(i, (list,np.ndarray)) for i in xs) and
+        any(isinstance(i, (float,int,np.integer,np.float)) for i in xs)):
+        raise ValueError(
+            'Values of x-list must be of type: int, float, numpy.integer, or numpy.float.')
+
     if not all(isinstance(i, (list,np.ndarray)) for i in xs):
         xs_fix = [xs]
     else:
         xs_fix = xs
+
     if plt_type in (0,'plot',1,'scatter'):
-        # if not isinstance(ys,(list,np.ndarray)):
-        #     print('Error: Wrong <ys> key, check _help() for more information')
-        #     return
-        assert isinstance(ys,(list,np.ndarray)), 'Wrong <ys> key'
-        if any(isinstance(i, (list,np.ndarray)) for i in ys) and any(isinstance(i, (float,int,np.integer,np.float)) for i in ys):
-            print('Error: <ys> key only takes uniform input types, check _help() for more information')
-            return
+        if not isinstance(ys,(list,np.ndarray)):
+            raise ValueError('xs must be a list or numpy.ndarray.')
+        if (any(isinstance(i, (list,np.ndarray)) for i in ys) and
+                    any(isinstance(i, (float,int,np.integer,np.float))
+                        for i in ys)):
+            raise ValueError(
+                'Values of y-list must be of type: int, float, numpy.integer, or numpy.float.')
         if not all(isinstance(i, (list,np.ndarray)) for i in ys):
             ys_fix = [ys]
         else:
             ys_fix = ys
-        # if len(xs_fix) != len(ys_fix):
-        #     return print('<xs> and <ys> does not match. Please provide appropriate lists.')
-        assert len(xs_fix) == len(ys_fix), '<xs> and <ys> does not match. Please provide appropriate lists.'
+        if len(xs_fix) != len(ys_fix):
+            raise ValueError('len(xs) and len(ys) does not match.')
 
-    datas = len(xs_fix)
-    non = np.repeat(None,datas)
-    ones = np.repeat(1,datas)
+    data_length = len(xs_fix)
+    non = np.repeat(None,data_length)
+    ones = np.repeat(1,data_length)
 
+    if len(standardColorsHex) <= data_length:
+        raise AssertionError(
+            'Too many standard colors needed, use costum colors via dcol.')
+
+    color_list = standardColorsHex[0:data_length]
     opt_vars = [dlab,mark,ms,lw,dcol,ls,trsp]
-    opt_vars_default = [non,['.']*datas,ones,ones,['black']*datas,
-                        ['solid']*datas,ones]
+    opt_vars_default = [non,['.']*data_length,ones,ones,color_list,
+                        ['solid']*data_length,ones]
     opt_vars_fix = []
     for i,j in zip(opt_vars,opt_vars_default):
         if not i:
@@ -137,9 +164,9 @@ def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=
     if share_ttl is False:
         axs[p].set_title(ttl)
     elif share_ttl is True:
-        figure_global_output.suptitle(ttl)
+        __FIGURE_GLOBAL_OUTPUT__.suptitle(ttl)
 
-    ds = range(datas)
+    ds = range(data_length)
     if plt_type in (0,'plot'):
         [axs[p].plot(xs_fix[n],ys_fix[n],c=opt_vars_fix[4][n],
                      label=opt_vars_fix[0][n],linewidth=opt_vars_fix[3][n],
@@ -156,7 +183,7 @@ def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=
         elif isinstance(xs_fix,np.ndarray):
             np_xs_fix = xs_fix
         if not ls:
-            line_type = ['r']*datas
+            line_type = ['r']*data_length
         elif not isinstance(ls, list):
             line_type = [ls]
         else:
@@ -166,17 +193,17 @@ def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=
                 label=opt_vars_fix[0][n],alpha=opt_vars_fix[6][n]) for n in ds]
         # axs[p].boxplot([xs_fix[n] for n in ds],labels=[opt_vars_fix[0][n] for n in ds])
 
-    # fix labels according to share_axis_bool_output
-    if share_axis_bool_output in ('x',1):
+    # fix labels according to __SHARE_AXIS_BOOL_OUTPUT__
+    if __SHARE_AXIS_BOOL_OUTPUT__ in ('x',1):
         axs[-1].set_xlabel(xlab)
         axs[p].set_ylabel(ylab)
-    elif share_axis_bool_output in ('y',2):
+    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('y',2):
         axs[p].set_xlabel(xlab)
         axs[0].set_ylabel(ylab)
-    elif share_axis_bool_output in ('xy','yx','both',3):
+    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('xy','yx','both',3):
         axs[-1].set_xlabel(xlab)
         axs[0].set_ylabel(ylab)
-    elif share_axis_bool_output in ('no',0):
+    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('no',0):
         axs[p].set_xlabel(xlab)
         axs[p].set_ylabel(ylab)
 
@@ -211,9 +238,23 @@ def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=
     # set legends
     axs[p].legend(fontsize=legend_size)
     plt.rcParams.update({'font.family':'Times New Roman'})
-    return
 
 def string_to_float(potential_float):
+    '''
+    Converts string to float if possible (that is unless ValueError is
+                                          encountered).
+
+    Parameters
+    ----------
+    potential_float : str
+        String to be converted to float.
+
+    Returns
+    -------
+    float or str
+        If successful, input is now float, if unsuccessful, str is still str.
+
+    '''
     try:
         set_float = float(potential_float)
         return set_float
@@ -277,7 +318,8 @@ def file_select(path,set_cols=None,cut_rows=None,separator=None,py_axlist=True,
     allowed_extensions = ['.csv','.txt','.excel','.xlsx','.dat']
     file_extension = os.path.splitext(path)[1]
 
-    assert file_extension in allowed_extensions, f'Selected file type {file_extension} is invalid'
+    if file_extension not in allowed_extensions:
+        raise ValueError(f'Selected file type {file_extension} is invalid.')
     # try to define standard delimiter, if none is defined
     if not separator:
         if file_extension == '.csv':
@@ -288,20 +330,25 @@ def file_select(path,set_cols=None,cut_rows=None,separator=None,py_axlist=True,
             elif as_matrix is False:
                 separator = '\t'
     if file_extension in ('.excel','.xlsx'):
-        data = pd.read_excel(path,header=cut_rows,usecols=set_cols_fixed).to_numpy()
+        data = pd.read_excel(path,header=cut_rows,usecols=set_cols_fixed
+                             ).to_numpy()
     elif file_extension in ('.csv','.txt','.dat'):
         if as_matrix is True:
             data = np.loadtxt(fname=path,delimiter=separator,skiprows=cut_rows)
         elif as_matrix is False:
-            data = pd.read_csv(path,header=cut_rows,usecols=set_cols_fixed, sep=separator).to_numpy()
+            data = pd.read_csv(path,header=cut_rows,usecols=set_cols_fixed,
+                               sep=separator).to_numpy()
     if py_axlist is True:
         data_axlist = [data[:,i].tolist() for i in range(len(data[0]))]
-        data_axlist_fix = [[string_to_float(i) for i in data_axlist[j]] for j in range(len(data_axlist))]
-        return data_axlist_fix
+        data_axlist_fix = [[string_to_float(i) for i in data_axlist[j]]
+                           for j in range(len(data_axlist))]
+        result = data_axlist_fix
     if py_axlist is False:
-        return data
+        result = data
+    return result
 
-def fit_data(function,x_list,y_list,g_list,rel_var=False,N=None,mxf=1000,extMin=None,extMax=None):
+def fit_data(function,x_list,y_list,g_list,rel_var=False,N=None,mxf=None,
+             extMin=None,extMax=None):
     """
     Fits data to the given general function, and outputs the parameters for
     the specific function.
@@ -346,26 +393,30 @@ def fit_data(function,x_list,y_list,g_list,rel_var=False,N=None,mxf=1000,extMin=
         List of fitted y-values.
 
     """
-    assert function, 'No function provided to fit.'
-    assert x_list, 'No x-list provided.'
-    assert y_list, 'No y-list provided.'
-    assert g_list, 'No guess-list provided.'
+    if not function:
+        raise ValueError('No function provided to fit.')
+    if not x_list:
+        raise ValueError('No x-list provided.')
+    if not y_list:
+        raise ValueError('No y-list provided.')
+    if not g_list:
+        raise ValueError('No guess-list provided.')
+
     if not N:
         N = len(x_list)
     if not extMin:
-        xMin = np.min(x_list)
-    else:
-        xMin = extMin
+        extMin = np.min(x_list)
     if not extMax:
-        xMax = np.max(x_list)
-    else:
-        xMax = extMax
+        extMax = np.max(x_list)
+    if not mxf:
+        mxf = 1000
+
     popt, pcov = curve_fit(f=function,xdata=x_list,ydata=y_list,p0=g_list,
                            absolute_sigma=rel_var,maxfev=mxf)
     pcov_fix = [pcov[i][i] for i in range(len(popt))]
     pstd = [np.sqrt(pcov_fix[i]) for i in range(len(popt))]
 
-    xs_fit = np.linspace(xMin,xMax,N)
+    xs_fit = np.linspace(extMin,extMax,N)
     if len(popt) == 1:
         ys_fit = function(xs_fit,popt[0])
     elif len(popt) == 2:
@@ -385,16 +436,16 @@ def fit_data(function,x_list,y_list,g_list,rel_var=False,N=None,mxf=1000,extMin=
     assert len(popt)<8, 'Too many constants to fit (max is 7).'
     return popt, pcov_fix, pstd, xs_fit, ys_fit
 
-def stepFinder(xData,yData,delta=30,lin=0.005,err=0.005):
+def step_finder(x_data,y_data,delta=30,lin=0.005,err=0.005):
     '''
     Determine averages of linear-horizontal data determined by delta, with a
     set horizontal liniarity and maximum error.
 
     Parameters
     ----------
-    xData : list
+    x_data : list
         List of x-values in data set.
-    yData : list
+    y_data : list
         list of y-values in data set.
     delta : int, optional
         Range for amount of required points for the linear fit. The default is
@@ -406,68 +457,71 @@ def stepFinder(xData,yData,delta=30,lin=0.005,err=0.005):
 
     Returns
     -------
-    xsPoint : list
+    xs_point : list
         x-values for determined points.
-    ysPoint : list
+    ys_point : list
         y-values for determined points.
 
     '''
-    linFit = lambda x,a,b: a*x+b
-    i = 0
-    f = i+delta
-    x_test, y_test = xData[i:f], yData[i:f]
-    popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linFit,x_test,y_test,[0,1])
-    xsPoint, ysPoint = [], []
-    while f<len(xData):
-        i += 1
-        f = i+delta
-        x_test, y_test = xData[i:f], yData[i:f]
-        popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linFit,x_test,y_test,
-                                                        [0,1])
+    linear_fit = lambda x,a,b: a*x+b
+    initial_point = 0
+    final_point = initial_point+delta
+    x_test, y_test = x_data[initial_point:final_point],y_data[initial_point:
+                                                              final_point]
+    popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit,x_test,y_test,
+                                                    [0,1])
+    xs_point, ys_point = [], []
+    while final_point<len(x_data):
+        initial_point += 1
+        final_point = initial_point+delta
+        x_test, y_test = x_data[initial_point:final_point],y_data[
+            initial_point:final_point]
+        popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit,x_test,
+                                                        y_test,[0,1])
         if abs(popt[0])<lin and pstd[0]<err:
-            xsPoint.append(sts.mean(xs_fit))
-            ysPoint.append(sts.mean(ys_fit))
-    return xsPoint, ysPoint
+            xs_point.append(sts.mean(xs_fit))
+            ys_point.append(sts.mean(ys_fit))
+    return xs_point, ys_point
 
-def data_extrema(data,pos_index=False,pos_range=None):
-    """
-    Determines extremas in a selected region. Can also identify the
-    list-position of the extrema. Note that by extrema; it finds only the
-    global extremas, as these are the maximum and minimum values of the data
-    set.
+# def data_extrema(data,pos_index=False,pos_range=None):
+#     """
+#     Determines extremas in a selected region. Can also identify the
+#     list-position of the extrema. Note that by extrema; it finds only the
+#     global extremas, as these are the maximum and minimum values of the data
+#     set.
 
-    Parameters
-    ----------
-    data : list
-        Data for determining extremas.
-    pos_index : bool, optional
-        Determines whether the extremas should have their list positions
-        indexed. This yields an additional output list; index_list.
-        The default is False.
-    pos_range : list of ints, optional
-        Needs a starting point and an ending point, defining the range.
-        The default is [0,-1].
+#     Parameters
+#     ----------
+#     data : list
+#         Data for determining extremas.
+#     pos_index : bool, optional
+#         Determines whether the extremas should have their list positions
+#         indexed. This yields an additional output list; index_list.
+#         The default is False.
+#     pos_range : list of ints, optional
+#         Needs a starting point and an ending point, defining the range.
+#         The default is [0,-1].
 
-    Returns
-    -------
-    min_val : int
-        The minimum of the dataset (packed as a list with the maximum).
-    max_val : int
-        The maximum of the data set (packed as a list with the minimum).
-    indes_list : list
-        Contains the index of the minimum and the maximum (in that order).
+#     Returns
+#     -------
+#     min_val : int
+#         The minimum of the data_lengthet (packed as a list with the maximum).
+#     max_val : int
+#         The maximum of the data set (packed as a list with the minimum).
+#     indes_list : list
+#         Contains the index of the minimum and the maximum (in that order).
 
-    """
+#     """
 
-    if not pos_range:
-        pos_range = [0,-1]
-    max_id = np.where(max(data[pos_range[0]:pos_range[1],1]) == data)[0][0] # index max val
-    max_val = [data[max_id,0],data[max_id,1]] # find max val coord
-    min_id = np.where(min(data[pos_range[0]:pos_range[1],1]) == data)[0][0] # index min val
-    min_val = [data[min_id,0],data[min_id,1]] # find min val coord
-    if pos_index is False:
-        return [min_val,max_val]
-    if pos_index is True:
-        index_raw = [np.where(data[:,0] == min_val[0]),np.where(data[:,0] == max_val[0])] # index extremas
-        index_list = [[index_raw[0][0][0]],[index_raw[1][0][0]]]
-        return [min_val,max_val], index_list
+#     if not pos_range:
+#         pos_range = [0,-1]
+#     max_id = np.where(max(data[pos_range[0]:pos_range[1],1]) == data)[0][0] # index max val
+#     max_val = [data[max_id,0],data[max_id,1]] # find max val coord
+#     min_id = np.where(min(data[pos_range[0]:pos_range[1],1]) == data)[0][0] # index min val
+#     min_val = [data[min_id,0],data[min_id,1]] # find min val coord
+#     if pos_index is False:
+#         return [min_val,max_val]
+#     if pos_index is True:
+#         index_raw = [np.where(data[:,0] == min_val[0]),np.where(data[:,0] == max_val[0])] # index extremas
+#         index_list = [[index_raw[0][0][0]],[index_raw[1][0][0]]]
+#         return [min_val,max_val], index_list
