@@ -1,4 +1,4 @@
-'''
+"""
 All modular functions of nanoscipy.
 
 Contains
@@ -14,7 +14,7 @@ file_select()
 fit_data()
 
 stepFinder()
-'''
+"""
 
 import statistics as sts
 import os
@@ -23,17 +23,20 @@ import pandas as pd
 import numpy as np
 from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
+
 # from itertools import chain
 # import csv
 
-standardColorsHex = ['#5B84B1FF','#FC766AFF','#5F4B8BFF','#E69A8DFF',
-                     '#42EADDFF','#CDB599FF','#00A4CCFF','#F95700FF',
-                     '#00203FFF','#ADEFD1FF','#F4DF4EFF','#949398FF',
-                     '#ED2B33FF','#D85A7FFF','#2C5F2D','#97BC62FF',
-                     '#00539CFF','#EEA47FFF','#D198C5FF','#E0C568FF']
+standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF',
+                     '#42EADDFF', '#CDB599FF', '#00A4CCFF', '#F95700FF',
+                     '#00203FFF', '#ADEFD1FF', '#F4DF4EFF', '#949398FF',
+                     '#ED2B33FF', '#D85A7FFF', '#2C5F2D', '#97BC62FF',
+                     '#00539CFF', '#EEA47FFF', '#D198C5FF', '#E0C568FF']
+
+
 # from https://www.designwizard.com/blog/design-trends/colour-combination
 
-def plot_grid(plot_nr=None,plot_row=None,plot_col=None,share=0,set_dpi=300,fig_size=(6,2.5)):
+def plot_grid(plot_nr=None, plot_row=None, plot_col=None, share=0, set_dpi=300, fig_size=(6, 2.5)):
     '''
     Defines a grid of figures to plot in with plot_data().
 
@@ -68,7 +71,7 @@ def plot_grid(plot_nr=None,plot_row=None,plot_col=None,share=0,set_dpi=300,fig_s
     global __SHARE_AXIS_BOOL_OUTPUT__
     global __BOUNDARY_AX_GLOBAL_FIX__
 
-    if share not in ('x',1,'y',2,'xy','yx','both',3,0):
+    if share not in ('x', 1, 'y', 2, 'xy', 'yx', 'both', 3, 0):
         raise ValueError(f'share={share} is invalid.')
 
     if plot_row == 0:
@@ -87,52 +90,57 @@ def plot_grid(plot_nr=None,plot_row=None,plot_col=None,share=0,set_dpi=300,fig_s
         plot_col = 1
 
     if plot_row == 1 and plot_col == 1:
-        __FIGURE_GLOBAL_OUTPUT__, temp_ax_global_output = plt.subplots(num=plot_nr, dpi=set_dpi,figsize=fig_size)
+        __FIGURE_GLOBAL_OUTPUT__, temp_ax_global_output = plt.subplots(num=plot_nr, dpi=set_dpi, figsize=fig_size)
         __AX_GLOBAL_OUTPUT__ = [temp_ax_global_output]
     if plot_row > 1 or plot_col > 1:
-        if share in ('x',1):
-            __FIGURE_GLOBAL_OUTPUT__,__AX_GLOBAL_OUTPUT__=plt.subplots(plot_row,plot_col,num=plot_nr,sharex=True, dpi=set_dpi)
-        elif share in ('y',2):
-            __FIGURE_GLOBAL_OUTPUT__,__AX_GLOBAL_OUTPUT__= plt.subplots(plot_row,plot_col,num=plot_nr,sharey=True, dpi=set_dpi)
-        elif share in ('xy','yx','both',3):
-            __FIGURE_GLOBAL_OUTPUT__,__AX_GLOBAL_OUTPUT__= plt.subplots(plot_row,plot_col,num=plot_nr,sharex=True,sharey=True, dpi=set_dpi)
+        if share in ('x', 1):
+            __FIGURE_GLOBAL_OUTPUT__, __AX_GLOBAL_OUTPUT__ = plt.subplots(plot_row, plot_col, num=plot_nr, sharex=True,
+                                                                          dpi=set_dpi)
+        elif share in ('y', 2):
+            __FIGURE_GLOBAL_OUTPUT__, __AX_GLOBAL_OUTPUT__ = plt.subplots(plot_row, plot_col, num=plot_nr, sharey=True,
+                                                                          dpi=set_dpi)
+        elif share in ('xy', 'yx', 'both', 3):
+            __FIGURE_GLOBAL_OUTPUT__, __AX_GLOBAL_OUTPUT__ = plt.subplots(plot_row, plot_col, num=plot_nr, sharex=True,
+                                                                          sharey=True, dpi=set_dpi)
         elif share == 0:
-            __FIGURE_GLOBAL_OUTPUT__,__AX_GLOBAL_OUTPUT__= plt.subplots(plot_row,plot_col,num=plot_nr,sharex=False,sharey=False, dpi=set_dpi)
-    __BOUNDARY_AX_GLOBAL_FIX__ = plot_row*plot_col
+            __FIGURE_GLOBAL_OUTPUT__, __AX_GLOBAL_OUTPUT__ = plt.subplots(plot_row, plot_col, num=plot_nr, sharex=False,
+                                                                          sharey=False, dpi=set_dpi)
+    __BOUNDARY_AX_GLOBAL_FIX__ = plot_row * plot_col
     __FIGURE_NUMBER_GLOBAL_OUTPUT__ = plot_nr
     __SHARE_AXIS_BOOL_OUTPUT__ = share
 
-def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=None,dcol=None,
-                  plt_type=0,tight=True,mark=None,trsp=None,v_ax=None,
-                  h_ax=None,no_ticks=False,share_ttl=False,legend_size=7):
+
+def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=None, ls=None, dcol=None,
+              plt_type=0, tight=True, mark=None, trsp=None, v_ax=None,
+              h_ax=None, no_ticks=False, share_ttl=False, legend_size=7):
     if len(__AX_GLOBAL_OUTPUT__) != __BOUNDARY_AX_GLOBAL_FIX__:
         axs = __AX_GLOBAL_OUTPUT__.flatten()
     else:
         axs = __AX_GLOBAL_OUTPUT__
 
     # chek for correct list input, and try fix if data-list is not in list
-    if not isinstance(xs,(list,np.ndarray)):
+    if not isinstance(xs, (list, np.ndarray)):
         raise ValueError('xs must be a list or numpy.ndarray.')
 
-    if (any(isinstance(i, (list,np.ndarray)) for i in xs) and
-        any(isinstance(i, (float,int,np.integer,np.float)) for i in xs)):
+    if (any(isinstance(i, (list, np.ndarray)) for i in xs) and
+            any(isinstance(i, (float, int, np.integer, np.float)) for i in xs)):
         raise ValueError(
             'Values of x-list must be of type: int, float, numpy.integer, or numpy.float.')
 
-    if not all(isinstance(i, (list,np.ndarray)) for i in xs):
+    if not all(isinstance(i, (list, np.ndarray)) for i in xs):
         xs_fix = [xs]
     else:
         xs_fix = xs
 
-    if plt_type in (0,'plot',1,'scatter'):
-        if not isinstance(ys,(list,np.ndarray)):
+    if plt_type in (0, 'plot', 1, 'scatter'):
+        if not isinstance(ys, (list, np.ndarray)):
             raise ValueError('xs must be a list or numpy.ndarray.')
-        if (any(isinstance(i, (list,np.ndarray)) for i in ys) and
-                    any(isinstance(i, (float,int,np.integer,np.float))
-                        for i in ys)):
+        if (any(isinstance(i, (list, np.ndarray)) for i in ys) and
+                any(isinstance(i, (float, int, np.integer, np.float))
+                    for i in ys)):
             raise ValueError(
                 'Values of y-list must be of type: int, float, numpy.integer, or numpy.float.')
-        if not all(isinstance(i, (list,np.ndarray)) for i in ys):
+        if not all(isinstance(i, (list, np.ndarray)) for i in ys):
             ys_fix = [ys]
         else:
             ys_fix = ys
@@ -140,22 +148,22 @@ def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=
             raise ValueError('len(xs) and len(ys) does not match.')
 
     data_length = len(xs_fix)
-    non = np.repeat(None,data_length)
-    ones = np.repeat(1,data_length)
+    non = np.repeat(None, data_length)
+    ones = np.repeat(1, data_length)
 
     if len(standardColorsHex) <= data_length:
         raise AssertionError(
             'Too many standard colors needed, use costum colors via dcol.')
 
     color_list = standardColorsHex[0:data_length]
-    opt_vars = [dlab,mark,ms,lw,dcol,ls,trsp]
-    opt_vars_default = [non,['.']*data_length,ones,ones,color_list,
-                        ['solid']*data_length,ones]
+    opt_vars = [dlab, mark, ms, lw, dcol, ls, trsp]
+    opt_vars_default = [non, ['.'] * data_length, ones, ones, color_list,
+                        ['solid'] * data_length, ones]
     opt_vars_fix = []
-    for i,j in zip(opt_vars,opt_vars_default):
+    for i, j in zip(opt_vars, opt_vars_default):
         if not i:
             opt_vars_fix.append(j)
-        elif not isinstance(i, (list,np.ndarray)):
+        elif not isinstance(i, (list, np.ndarray)):
             opt_vars_fix.append([i])
         else:
             opt_vars_fix.append(i)
@@ -167,43 +175,43 @@ def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=
         __FIGURE_GLOBAL_OUTPUT__.suptitle(ttl)
 
     ds = range(data_length)
-    if plt_type in (0,'plot'):
-        [axs[p].plot(xs_fix[n],ys_fix[n],c=opt_vars_fix[4][n],
-                     label=opt_vars_fix[0][n],linewidth=opt_vars_fix[3][n],
-                     markersize=opt_vars_fix[2][n],marker=opt_vars_fix[1][n],
+    if plt_type in (0, 'plot'):
+        [axs[p].plot(xs_fix[n], ys_fix[n], c=opt_vars_fix[4][n],
+                     label=opt_vars_fix[0][n], linewidth=opt_vars_fix[3][n],
+                     markersize=opt_vars_fix[2][n], marker=opt_vars_fix[1][n],
                      linestyle=opt_vars_fix[5][n],
                      alpha=opt_vars_fix[6][n]) for n in ds]
-    if plt_type in (1,'scatter'):
-        [axs[p].scatter(xs_fix[n],ys_fix[n],c=opt_vars_fix[4][n],
-                        label=opt_vars_fix[0][n],s=opt_vars_fix[2][n],
+    if plt_type in (1, 'scatter'):
+        [axs[p].scatter(xs_fix[n], ys_fix[n], c=opt_vars_fix[4][n],
+                        label=opt_vars_fix[0][n], s=opt_vars_fix[2][n],
                         alpha=opt_vars_fix[6][n]) for n in ds]
-    if plt_type in (2,'qqplot'):
-        if isinstance(xs_fix,list):
+    if plt_type in (2, 'qqplot'):
+        if isinstance(xs_fix, list):
             np_xs_fix = np.asarray(xs_fix)
-        elif isinstance(xs_fix,np.ndarray):
+        elif isinstance(xs_fix, np.ndarray):
             np_xs_fix = xs_fix
         if not ls:
-            line_type = ['r']*data_length
+            line_type = ['r'] * data_length
         elif not isinstance(ls, list):
             line_type = [ls]
         else:
             line_type = ls
-        [qqplot(np_xs_fix[n],line=line_type[n],ax=axs[p],
-                marker=opt_vars_fix[1][n],color=opt_vars_fix[4][n],
-                label=opt_vars_fix[0][n],alpha=opt_vars_fix[6][n]) for n in ds]
+        [qqplot(np_xs_fix[n], line=line_type[n], ax=axs[p],
+                marker=opt_vars_fix[1][n], color=opt_vars_fix[4][n],
+                label=opt_vars_fix[0][n], alpha=opt_vars_fix[6][n]) for n in ds]
         # axs[p].boxplot([xs_fix[n] for n in ds],labels=[opt_vars_fix[0][n] for n in ds])
 
     # fix labels according to __SHARE_AXIS_BOOL_OUTPUT__
-    if __SHARE_AXIS_BOOL_OUTPUT__ in ('x',1):
+    if __SHARE_AXIS_BOOL_OUTPUT__ in ('x', 1):
         axs[-1].set_xlabel(xlab)
         axs[p].set_ylabel(ylab)
-    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('y',2):
+    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('y', 2):
         axs[p].set_xlabel(xlab)
         axs[0].set_ylabel(ylab)
-    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('xy','yx','both',3):
+    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('xy', 'yx', 'both', 3):
         axs[-1].set_xlabel(xlab)
         axs[0].set_ylabel(ylab)
-    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('no',0):
+    elif __SHARE_AXIS_BOOL_OUTPUT__ in ('no', 0):
         axs[p].set_xlabel(xlab)
         axs[p].set_ylabel(ylab)
 
@@ -217,30 +225,31 @@ def plot_data(p,xs,ys,ttl=None,dlab=None,xlab=None,ylab=None,ms=None,lw=None,ls=
         axs[p].set_xticks([])
 
     if h_ax == 0:
-        axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='solid',
-                       linewidth=0.5,alpha=1)
+        axs[p].axhline(y=0, xmin=0, xmax=1, color='black', linestyle='solid',
+                       linewidth=0.5, alpha=1)
     elif h_ax == 1:
-        axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='dashed',
-                       linewidth=1,alpha=0.5)
+        axs[p].axhline(y=0, xmin=0, xmax=1, color='black', linestyle='dashed',
+                       linewidth=1, alpha=0.5)
     elif h_ax == 2:
-        axs[p].axhline(y=0,xmin=0,xmax=1,color='black',linestyle='dotted',
-                       linewidth=1,alpha=1)
+        axs[p].axhline(y=0, xmin=0, xmax=1, color='black', linestyle='dotted',
+                       linewidth=1, alpha=1)
     if v_ax == 0:
-        axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='solid',
-                       linewidth=0.5,alpha=1)
+        axs[p].axvline(x=0, ymin=0, ymax=1, color='black', linestyle='solid',
+                       linewidth=0.5, alpha=1)
     elif v_ax == 1:
-        axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='dashed',
-                       linewidth=1,alpha=0.5)
+        axs[p].axvline(x=0, ymin=0, ymax=1, color='black', linestyle='dashed',
+                       linewidth=1, alpha=0.5)
     elif v_ax == 2:
-        axs[p].axvline(x=0,ymin=0,ymax=1,color='black',linestyle='dotted',
-                       linewidth=1,alpha=1)
+        axs[p].axvline(x=0, ymin=0, ymax=1, color='black', linestyle='dotted',
+                       linewidth=1, alpha=1)
 
     # set legends
     axs[p].legend(fontsize=legend_size)
-    plt.rcParams.update({'font.family':'Times New Roman'})
+    plt.rcParams.update({'font.family': 'Times New Roman'})
+
 
 def string_to_float(potential_float):
-    '''
+    """
     Converts string to float if possible (that is unless ValueError is
                                           encountered).
 
@@ -254,14 +263,15 @@ def string_to_float(potential_float):
     float or str
         If successful, input is now float, if unsuccessful, str is still str.
 
-    '''
+    """
     try:
         set_float = float(potential_float)
         return set_float
     except ValueError:
         return potential_float
 
-def file_select(path,set_cols=None,cut_rows=None,separator=None,py_axlist=True,
+
+def file_select(path, set_cols=None, cut_rows=None, separator=None, py_axlist=True,
                 as_matrix=False):
     """
     This function selects and extracts data, from a file at a specified path.
@@ -304,8 +314,8 @@ def file_select(path,set_cols=None,cut_rows=None,separator=None,py_axlist=True,
     """
     assert path, 'No path selected.'
     if not set_cols:
-        set_cols_fixed = [0,1]
-    if isinstance(set_cols,int):
+        set_cols_fixed = [0, 1]
+    if isinstance(set_cols, int):
         set_cols_fixed = [set_cols]
     else:
         set_cols_fixed = set_cols
@@ -314,8 +324,8 @@ def file_select(path,set_cols=None,cut_rows=None,separator=None,py_axlist=True,
     #         cut_rows = 1
     #     except ValueError:
     #         while ValueError:
-                # cut_rows =+1
-    allowed_extensions = ['.csv','.txt','.excel','.xlsx','.dat']
+    # cut_rows =+1
+    allowed_extensions = ['.csv', '.txt', '.excel', '.xlsx', '.dat']
     file_extension = os.path.splitext(path)[1]
 
     if file_extension not in allowed_extensions:
@@ -324,22 +334,22 @@ def file_select(path,set_cols=None,cut_rows=None,separator=None,py_axlist=True,
     if not separator:
         if file_extension == '.csv':
             separator = ','
-        elif file_extension in ('.txt','.dat'):
+        elif file_extension in ('.txt', '.dat'):
             if as_matrix is True:
                 separator = None
             elif as_matrix is False:
                 separator = '\t'
-    if file_extension in ('.excel','.xlsx'):
-        data = pd.read_excel(path,header=cut_rows,usecols=set_cols_fixed
+    if file_extension in ('.excel', '.xlsx'):
+        data = pd.read_excel(path, header=cut_rows, usecols=set_cols_fixed
                              ).to_numpy()
-    elif file_extension in ('.csv','.txt','.dat'):
+    elif file_extension in ('.csv', '.txt', '.dat'):
         if as_matrix is True:
-            data = np.loadtxt(fname=path,delimiter=separator,skiprows=cut_rows)
+            data = np.loadtxt(fname=path, delimiter=separator, skiprows=cut_rows)
         elif as_matrix is False:
-            data = pd.read_csv(path,header=cut_rows,usecols=set_cols_fixed,
+            data = pd.read_csv(path, header=cut_rows, usecols=set_cols_fixed,
                                sep=separator).to_numpy()
     if py_axlist is True:
-        data_axlist = [data[:,i].tolist() for i in range(len(data[0]))]
+        data_axlist = [data[:, i].tolist() for i in range(len(data[0]))]
         data_axlist_fix = [[string_to_float(i) for i in data_axlist[j]]
                            for j in range(len(data_axlist))]
         result = data_axlist_fix
@@ -347,8 +357,9 @@ def file_select(path,set_cols=None,cut_rows=None,separator=None,py_axlist=True,
         result = data
     return result
 
-def fit_data(function,x_list,y_list,g_list,rel_var=False,N=None,mxf=None,
-             extMin=None,extMax=None):
+
+def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
+             extMin=None, extMax=None):
     """
     Fits data to the given general function, and outputs the parameters for
     the specific function.
@@ -411,33 +422,34 @@ def fit_data(function,x_list,y_list,g_list,rel_var=False,N=None,mxf=None,
     if not mxf:
         mxf = 1000
 
-    popt, pcov = curve_fit(f=function,xdata=x_list,ydata=y_list,p0=g_list,
-                           absolute_sigma=rel_var,maxfev=mxf)
+    popt, pcov = curve_fit(f=function, xdata=x_list, ydata=y_list, p0=g_list,
+                           absolute_sigma=rel_var, maxfev=mxf)
     pcov_fix = [pcov[i][i] for i in range(len(popt))]
     pstd = [np.sqrt(pcov_fix[i]) for i in range(len(popt))]
 
-    xs_fit = np.linspace(extMin,extMax,N)
+    xs_fit = np.linspace(extMin, extMax, N)
     if len(popt) == 1:
-        ys_fit = function(xs_fit,popt[0])
+        ys_fit = function(xs_fit, popt[0])
     elif len(popt) == 2:
-        ys_fit = function(xs_fit,popt[0],popt[1])
+        ys_fit = function(xs_fit, popt[0], popt[1])
     elif len(popt) == 3:
-        ys_fit = function(xs_fit,popt[0],popt[1],popt[2])
+        ys_fit = function(xs_fit, popt[0], popt[1], popt[2])
     elif len(popt) == 4:
-        ys_fit = function(xs_fit,popt[0],popt[1],popt[2],popt[3])
+        ys_fit = function(xs_fit, popt[0], popt[1], popt[2], popt[3])
     elif len(popt) == 5:
-        ys_fit = function(xs_fit,popt[0],popt[1],popt[2],popt[3],popt[4])
+        ys_fit = function(xs_fit, popt[0], popt[1], popt[2], popt[3], popt[4])
     elif len(popt) == 6:
-        ys_fit = function(xs_fit,popt[0],popt[1],popt[2],popt[3],popt[4],
+        ys_fit = function(xs_fit, popt[0], popt[1], popt[2], popt[3], popt[4],
                           popt[5])
     elif len(popt) == 7:
-        ys_fit = function(xs_fit,popt[0],popt[1],popt[2],popt[3],popt[4],
-                          popt[5],popt[6])
-    assert len(popt)<8, 'Too many constants to fit (max is 7).'
+        ys_fit = function(xs_fit, popt[0], popt[1], popt[2], popt[3], popt[4],
+                          popt[5], popt[6])
+    assert len(popt) < 8, 'Too many constants to fit (max is 7).'
     return popt, pcov_fix, pstd, xs_fit, ys_fit
 
-def step_finder(x_data,y_data,delta=30,lin=0.005,err=0.005):
-    '''
+
+def step_finder(x_data, y_data, delta=30, lin=0.005, err=0.005):
+    """
     Determine averages of linear-horizontal data determined by delta, with a
     set horizontal liniarity and maximum error.
 
@@ -462,23 +474,23 @@ def step_finder(x_data,y_data,delta=30,lin=0.005,err=0.005):
     ys_point : list
         y-values for determined points.
 
-    '''
-    linear_fit = lambda x,a,b: a*x+b
+    """
+    linear_fit = lambda x, a, b: a * x + b
     initial_point = 0
-    final_point = initial_point+delta
-    x_test, y_test = x_data[initial_point:final_point],y_data[initial_point:
-                                                              final_point]
-    popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit,x_test,y_test,
-                                                    [0,1])
+    final_point = initial_point + delta
+    x_test, y_test = x_data[initial_point:final_point], y_data[initial_point:
+                                                               final_point]
+    popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit, x_test, y_test,
+                                                    [0, 1])
     xs_point, ys_point = [], []
-    while final_point<len(x_data):
+    while final_point < len(x_data):
         initial_point += 1
-        final_point = initial_point+delta
-        x_test, y_test = x_data[initial_point:final_point],y_data[
-            initial_point:final_point]
-        popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit,x_test,
-                                                        y_test,[0,1])
-        if abs(popt[0])<lin and pstd[0]<err:
+        final_point = initial_point + delta
+        x_test, y_test = x_data[initial_point:final_point], y_data[
+                                                            initial_point:final_point]
+        popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit, x_test,
+                                                        y_test, [0, 1])
+        if abs(popt[0]) < lin and pstd[0] < err:
             xs_point.append(sts.mean(xs_fit))
             ys_point.append(sts.mean(ys_fit))
     return xs_point, ys_point
