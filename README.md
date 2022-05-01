@@ -23,14 +23,14 @@ The same scheme goes for updates:
 ```
 ## Usage
 ### Import
-Do note that the module currently consists of two sub-modules, and so unless you are importing the entire module, you will need to specify either
+Do note that the module currently consists of one sub-module, and so unless you are importing the entire module, you will need to specify either
 ```bash
 import nanoscipy.functions
 ```
-or
+#### Upcoming 
+In the upcoming patch, a new module will be added, which will contain new classes.
 ```bash
-import nanoscipy.help
+import nanoscipy.classes
 ```
-Note that the .functions sub-module contains all functions the module has, whilst the .help sub-module contains an additional help-function that can give you more informations of the functions, how they work, input type along with default input and output (this function is made to be run in the console.)
+Note that the .functions sub-module contains all functions the module has, whilst the .classes sub-module contains all python classes of the package.
 
-Currently being updated.
