@@ -423,10 +423,6 @@ def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
 
     if not N:
         N = len(x_list)
-    if not extMin:
-        extMin = np.min(x_list)
-    if not extMax:
-        extMax = np.max(x_list)
     if not mxf:
         mxf = 1000
 
@@ -435,7 +431,38 @@ def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
     pcov_fix = [pcov[i][i] for i in range(len(popt))]
     pstd = [np.sqrt(i) for i in pcov_fix]
 
-    xs_fit = np.linspace(extMin, extMax, N)
+    x_min_temp = min(x_list)
+    x_max_temp = max(x_list)
+
+    if 'extrp' in kwargs.keys():
+        extrp = kwargs.get('extrp')
+        if isinstance(extrp, (int, float)):
+            if extrp < x_min_temp:
+                x_min = extrp
+                x_max = x_max_temp
+            elif extrp > x_max_temp:
+                x_min = x_min_temp
+                x_max = extrp
+            else:
+                raise ValueError('Use list to extrapolate inside data set.')
+        elif isinstance(extrp, (list, np.ndarray)) and len(
+                extrp) == 2:
+            x_min = extrp[0]
+            x_max = extrp[1]
+        else:
+            raise ValueError(
+                'Extrapolation must be of type int, float or list.')
+    else:
+        if not extMin:
+            x_min = x_min_temp
+        else:
+            x_min = extMin
+        if not extMax:
+            x_max = x_max_temp
+        else:
+            x_max = extMax
+
+    xs_fit = np.linspace(x_min, x_max, N)
     ys_fit = function(xs_fit, *[i for i in popt])
 
     if len(popt) > 15:
