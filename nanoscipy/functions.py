@@ -16,6 +16,7 @@ fit_data()
 stepFinder()
 """
 
+import warnings
 import statistics as sts
 import os
 import matplotlib.pyplot as plt
@@ -112,7 +113,8 @@ def plot_grid(plot_nr=None, plot_row=None, plot_col=None, share=0, set_dpi=300, 
 
 def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=None, ls=None, dcol=None,
               plt_type=0, tight=True, mark=None, trsp=None, v_ax=None,
-              h_ax=None, no_ticks=False, share_ttl=False, legend_size=7):
+              h_ax=None, no_ticks=False, share_ttl=False, legend_size=7,
+              x_scale=None, y_scale=None, x_lim=None, y_lim=None):
     if len(__AX_GLOBAL_OUTPUT__) != __BOUNDARY_AX_GLOBAL_FIX__:
         axs = __AX_GLOBAL_OUTPUT__.flatten()
     else:
@@ -123,7 +125,7 @@ def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=
         raise ValueError('xs must be a list or numpy.ndarray.')
 
     if (any(isinstance(i, (list, np.ndarray)) for i in xs) and
-            any(isinstance(i, (float, int, np.integer, np.float)) for i in xs)):
+            any(isinstance(i, (float, int, np.integer, np.float64)) for i in xs)):
         raise ValueError(
             'Values of x-list must be of type: int, float, numpy.integer, or numpy.float.')
 
@@ -136,7 +138,7 @@ def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=
         if not isinstance(ys, (list, np.ndarray)):
             raise ValueError('xs must be a list or numpy.ndarray.')
         if (any(isinstance(i, (list, np.ndarray)) for i in ys) and
-                any(isinstance(i, (float, int, np.integer, np.float))
+                any(isinstance(i, (float, int, np.integer, np.float64))
                     for i in ys)):
             raise ValueError(
                 'Values of y-list must be of type: int, float, numpy.integer, or numpy.float.')
@@ -244,8 +246,18 @@ def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=
                        linewidth=1, alpha=1)
 
     # set legends
+    if x_scale:
+        axs[p].set_xscale(x_scale)
+    if y_scale:
+        axs[p].set_yscale(y_scale)
+
+    if x_lim:
+        plt.xlim(x_lim[0], x_lim[1])
+    if y_lim:
+        plt.ylim(y_lim[0], y_lim[1])
     axs[p].legend(fontsize=legend_size)
     plt.rcParams.update({'font.family': 'Times New Roman'})
+    plt.show()
 
 
 def string_to_float(potential_float):
@@ -359,7 +371,7 @@ def file_select(path, set_cols=None, cut_rows=None, separator=None, py_axlist=Tr
 
 
 def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
-             extMin=None, extMax=None):
+             extMin=None, extMax=None, **kwargs):
     """
     Fits data to the given general function, and outputs the parameters for
     the specific function.
@@ -404,14 +416,10 @@ def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
         List of fitted y-values.
 
     """
-    if not function:
-        raise ValueError('No function provided to fit.')
-    if not x_list:
-        raise ValueError('No x-list provided.')
-    if not y_list:
-        raise ValueError('No y-list provided.')
-    if not g_list:
-        raise ValueError('No guess-list provided.')
+
+    # define allowed kwargs
+    kwargs_list = ('rel_var', 'N', 'mxf', 'extrp')
+    assert all(kwargs.keys()) in kwargs_list, 'Passed kwarg is undefined.'
 
     if not N:
         N = len(x_list)
@@ -425,27 +433,14 @@ def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
     popt, pcov = curve_fit(f=function, xdata=x_list, ydata=y_list, p0=g_list,
                            absolute_sigma=rel_var, maxfev=mxf)
     pcov_fix = [pcov[i][i] for i in range(len(popt))]
-    pstd = [np.sqrt(pcov_fix[i]) for i in range(len(popt))]
+    pstd = [np.sqrt(i) for i in pcov_fix]
 
     xs_fit = np.linspace(extMin, extMax, N)
-    if len(popt) == 1:
-        ys_fit = function(xs_fit, popt[0])
-    elif len(popt) == 2:
-        ys_fit = function(xs_fit, popt[0], popt[1])
-    elif len(popt) == 3:
-        ys_fit = function(xs_fit, popt[0], popt[1], popt[2])
-    elif len(popt) == 4:
-        ys_fit = function(xs_fit, popt[0], popt[1], popt[2], popt[3])
-    elif len(popt) == 5:
-        ys_fit = function(xs_fit, popt[0], popt[1], popt[2], popt[3], popt[4])
-    elif len(popt) == 6:
-        ys_fit = function(xs_fit, popt[0], popt[1], popt[2], popt[3], popt[4],
-                          popt[5])
-    elif len(popt) == 7:
-        ys_fit = function(xs_fit, popt[0], popt[1], popt[2], popt[3], popt[4],
-                          popt[5], popt[6])
-    assert len(popt) < 8, 'Too many constants to fit (max is 7).'
-    return popt, pcov_fix, pstd, xs_fit, ys_fit
+    ys_fit = function(xs_fit, *[i for i in popt])
+
+    if len(popt) > 15:
+        warnings.warn('Fitting more than 15 constants may take a while.')
+    return list(popt), pcov_fix, pstd, xs_fit, ys_fit
 
 
 def step_finder(x_data, y_data, delta=30, lin=0.005, err=0.005):
