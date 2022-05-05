@@ -419,7 +419,7 @@ def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
 
     # define allowed kwargs
     kwargs_list = ('rel_var', 'N', 'mxf', 'extrp')
-    assert all(kwargs.keys()) in kwargs_list, 'Passed kwarg is undefined.'
+    assert all(i in kwargs_list for i in kwargs.keys()), 'Passed kwarg is undefined.'
 
     if not N:
         N = len(x_list)
