@@ -30,7 +30,7 @@ import nanoscipy.functions
 #### Upcoming 
 In the upcoming patch, a new module will be added, which will contain new classes.
 ```bash
-import nanoscipy.classes
+import nanoscipy.modules
 ```
-Note that the .functions sub-module contains all functions the module has, whilst the .classes sub-module contains all python classes of the package.
+Note that the .functions sub-module contains all functions the module has, whilst the .modules sub-module contains all python classes of the package.
 
