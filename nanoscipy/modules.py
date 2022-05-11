@@ -1,3 +1,5 @@
+import warnings
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
@@ -44,6 +46,8 @@ class DatAn:
             The absolute minimum value of all x values given.
         x_max : float
             The absolute maximum value of all x values given.
+        plot() : function
+            Plots the given data along with a fit with standardized params if none given with matplotlib.
 
     """
     def __init__(self, x_data, y_data, func, g_list, method='curve_fit', **kwargs):
@@ -118,8 +122,8 @@ class DatAn:
         elif method == 'odr':
             est_x_err, est_y_err = [], []
             if func in ('lin', 'linear', 'linfit', 'linreg'):
-                def func(B, x):
-                    return B[0] * x + B[1]
+                def func(b, x):
+                    return b[0] * x + b[1]
 
                 self.function_type = 'B[0] * x + B[1]'
             if 'x_err' in kwargs.keys():
@@ -194,12 +198,29 @@ class DatAn:
             dlab : list
                 Labels for data points, thus a list of strings. If none is set, default to abc typesetting with fit
                 subscript.
+            dcol : list
+                Colors for the data points of the plot along with the fits. Length must be mathing with either data sets
+                or data sets with fit.
             mkz : list
                 Marker size for the input data points.
             lw : list
                 Line width for the found data fits.
+            ls : list
+                Set the line style of the fits.
             mks : list
                 Marker style for the input data points.
+            x_lim : list
+                Set the limits of the horizontal axis.
+            y_lim : list
+                Set the limits of the vertical axis.
+            x_scale : str or int
+                Set the scale of the horizontal axis, according to the matplotlib scale nomeclature.
+            y_scale : str or int
+                Set the scale of the vertical axis, according to the matplotlib scale nomeclature.
+            leg_size : float
+                Set the size of the lengend panel.
+            leg_log : str or int
+                Set the position of the legend panel according to the matplotlib nomeclature.
             dpi : int
                 Set dpi for plot.
             capsize : float
@@ -269,8 +290,20 @@ class DatAn:
         xs_plot = self.x_list + x_list_fit
         ys_plot = self.y_list + y_list_fit
 
-        # define auto-coloring list
-        color_match_list = standardColorsHex[0:data_length] * 2
+        # define auto-coloring list if no colors are given
+        if 'dcol' in kwargs.keys():
+            data_colors = kwargs.get('dcol')
+            if len(data_colors) == data_length:
+                color_match_list = data_colors * 2
+            elif len(data_colors) == data_length * 2:
+                color_match_list = data_colors
+            else:
+                warnings.warn(
+                    f'Color list length ({len(data_colors)}) does not match the data ({data_length}) or data and fit '
+                    f'length ({data_length * 2}), reverting to standard colors.', stacklevel=2)
+                color_match_list = standardColorsHex[0:data_length] * 2
+        else:
+            color_match_list = standardColorsHex[0:data_length] * 2
 
         # define standard plot params from kwargs and error handling
 
@@ -325,10 +358,23 @@ class DatAn:
                 line_width_values = [0] * data_length + [kwargs.get('lw')] * data_length
             else:
                 if len(kwargs.get('lw')) != data_length:
-                    raise ValueError(
-                        'Line width list length must match data sets.')
+                    raise ValueError('Line width list length must match data sets.')
                 else:
                     line_width_values = [0] * data_length + kwargs.get('lw')
+        if 'ls' in kwargs.keys():
+            line_style_temp = kwargs.get('ls')
+            if len(line_style_temp) == data_length:
+                line_style = line_style_temp * 2
+            elif len(line_style_temp) == data_length * 2:
+                warnings.warn(f'Only a list length corresponding to the amount of fits ({data_length}) is needed.')
+                line_style = line_style_temp
+            else:
+                warnings.warn(
+                    f'Line style list length ({len(line_style_temp)}) does not match the data ({data_length}) or data '
+                    f'and fit length ({data_length * 2}), reverting to standard colors.', stacklevel=2)
+                line_style = ['solid'] * data_length * 2
+        else:
+            line_style = ['solid'] * data_length * 2
         if 'mks' not in kwargs.keys():
             marker_style_values = ['o'] * data_length * 2
         else:
@@ -338,8 +384,7 @@ class DatAn:
                     kwargs.get('mks')) == data_length:
                 marker_style_values = kwargs.get('mks')
             else:
-                raise ValueError(
-                    'Marker style list length must match data sets.')
+                raise ValueError('Marker style list length must match data sets.')
         if 'dpi' not in kwargs.keys():
             set_dpi = 300
         else:
@@ -357,9 +402,9 @@ class DatAn:
 
         if self.__fit_type__ == 'curve_fit':
             plot_keys = (xs_plot, ys_plot, color_match_list, line_width_values, marker_size_values, marker_style_values,
-                         data_labels)
-            for x, y, colm, lwidth, mksize, mlstyle, dlbs in zip(*plot_keys):
-                ax.plot(x, y, c=colm, linewidth=lwidth, markersize=mksize, marker=mlstyle, label=dlbs)
+                         data_labels, line_style)
+            for x, y, colm, lwidth, mksize, mlstyle, dlbs, ls in zip(*plot_keys):
+                ax.plot(x, y, c=colm, linewidth=lwidth, markersize=mksize, marker=mlstyle, label=dlbs, linestyle=ls)
         elif self.__fit_type__ == 'odr':
             # error params
             if 'capsize' in kwargs.keys():
@@ -385,11 +430,14 @@ class DatAn:
                 x_errors = self.x_error_est + [None] * data_length
                 y_errors = self.y_error_est + [None] * data_length
 
+            # key packaging
             plot_keys = (xs_plot, ys_plot, color_match_list, line_width_values, marker_size_values, marker_style_values,
-                         data_labels, x_errors, y_errors)
-            for x, y, colm, lwidth, mksize, mlstyle, dlbs, xr, yr in zip(*plot_keys):
+                         data_labels, x_errors, y_errors, line_style)
+
+            # plotting loop
+            for x, y, colm, lwidth, mksize, mlstyle, dlbs, xr, yr, ls in zip(*plot_keys):
                 ax.errorbar(x, y, xerr=xr, yerr=yr, c=colm, linewidth=lwidth, markersize=mksize, label=dlbs,
-                            elinewidth=e_line_width, capsize=cap_size, marker=mlstyle)
+                            elinewidth=e_line_width, capsize=cap_size, marker=mlstyle, linestyle=ls)
 
             if 'fit_err' not in kwargs.keys() or ('fit_err' in kwargs.keys() and kwargs.get('fit_err')):
                 y_fit_err = [[self.function([k + h for k, h in zip(i, j)], l),
@@ -399,6 +447,18 @@ class DatAn:
                     ax.fill_between(x, *yr, alpha=.2, color='silver')
         ax.set_xlabel(x_lab)
         ax.set_ylabel(y_lab)
+
+        # set axis params/scaling
+        if 'x_scale' in kwargs.keys():
+            ax.set_xscale(kwargs.get('x_scale'))
+        if 'y_scale' in kwargs.keys():
+            ax.set_xscale(kwargs.get('y_scale'))
+        if 'x_lim' in kwargs.keys():
+            plt.xlim(*kwargs.get('x_lim'))
+        if 'y_lim' in kwargs.keys():
+            plt.xlim(*kwargs.get('y_lim'))
+        if 'ttl' in kwargs.keys():
+            ax.set_title(kwargs.get('ttl'))
 
         # define different standard axis types to choose between. Note that there is only the option between showing
         #   no axis or both axis.
@@ -415,6 +475,16 @@ class DatAn:
                 ax.axvline(x=0, ymin=0, ymax=1, color='black', linestyle='dotted', linewidth=1, alpha=1)
 
         plt.tight_layout()
-        ax.legend(fontsize=8)
+
+        # set legend params
+        if 'leg_size' in kwargs.keys():
+            legend_size = kwargs.get('leg_size')
+        else:
+            legend_size = 8
+        if 'leg_loc' in kwargs.keys():
+            legend_loc = kwargs.get('leg_loc')
+        else:
+            legend_loc = 'best'
+        ax.legend(fontsize=legend_size, loc=legend_loc)
         plt.rcParams.update({'font.family': 'Times New Roman'})
         plt.show()
