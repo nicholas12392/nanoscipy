@@ -25,6 +25,7 @@ import numpy as np
 from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
 import scipy.odr as sco
+import FlowCal
 
 standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF',
                      '#42EADDFF', '#CDB599FF', '#00A4CCFF', '#F95700FF',
@@ -281,89 +282,95 @@ def string_to_float(potential_float):
         return potential_float
 
 
-def file_select(path, set_cols=None, cut_rows=None, separator=None, py_axlist=True,
-                as_matrix=False):
+def file_select(path, set_cols=None, cut_rows=None, **kwargs):
     """
     This function selects and extracts data, from a file at a specified path.
     It can be useful to index multiple data files in a way, that allows for
     easy extration in a for-loop.
 
     Parameters
-    ----------
-    path : string
-        Defines the file path, note that you might want to do this as an
-        r-string (and if for-loop; part as an f-string).
-    set_cols : list of ints, optional
-        List of the column indexes you want extracted
-        (note that this is not a range, but specific selection).
-        The default is [0,1].
-    cut_rows : int or list, optional
-        If integer; cut from row 0 to specified integer, if list; cut the
-        specified rows from the list. The default is 0.
-    separator : string, optional
-        Define the deliminter of the data set (if nescessary). The default is
-        if .csv; \',\', if .txt; \'\\t\'.
-    py_axlist : bool, optional
-        Constructs a regular python list, consisting of lists of all values of
-        a certian variable, instead of gaining rows of value-sets.
-        The default is False.
-    as_matrix : bool, optional
-        Allows for loading of data as a matrix via numpy.loadtxt; note that
-        this is only valid for .txt files. The default is False.
+        path : string
+            Defines the file path, note that you might want to do this as an
+            r-string (and if for-loop; part as an f-string).
+        set_cols : list of ints, optional
+            List of the column indexes you want extracted
+            (note that this is not a range, but specific selection).
+            The default is [0,1].
+        cut_rows : int or list, optional
+            If integer; cut from row 0 to specified integer, if list; cut the
+            specified rows from the list. The default is 0.
+
+    Keyword Arguments
+        separator : string, optional
+            Define the deliminter of the data set (if nescessary). The default is
+            if .csv; \',\', if .txt; \'\\t\'.
+        py_axlist : bool, optional
+            Constructs a regular python list, consisting of lists of all values of
+            a certian variable, instead of gaining rows of value-sets.
+            The default is False.
+        as_matrix : bool, optional
+            Allows for loading of data as a matrix via numpy.loadtxt; note that
+            this is only valid for .txt files. The default is False.
 
     Returns
-    -------
-    data : list
-        List (or list of lists) with the data from the selected file under the
-        specified conditions.
-    data_axlist : list
-        Instead of containing data points from the data set, contains what
-        corresponds to an x-, y-, z- etc. lists. Only relavant if
-        py_axlist = True; then the function yields both data and data_axlist.
+        data : list
+            List (or list of lists) with the data from the selected file under the
+            specified conditions.
+        data_axlist : list
+            Instead of containing data points from the data set, contains what
+            corresponds to an x-, y-, z- etc. lists. Only relavant if
+            py_axlist = True; then the function yields both data and data_axlist.
 
     """
-    assert path, 'No path selected.'
-    if not set_cols:
-        set_cols_fixed = [0, 1]
-    if isinstance(set_cols, int):
-        set_cols_fixed = [set_cols]
+    assert path, 'Missing file path.'  # assert if missing path
+    if not set_cols:  # define standard column selection if no costum selection is defined
+        set_columns = [0, 1]
     else:
-        set_cols_fixed = set_cols
+        if isinstance(set_cols, int):
+            set_columns = [set_cols]
+        else:
+            set_columns = set_cols
     # if not cut_rows:
     #     try:
-    #         cut_rows = 1
+    #         cut_rows = 0
     #     except ValueError:
     #         while ValueError:
-    # cut_rows =+1
-    allowed_extensions = ['.csv', '.txt', '.excel', '.xlsx', '.dat']
-    file_extension = os.path.splitext(path)[1]
+    #               cut_rows += 1
 
+    # define list of passable extensions
+    allowed_extensions = ('.csv', '.txt', '.excel', '.xlsx', '.dat', '.fcs')
+    file_extension = os.path.splitext(path)[1]  # split input file name and save extension
+
+    # check if passed extension can be handled
     if file_extension not in allowed_extensions:
-        raise ValueError(f'Selected file type {file_extension} is invalid.')
+        raise ValueError(f'Selected file type {file_extension} is not supported.')
+
     # try to define standard delimiter, if none is defined
-    if not separator:
+    if 'separator' not in kwargs.keys():
         if file_extension == '.csv':
             separator = ','
         elif file_extension in ('.txt', '.dat'):
-            if as_matrix is True:
+            if 'as_matrix' in kwargs.keys() and kwargs.get('as_matrix'):
                 separator = None
-            elif as_matrix is False:
+            else:
                 separator = '\t'
+    else:
+        separator = kwargs.get('separator')
     if file_extension in ('.excel', '.xlsx'):
-        data = pd.read_excel(path, header=cut_rows, usecols=set_cols_fixed
-                             ).to_numpy()
+        data = pd.read_excel(path, header=cut_rows, usecols=set_columns).to_numpy()
     elif file_extension in ('.csv', '.txt', '.dat'):
-        if as_matrix is True:
+        if 'as_matrix' in kwargs.keys() and kwargs.get('as_matrix'):
             data = np.loadtxt(fname=path, delimiter=separator, skiprows=cut_rows)
-        elif as_matrix is False:
-            data = pd.read_csv(path, header=cut_rows, usecols=set_cols_fixed,
-                               sep=separator).to_numpy()
-    if py_axlist is True:
+        else:
+            data = pd.read_csv(path, header=cut_rows, usecols=set_columns, sep=separator).to_numpy()
+    elif file_extension in ('.fcs'):
+        data = FlowCal.io.FCSData(path)
+    if 'py_axlist' not in kwargs.keys() or ('py_axlist' in kwargs.keys() and kwargs.get('py_axlist')):
         data_axlist = [data[:, i].tolist() for i in range(len(data[0]))]
         data_axlist_fix = [[string_to_float(i) for i in data_axlist[j]]
                            for j in range(len(data_axlist))]
         result = data_axlist_fix
-    if py_axlist is False:
+    else:
         result = data
     return result
 
