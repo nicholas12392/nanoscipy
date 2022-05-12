@@ -24,9 +24,7 @@ import pandas as pd
 import numpy as np
 from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
-
-# from itertools import chain
-# import csv
+import scipy.odr as sco
 
 standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF',
                      '#42EADDFF', '#CDB599FF', '#00A4CCFF', '#F95700FF',
@@ -370,66 +368,65 @@ def file_select(path, set_cols=None, cut_rows=None, separator=None, py_axlist=Tr
     return result
 
 
-def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
-             extMin=None, extMax=None, **kwargs):
+def fit_data(func, x_list, y_list, g_list, method='curve_fit', **kwargs):
     """
     Fits data to the given general function, and outputs the parameters for
     the specific function.
 
     Parameters
-    ----------
-    function : lambda/py function
-        The specific function data is to be fitted to
-    x_list : list
-        x-list data.
-    y_list : list
-        y-list data.
-    g_list : list
-        Guess-list. These are initial guesses at the parameters in the
-        function to fit.
-    rel_var : bool, optional
-        Determines whether the calculated variation should be relative or
-        absolute.
-        The default is False.
-    N : int, optional
-        The number of constructed data-points. The default is the size of the
-        provided x-list.
-    mxf : int, optional
-        The maximum amount of iterations. The default is 1000.
-    extMin : float, optional
-        Extrapolate data points down to this limit.
-    extMax : float, optional
-        Extrapolate data points up to this limit.
+        func : function
+            The specific function data is to be fitted to
+        x_list : list
+            x-list data.
+        y_list : list
+            y-list data.
+        g_list : list
+            Guess-list. These are initial guesses at the parameters in the
+            function to fit.
+        method : str, optional
+            Specific method of fitting. Currently, options are curve_fit and odr. The default is curve_fit.
+
+    Keyword Arguments
+        f_num : int
+            The number of constructed data-points. The default is 300.
+        mxf : int
+            The maximum amount of iterations. The default is 1000.
+        extrp : float, int or list
+            Extrapolate fitted x and y lists. If a value is given, it is determined whether it is a minimum or maximum
+            extrapolation, if list, the first element will be minimum and the second element the maximum.
 
     Returns
-    -------
-    popt : list
-        Fitted parameters in the same order as defined in the provided
-        function.
-    pcov_fix : list
-        The covariance for the determined parameters.
-    pstd : lsit
-        The standard deviation of the determined parameters.
-    xs_fit : list
-        List of fitted x-values.
-    ys_fit : list
-        List of fitted y-values.
+        popt : list
+            Fitted parameters in the same order as defined in the provided
+            function.
+        pcov : list
+            The covariance for the determined parameters.
+        pstd : list
+            The standard deviation of the determined parameters.
+        x_fit : list
+            Fitted x-values.
+        y_fit : list
+            Fitted y-values.
+        x_err_est : list, conditional
+            Estimated input x-errors if odr is the method.
+        y_err_est : list, conditional
+            Estimated input y-errors if odr is the method.
 
     """
 
-    # define allowed kwargs
-    kwargs_list = ('rel_var', 'N', 'mxf', 'extrp')
-    assert all(i in kwargs_list for i in kwargs.keys()), 'Passed kwarg is undefined.'
+    # send warning if more than 15 different constants in function
+    if len(g_list) > 15:
+        warnings.warn('Fitting more than 15 constants may take a while.')
 
-    if not N:
-        N = len(x_list)
-    if not mxf:
+    # define standard params if none is set
+    if 'f_num' in kwargs.keys():
+        frame_number = kwargs.get('f_num')
+    else:
+        frame_number = 300
+    if 'mxf' in kwargs.keys():
+        mxf = kwargs.get('mxf')
+    else:
         mxf = 1000
-
-    popt, pcov = curve_fit(f=function, xdata=x_list, ydata=y_list, p0=g_list,
-                           absolute_sigma=rel_var, maxfev=mxf)
-    pcov_fix = [pcov[i][i] for i in range(len(popt))]
-    pstd = [np.sqrt(i) for i in pcov_fix]
 
     x_min_temp = min(x_list)
     x_max_temp = max(x_list)
@@ -453,21 +450,47 @@ def fit_data(function, x_list, y_list, g_list, rel_var=False, N=None, mxf=None,
             raise ValueError(
                 'Extrapolation must be of type int, float or list.')
     else:
-        if not extMin:
-            x_min = x_min_temp
-        else:
-            x_min = extMin
-        if not extMax:
-            x_max = x_max_temp
-        else:
-            x_max = extMax
+        x_min = x_min_temp
+        x_max = x_max_temp
 
-    xs_fit = np.linspace(x_min, x_max, N)
-    ys_fit = function(xs_fit, *[i for i in popt])
+    # define x-fit list from defined x min and max values
+    x_fit = np.linspace(x_min, x_max, frame_number)
 
-    if len(popt) > 15:
-        warnings.warn('Fitting more than 15 constants may take a while.')
-    return list(popt), pcov_fix, pstd, xs_fit, ys_fit
+    # perform fitting after given method
+    if method == 'curve_fit':
+        popt, pcov = curve_fit(f=func, xdata=x_list, ydata=y_list, p0=g_list, absolute_sigma=True, maxfev=mxf)
+        pstd = np.sqrt(np.diag(pcov))
+
+        # define output
+        y_fit = func(x_fit, *popt)  # define y-list
+        __out__ = (popt, pcov, pstd, x_fit, y_fit)
+    elif method == 'odr':
+        if 'x_err' in kwargs.keys():  # check for given x error
+            x_err = kwargs.get('x_err')
+        else:
+            x_err = None
+        if 'y_err' in kwargs.keys():
+            y_err = kwargs.get('y_err')
+        else:
+            y_err = None
+        odr_fit_function = sco.Model(func)  # define odr model
+        odr_data = sco.RealData(x_list, y_list, sx=x_err, sy=y_err)  # define odr data
+        odr_setup = sco.ODR(odr_data, odr_fit_function, beta0=g_list)  # define the ODR itself
+        odr_out = odr_setup.run()  # run the ODR
+
+        # define constants, along with covariance and deviation
+        popt, pcov, pstd = odr_out.beta, odr_out.cov_beta, odr_out.sd_beta
+
+        # define estimated x and y errors
+        x_err_est, y_err_est = odr_out.delta, odr_out.eps
+
+        # define output
+        y_fit = func(popt, x_fit)
+        __out__ = (popt, pcov, pstd, x_fit, y_fit, x_err_est, y_err_est)
+    else:
+        raise ValueError(f'Passed method, {method}, is not supported.')
+
+    return __out__
 
 
 def step_finder(x_data, y_data, delta=30, lin=0.005, err=0.005):
@@ -502,16 +525,14 @@ def step_finder(x_data, y_data, delta=30, lin=0.005, err=0.005):
     final_point = initial_point + delta
     x_test, y_test = x_data[initial_point:final_point], y_data[initial_point:
                                                                final_point]
-    popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit, x_test, y_test,
-                                                    [0, 1])
+    popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit, x_test, y_test, [0, 1])
     xs_point, ys_point = [], []
     while final_point < len(x_data):
         initial_point += 1
         final_point = initial_point + delta
         x_test, y_test = x_data[initial_point:final_point], y_data[
                                                             initial_point:final_point]
-        popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit, x_test,
-                                                        y_test, [0, 1])
+        popt, pcov_fix, pstd, xs_fit, ys_fit = fit_data(linear_fit, x_test, y_test, [0, 1])
         if abs(popt[0]) < lin and pstd[0] < err:
             xs_point.append(sts.mean(xs_fit))
             ys_point.append(sts.mean(ys_fit))
