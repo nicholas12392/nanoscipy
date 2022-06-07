@@ -261,8 +261,7 @@ def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=
 
 def string_to_float(potential_float):
     """
-    Converts string to float if possible (that is unless ValueError is
-                                          encountered).
+    Converts string to float if possible (that is unless ValueError is encountered).
 
     Parameters
     ----------
@@ -284,42 +283,36 @@ def string_to_float(potential_float):
 
 def file_select(path, set_cols=None, cut_rows=None, **kwargs):
     """
-    This function selects and extracts data, from a file at a specified path.
-    It can be useful to index multiple data files in a way, that allows for
-    easy extration in a for-loop.
+    This function selects and extracts data, from a file at a specified path. It can be useful to index multiple data 
+    files in a way, that allows for easy extration in a for-loop.
 
     Parameters
         path : string
-            Defines the file path, note that you might want to do this as an
-            r-string (and if for-loop; part as an f-string).
+            Defines the file path, note that you might want to do this as an r-string (and if for-loop; part as an 
+            f-string).
         set_cols : list of ints, optional
-            List of the column indexes you want extracted
-            (note that this is not a range, but specific selection).
-            The default is [0,1].
+            List of the column indexes you want extracted (note that this is not a range, but specific selection). The 
+            default is [0,1].
         cut_rows : int or list, optional
-            If integer; cut from row 0 to specified integer, if list; cut the
-            specified rows from the list. The default is 0.
+            If integer; cut from row 0 to specified integer, if list; cut the specified rows from the list. The default 
+            is 0.
 
     Keyword Arguments
         separator : string, optional
-            Define the deliminter of the data set (if nescessary). The default is
-            if .csv; \',\', if .txt; \'\\t\'.
+            Define the deliminter of the data set (if nescessary). The default is if .csv; \',\', if .txt; \'\\t\'.
         py_axlist : bool, optional
-            Constructs a regular python list, consisting of lists of all values of
-            a certian variable, instead of gaining rows of value-sets.
-            The default is False.
+            Constructs a regular python list, consisting of lists of all values of a certian variable, instead of 
+            gaining rows of value-sets. The default is False.
         as_matrix : bool, optional
-            Allows for loading of data as a matrix via numpy.loadtxt; note that
-            this is only valid for .txt files. The default is False.
+            Allows for loading of data as a matrix via numpy.loadtxt; note that this is only valid for .txt files. The 
+            default is False.
 
     Returns
         data : list
-            List (or list of lists) with the data from the selected file under the
-            specified conditions.
+            List (or list of lists) with the data from the selected file under the specified conditions.
         data_axlist : list
-            Instead of containing data points from the data set, contains what
-            corresponds to an x-, y-, z- etc. lists. Only relavant if
-            py_axlist = True; then the function yields both data and data_axlist.
+            Instead of containing data points from the data set, contains what corresponds to an x-, y-, z- etc. lists. 
+            Only relavant if py_axlist = True; then the function yields both data and data_axlist.
 
     """
     assert path, 'Missing file path.'  # assert if missing path

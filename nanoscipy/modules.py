@@ -17,6 +17,33 @@ alphabetSequence = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 
 
 class DatAn:
     """
+    Class that can determine fit via either curve_fit or odr, plot the result, and perform mathematical operations on
+    the resulting fit.
+
+    Parameters
+        x_data : list
+            x data for analysis. Can either be a single list or a list of lists (multiple data sets).
+        y_data : list
+            y data for analysis. Can either be a single list or a list of lists (multiple data sets). Must
+            correspond in length to x data
+        func : function or str
+            Provided x and y data is fitted to this function. Note that if the method curve_fit is used, this must
+            have x variable as first entry, and constants must not be returned as list element. The opposite is true
+            if odr method is chosen. This can also be a str, in which case the provided string must correspond to
+            one of the predefined functions: linear.
+        g_list : list
+            Guesses for the constants of the provided function.
+        method : str, optional
+            Fit method. Supported: curve_fit and odr. The default is curve_fit.
+
+    Keyword Arguments
+        x_err : list or float
+            Errors of the input x values
+        y_err : list or float
+            Errors of the input y values
+        odr_print : bool
+            If set to True, runs the .pprint() from the odr
+
     Attributes
         data_length : int
             Number of given data sets.
@@ -48,60 +75,29 @@ class DatAn:
             The absolute maximum value of all x values given.
         plot() : function
             Plots the given data along with a fit with standardized params if none given with matplotlib.
+        mathop() : function
+            Performs a mathematical operation on the found fit for all fitted functions.
 
     """
+
     def __init__(self, x_data, y_data, func, g_list, method='curve_fit', **kwargs):
-        """
-
-        Parameters
-            x_data : list
-                x data for analysis. Can either be a single list or a list of lists (multiple data sets).
-            y_data : list
-                y data for analysis. Can either be a single list or a list of lists (multiple data sets). Must
-                correspond in length to x data
-            func : function or str
-                Provided x and y data is fitted to this function. Note that if the method curve_fit is used, this must
-                have x variable as first entry, and constants must not be returned as list element. The opposite is true
-                if odr method is chosen. This can also be a str, in which case the provided string must correspond to
-                one of the predefined functions: linear.
-            g_list : list
-                Guesses for the constants of the provided function.
-            method : str, optional
-                Fit method. Supported: curve_fit and odr. The default is curve_fit.
-
-        Keyword Arguments
-            x_err : list or float
-                Errors of the input x values
-            y_err : list or float
-                Errors of the input y values
-            odr_print : bool
-                If set to True, runs the .pprint() from the odr
-        """
-        # check whether x-list data is of correct shape, otherwise try to fix, if fail, raise error
-        if not isinstance(x_data, (list, np.ndarray)):  # check if x-list is a list
-            raise ValueError('x-list must be a list or numpy.ndarray.')
-        if (any(isinstance(i, (list, np.ndarray)) for i in x_data) and
-                any(isinstance(i, (float, int, np.integer)) for i in x_data)):  # check if x-list is list of lists
-            raise ValueError(
-                'x-list must be list of lists or list of values.')
-        if not all(isinstance(i, (list, np.ndarray)) for i in x_data):  # check if no list is inside x-list
-            x_list_fix = [x_data]  # if true, make x-list a list of lists
+        # check whether x-list data is of correct shape, otherwise try to fix, if failed, py dim error is raised
+        #   first check whether the x_data and y_data has same dimensions
+        if len(x_data) == len(y_data) and np.array(x_data).shape == np.array(y_data).shape:
+            try:  # if they do, try to convert all data to a list, if data is list of lists
+                x_list_fix = [[i for i in j] for j in x_data]
+            except TypeError:  # if data is a list of floats pack list into list
+                x_list_fix = [[i for i in x_data]]
         else:
-            x_list_fix = x_data  # else, define x-list as is
+            x_list_fix = [[i for i in x_data]] * len(y_data)  # if x and y data have different dimensions, try convert
 
-        # check whether y-list data is of correct shape, otherwise try to fix, if fail, raise error
-        if not isinstance(y_data, (list, np.ndarray)):  # check if y-list is a list
-            raise ValueError('y-list must be a list or numpy.ndarray.')
-        if (any(isinstance(i, (list, np.ndarray)) for i in y_data) and
-                any(isinstance(i, (float, int, np.integer)) for i in y_data)):  # check if y-list is list of lists
-            raise ValueError(
-                'y-list must be list of lists or list of values.')
-        if not all(isinstance(i, (list, np.ndarray)) for i in y_data):  # check if no list is inside y-list
-            y_list_fix = [y_data]  # if true, make y-list a list of lists
-        else:
-            y_list_fix = y_data  # else, define y-list as is
+        # check whether y-list data is of correct shape, otherwise try to fix, if failed, py dim error is raised
+        try:  # try to convert all data to a list, if data is list of lists
+            y_list_fix = [[i for i in j] for j in y_data]
+        except TypeError:  # if data is a list of floats pack list into list
+            y_list_fix = [[i for i in y_data]]
 
-        # define the numbner of lists in the x-list (serving as the number of data sets packaged in the class call)
+        # define the number of lists in the x-list (serving as the number of data sets packaged in the class call)
         self.data_length = len(x_list_fix)
 
         # define empty lists for fitted constants and lists to be appended to
@@ -110,6 +106,7 @@ class DatAn:
             if func in ('lin', 'linear', 'linfit', 'linreg'):
                 def func(x, a, b):
                     return a * x + b
+
                 self.function_type = 'a * x + b'
             for xs, ys in zip(x_list_fix, y_list_fix):
                 popt_temp, pcov_temp = curve_fit(f=func, xdata=xs, ydata=ys, p0=g_list, absolute_sigma=True)
@@ -135,7 +132,7 @@ class DatAn:
                 # if isinstance(x_err, (list, np.ndarray)) and len(x_err) != self.data_length:
                 #     raise ValueError('Length of x_err and x_list does not match.')
             else:
-                x_err = None
+                x_err = [None] * self.data_length
             if 'y_err' in kwargs.keys():
                 y_err = kwargs.get('y_err')
                 if isinstance(y_err, (int, float)):
@@ -143,7 +140,7 @@ class DatAn:
                 else:
                     self.y_error = y_err
             else:
-                y_err = None
+                y_err = [None] * self.data_length
             for xs, ys, xerrs, yerrs in zip(x_list_fix, y_list_fix, x_err, y_err):
                 odr_fit_function = sco.Model(func)  # define odr model
                 odr_data = sco.RealData(xs, ys, sx=xerrs, sy=yerrs)  # define odr data
@@ -197,19 +194,20 @@ class DatAn:
                 exp. The default is None.
             oprint : str, optional
                 Print the results from the operation. If 'all', print results for operation on all fitted functions, if
-                a letter, print result for that particular fitted function, else does not print. The default is 'all'.
+                a letter, print result for that particular fitted function, else does not print. Note that if the
+                functions has customized labels, these can be called as well to specify. The default is 'all'.
 
         Return
             oprRes : list
                 Depending on the operation this may be a list of numpy arrays or a list of values.
         """
-        
+
         # define variables for easy utilization
         varConstants = self.constants
         dataLength = len(varConstants)
         fitType = self.__fit_type__
         functionType = self.function
-        
+
         # set expected values
         try:
             if len(exp_val) == dataLength:
@@ -228,7 +226,6 @@ class DatAn:
                 return functionType(variables, x)
 
         # perform operations for all fitted functions
-        oprResPre = []
         if operation in ('yintercept', 'y_intercept', 'yinter'):
             oprResPre = [__function_fixer__(0, i) for i in varConstants]
         elif operation in ('xintercept', 'root', 'roots', 'x_intercept', 'xinter'):
@@ -237,13 +234,16 @@ class DatAn:
             raise TypeError(f'Operation, {operation}, is invalid.')
 
         # perform secondary operation if any is given
+        oprRes = []
         if not sec_opr:
             oprRes = [i for i in oprResPre]
             finalOperation = operation
         elif '**' in sec_opr:
+            warnings.warn('Operations such as **(1/3) with parenthesizes are currently not yet supported', stacklevel=2)
             oprRes = [i ** float(sec_opr.strip('**')) for i in oprResPre]
             finalOperation = operation + sec_opr
         elif '*' in sec_opr:
+            warnings.warn('Operations such as *(1/3) with parenthesizes are currently not yet supported', stacklevel=2)
             oprRes = [i * float(sec_opr.strip('*')) for i in oprResPre]
             finalOperation = operation + sec_opr
         elif '/' in sec_opr:
@@ -260,20 +260,101 @@ class DatAn:
             finalOperation = f'exp({operation})'
 
         # print results if oprint is set to valid value
-        resLabels = [f'{i}' for i in alphabetSequence[0:dataLength]]  # define labels for results
-        if oprint == 'all':
+        #   first, check if costum data labels have been defined from .plot()
+        try:
+            dataLabels = self.__data_labels__
+        except AttributeError:
+            dataLabels = None
+
+        # define labels for results
+        if dataLabels:
+            resLabels = [f'{i}' for i in self.__data_labels__[0:dataLength]]
+        else:
+            resLabels = [f'{i}' for i in alphabetSequence[0:dataLength]]
+
+        # determine what to print, and check if passed oprint is valid
+        if not oprint:
+            pass
+        else:
             print(f':::Result from operation: {finalOperation}:::')
-            for i, j in zip(resLabels, oprRes):
-                print(f'{i}): {j}')
-        elif oprint in alphabetSequence:
-            oprintValId = alphabetSequence.index(oprint)
-            print(f':::Result from operation: {finalOperation}:::')
-            try:
-                print(f'{oprint}): {oprRes[oprintValId]}')
-            except IndexError:
-                raise ValueError(f'There is no function/graph, {oprint}.')
+            if oprint == 'all':
+                for i, j in zip(resLabels, locVal):
+                    print(f'{i}): {j}')
+            elif oprint in resLabels:
+                oprintValId = resLabels.index(oprint)
+                print(f'{oprint}): {locVal[oprintValId]}')
+            elif oprint in alphabetSequence[0:dataLength]:  # allow usage of automatic denotation for selection of graph
+                oprintValId = alphabetSequence.index(oprint)
+                print(f'{resLabels[oprintValId]}): {locVal[oprintValId]}')
+            else:
+                raise ValueError(f'There is no function/graph named: {oprint}.')
         return oprRes
-        
+
+    def locate(self, x, oprint='all'):
+        """
+        Locate the corresponding y-value, for an input x value, for all fitted functions.
+
+        Parameters
+            x : float or list
+                Locate y-value based on this value.
+            oprint: str, optional
+                Print the results from the operation. If 'all', print results for operation on all fitted functions, if
+                a letter, print result for that particular fitted function, else does not print. Note that if the
+                functions has customized labels, these can be called as well to specify. The default is 'all'.
+
+        Return
+            locValue : list
+                The resulting y-values.
+        """
+
+        varConstants = self.constants
+        dataLength = len(varConstants)
+        fitType = self.__fit_type__
+        functionType = self.function
+
+        # check dimensions for x's, and fix to list
+        try:
+            position = [i for i in x]
+        except TypeError:
+            position = [x]
+
+        # locate values depending on which function type is used
+        if fitType == 'curve_fit':
+            locVal = [[functionType(i, *j) for i in position] for j in varConstants]
+        elif fitType == 'odr':
+            locVal = [[functionType(j, i) for i in position] for j in varConstants]
+
+        # print results if oprint is set to valid value
+        #   first, check if costum data labels have been defined from .plot()
+        try:
+            dataLabels = self.__data_labels__
+        except AttributeError:
+            dataLabels = None
+
+        # define labels for results
+        if dataLabels:
+            resLabels = [f'{i}' for i in self.__data_labels__[0:dataLength]]
+        else:
+            resLabels = [f'{i}' for i in alphabetSequence[0:dataLength]]
+
+        # determine what to print, and check if passed oprint is valid
+        if not oprint:
+            pass
+        else:
+            print(f':::Located y-values from x-values: {x}:::')
+            if oprint == 'all':
+                for i, j in zip(resLabels, locVal):
+                    print(f'{i}): {j}')
+            elif oprint in resLabels:
+                oprintValId = resLabels.index(oprint)
+                print(f'{oprint}): {locVal[oprintValId]}')
+            elif oprint in alphabetSequence[0:dataLength]:  # allow usage of automatic denotation for selection of graph
+                oprintValId = alphabetSequence.index(oprint)
+                print(f'{resLabels[oprintValId]}): {locVal[oprintValId]}')
+            else:
+                raise ValueError(f'There is no function/graph named: {oprint}.')
+        return locVal
+
     def plot(self, **kwargs):
         """
 
