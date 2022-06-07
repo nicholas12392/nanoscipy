@@ -13,14 +13,7 @@ For package updates, use:
 ```bash
 pip install --upgrade nanoscipy
 ```
-Note that if you're using anaconda, you might have to install the module from the anaconda terminal instead: 
-```bash
-(base) C:\Users\'user'> pip install nanoscipy
-```
-The same scheme goes for updates:
-```bash
-(base) C:\Users\'user'> pip install --upgrade nanoscipy
-```
+Note that if you're using anaconda, you might have to install the module from the anaconda terminal instead (or use conda rather than pip)
 ## Usage
 ### Import
 Do note that the module currently consists of two sub-module, and so unless you are importing the entire module, you will need to specify either

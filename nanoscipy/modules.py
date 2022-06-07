@@ -181,6 +181,99 @@ class DatAn:
 
         self.__fit_type__ = method
 
+    def mathop(self, operation, exp_val=1, sec_opr=None, oprint='all'):
+        """
+        Performs a mathematical operation on the fitted function(s).
+
+        Parameters
+            operation : str
+                Perform set operation on the fitted function. Supported operations are: roots, yintercept.
+            exp_val : float or list, optional
+                Set an expected value for the operation. This may not be needed, but some operations utilize
+                scipy.optimize.fsolve, where it is required. Therefore, if multiple results are expected, this may be a 
+                list of lists. The default is 1.
+            sec_opr : str, optional
+                Perform a secondary operation on the primary operation. Supported operations are: **, *, /, ln, log, and
+                exp. The default is None.
+            oprint : str, optional
+                Print the results from the operation. If 'all', print results for operation on all fitted functions, if
+                a letter, print result for that particular fitted function, else does not print. The default is 'all'.
+
+        Return
+            oprRes : list
+                Depending on the operation this may be a list of numpy arrays or a list of values.
+        """
+        
+        # define variables for easy utilization
+        varConstants = self.constants
+        dataLength = len(varConstants)
+        fitType = self.__fit_type__
+        functionType = self.function
+        
+        # set expected values
+        try:
+            if len(exp_val) == dataLength:
+                expVal = exp_val
+            else:
+                raise ValueError(f'Amount of expected values, {len(exp_val)}, must equal amount of data sets, '
+                                 f'{dataLength}.')
+        except TypeError:
+            expVal = [exp_val] * dataLength
+
+        # fix function depending on whether it is coming from curve_fit or odr
+        def __function_fixer__(x, variables):
+            if fitType == 'curve_fit':
+                return functionType(x, *variables)
+            elif fitType == 'odr':
+                return functionType(variables, x)
+
+        # perform operations for all fitted functions
+        oprResPre = []
+        if operation in ('yintercept', 'y_intercept', 'yinter'):
+            oprResPre = [__function_fixer__(0, i) for i in varConstants]
+        elif operation in ('xintercept', 'root', 'roots', 'x_intercept', 'xinter'):
+            oprResPre = [spo.fsolve(__function_fixer__, i, tuple([j])) for i, j in zip(expVal, varConstants)]
+        else:
+            raise TypeError(f'Operation, {operation}, is invalid.')
+
+        # perform secondary operation if any is given
+        if not sec_opr:
+            oprRes = [i for i in oprResPre]
+            finalOperation = operation
+        elif '**' in sec_opr:
+            oprRes = [i ** float(sec_opr.strip('**')) for i in oprResPre]
+            finalOperation = operation + sec_opr
+        elif '*' in sec_opr:
+            oprRes = [i * float(sec_opr.strip('*')) for i in oprResPre]
+            finalOperation = operation + sec_opr
+        elif '/' in sec_opr:
+            oprRes = [i / float(sec_opr.strip('/')) for i in oprResPre]
+            finalOperation = operation + sec_opr
+        elif sec_opr == 'ln':
+            oprRes = [np.log(i) for i in oprResPre]
+            finalOperation = f'ln({operation})'
+        elif sec_opr == 'log':
+            oprRes = [np.log10(i) for i in oprResPre]
+            finalOperation = f'log({operation})'
+        elif sec_opr == 'exp':
+            oprRes = [np.exp(i) for i in oprResPre]
+            finalOperation = f'exp({operation})'
+
+        # print results if oprint is set to valid value
+        resLabels = [f'{i}' for i in alphabetSequence[0:dataLength]]  # define labels for results
+        if oprint == 'all':
+            print(f':::Result from operation: {finalOperation}:::')
+            for i, j in zip(resLabels, oprRes):
+                print(f'{i}): {j}')
+        elif oprint in alphabetSequence:
+            oprintValId = alphabetSequence.index(oprint)
+            print(f':::Result from operation: {finalOperation}:::')
+            try:
+                print(f'{oprint}): {oprRes[oprintValId]}')
+            except IndexError:
+                raise ValueError(f'There is no function/graph, {oprint}.')
+        return oprRes
+        
     def plot(self, **kwargs):
         """
 
