@@ -2,6 +2,7 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.optimize as spo
 from scipy.optimize import curve_fit
 import scipy.odr as sco
 from itertools import chain
@@ -278,14 +279,14 @@ class DatAn:
         else:
             print(f':::Result from operation: {finalOperation}:::')
             if oprint == 'all':
-                for i, j in zip(resLabels, locVal):
+                for i, j in zip(resLabels, oprRes):
                     print(f'{i}): {j}')
             elif oprint in resLabels:
                 oprintValId = resLabels.index(oprint)
-                print(f'{oprint}): {locVal[oprintValId]}')
+                print(f'{oprint}): {oprRes[oprintValId]}')
             elif oprint in alphabetSequence[0:dataLength]:  # allow usage of automatic denotation for selection of graph
                 oprintValId = alphabetSequence.index(oprint)
-                print(f'{resLabels[oprintValId]}): {locVal[oprintValId]}')
+                print(f'{resLabels[oprintValId]}): {oprRes[oprintValId]}')
             else:
                 raise ValueError(f'There is no function/graph named: {oprint}.')
         return oprRes
