@@ -280,6 +280,26 @@ def string_to_float(potential_float):
     except ValueError:
         return potential_float
 
+def string_to_int(potential_int):
+    """
+    Converts string to int if possible (that is unless ValueError is encountered).
+
+    Parameters
+    ----------
+    potential_int : str
+        String to be converted to int.
+
+    Returns
+    -------
+    int or str
+        If successful, input is now int, if unsuccessful, str is still str.
+
+    """
+    try:
+        set_int = int(potential_int)
+        return set_int
+    except ValueError:
+        return potential_int
 
 def file_select(path, set_cols=None, cut_rows=None, **kwargs):
     """
