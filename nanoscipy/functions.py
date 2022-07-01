@@ -9,6 +9,8 @@ plot_data()
 
 string_to_float()
 
+string_to_int()
+
 file_select()
 
 fit_data()
@@ -277,8 +279,9 @@ def string_to_float(potential_float):
     try:
         set_float = float(potential_float)
         return set_float
-    except ValueError:
+    except (ValueError, TypeError):
         return potential_float
+
 
 def string_to_int(potential_int):
     """
@@ -298,8 +301,44 @@ def string_to_int(potential_int):
     try:
         set_int = int(potential_int)
         return set_int
-    except ValueError:
+    except (ValueError, TypeError):
         return potential_int
+
+
+def list_to_string(subject_list, sep=''):
+    """
+    Converts a list to a string.
+
+    Parameters
+    ----------
+    subject_list : list
+        List to be converted to a string.
+    sep : str, optional
+        Delimiter in between list elements in the string. The default value is ''.
+
+    Returns
+    -------
+    String from the list elements with the set delimiter in between.
+
+    """
+    fixed_list = [str(i) if not isinstance(i, str) else i for i in subject_list]  # fix non-str elements to str type
+    stringified_list = sep.join(fixed_list)  # construct string
+    return stringified_list
+
+def indexer(list_to_index):
+    """
+    When the built-in enumerate does not work as intended, this will.
+
+    Parameters
+        list_to_index : list
+            Elements will be indexed starting from zero and from left to right.
+
+    Returns
+        The indexed list. A list containing each previous element as a list, consisting of the index/id as the first
+        value, and the list-element as the second value.
+    """
+    indexed_list = [[k] + [j] for k, j in zip(list(range(len(list_to_index))), list_to_index)]
+    return indexed_list
 
 def file_select(path, set_cols=None, cut_rows=None, **kwargs):
     """
