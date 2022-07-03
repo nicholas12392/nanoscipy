@@ -192,8 +192,9 @@ class DatAn:
                 scipy.optimize.fsolve, where it is required. Therefore, if multiple results are expected, this may be a 
                 list of lists. The default is 1.
             sec_opr : str, optional
-                Perform a secondary operation on the primary operation. Supported operations are: **, *, /, ln, log, and
-                exp. The default is None.
+                Perform a secondary operation on the primary operation. This type is denoted as a string, with the 
+                primary operation denoted as 'x', e.g., 'x^-1'. Supported operations: '^', '*', '/', '+', '-', 'ln', 
+                 'log' (this is log10), 'exp', 'sin', 'cos', 'tan', 'pi'. The default is None.
             oprint : str, optional
                 Print the results from the operation. If 'all', print results for operation on all fitted functions, if
                 a letter, print result for that particular fitted function, else does not print. Note that if the
