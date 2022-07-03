@@ -6,6 +6,7 @@ import scipy.optimize as spo
 from scipy.optimize import curve_fit
 import scipy.odr as sco
 from itertools import chain
+import nanoscipy.mathpar as nsp
 
 standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF',
                      '#42EADDFF', '#CDB599FF', '#00A4CCFF', '#F95700FF',
@@ -235,30 +236,39 @@ class DatAn:
             raise TypeError(f'Operation, {operation}, is invalid.')
 
         # perform secondary operation if any is given
-        oprRes = []
-        if not sec_opr:
-            oprRes = [i for i in oprResPre]
+        opr_res = []
+        if sec_opr:
+            decomposed_sec_opr = [i for i in sec_opr]  # decompose string into list
+            prim_opr_id = nsf.find(decomposed_sec_opr, 'x')  # find indexes for 'x'
+
+            # determine whether the found 'x' is part of 'exp'
+            fixed_opr_id = []
+            for i in prim_opr_id:
+                ip1 = im1 = None
+                try:
+                    ip1 = decomposed_sec_opr[i + 1]
+                except IndexError:
+                    pass
+                try:
+                    im1 = decomposed_sec_opr[i - 1]
+                except IndexError:
+                    pass
+
+                if im1 != 'e' and ip1 != 'p':
+                    fixed_opr_id.append(i)
+
+            # replace 'x' with the primary operation result
+            replaced_decom_string = [
+                [[k if i in fixed_opr_id else j for i, j in nsf.indexer(decomposed_sec_opr)] for
+                 k in l] for l in oprResPre]
+
+            # convert list back to a string, and execute operations in parser
+            oprRes = [[nsp.parser(nsf.list_to_string(j)) for j in i] for i in replaced_decom_string]
+            finalOperation = nsf.list_to_string([operation if i in fixed_opr_id else e for i, e in
+                                                 nsf.indexer(decomposed_sec_opr)])
+        else:
             finalOperation = operation
-        elif '**' in sec_opr:
-            warnings.warn('Operations such as **(1/3) with parenthesizes are currently not yet supported', stacklevel=2)
-            oprRes = [i ** float(sec_opr.strip('**')) for i in oprResPre]
-            finalOperation = operation + sec_opr
-        elif '*' in sec_opr:
-            warnings.warn('Operations such as *(1/3) with parenthesizes are currently not yet supported', stacklevel=2)
-            oprRes = [i * float(sec_opr.strip('*')) for i in oprResPre]
-            finalOperation = operation + sec_opr
-        elif '/' in sec_opr:
-            oprRes = [i / float(sec_opr.strip('/')) for i in oprResPre]
-            finalOperation = operation + sec_opr
-        elif sec_opr == 'ln':
-            oprRes = [np.log(i) for i in oprResPre]
-            finalOperation = f'ln({operation})'
-        elif sec_opr == 'log':
-            oprRes = [np.log10(i) for i in oprResPre]
-            finalOperation = f'log({operation})'
-        elif sec_opr == 'exp':
-            oprRes = [np.exp(i) for i in oprResPre]
-            finalOperation = f'exp({operation})'
+            oprRes = oprResPre
 
         # print results if oprint is set to valid value
         #   first, check if costum data labels have been defined from .plot()

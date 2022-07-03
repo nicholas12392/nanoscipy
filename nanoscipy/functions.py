@@ -340,6 +340,26 @@ def indexer(list_to_index):
     indexed_list = [[k] + [j] for k, j in zip(list(range(len(list_to_index))), list_to_index)]
     return indexed_list
 
+
+def find(list_subject, index_item):
+    """
+    An improved version of the native index function. Finds all indexes for the given value if present.
+
+    Parameters 
+        list_subject : list
+            The input list in which the index item should be located.
+        index_item : var
+            Any variable desired to be found in the list. If not in the list, output will be empty.
+
+    Returns 
+        A list of ints corresponding to the indexes of the given item in the list.
+    """
+    indexed_items = [i for i, e in indexer(list_subject) if e == index_item]
+    if not indexed_items:  # warn user, if no such item is in the list
+        warnings.warn(f'Index item {index_item} is not in the given list.', stacklevel=2)
+    return indexed_items
+
+
 def file_select(path, set_cols=None, cut_rows=None, **kwargs):
     """
     This function selects and extracts data, from a file at a specified path. It can be useful to index multiple data 

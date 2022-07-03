@@ -144,7 +144,6 @@ def number_parser(math_string):
         elif [h for h in i_val][-1] == '.' and isinstance(nsf.string_to_int(i_val_next), int):
             temp_string = [''.join([i_val, i_val_next]) if k == i else j for k, j in temp_index_chain if k != i_next]
             temp_index_chain = indexer(temp_string)
-            i = 0
             continue  # break and restart loop with the updated list
 
         # if the current string value has a consecutive e-/+[int], join
@@ -152,15 +151,20 @@ def number_parser(math_string):
             temp_string = [''.join([i_val_pre, i_val, i_val_next, i_val_con]) if k == i else j for k, j in
                            temp_index_chain if k not in (i_pre, i_next, i_con)]
             temp_index_chain = indexer(temp_string)
-            i = 0
+            i -= 1
             continue  # break and restart loop with the updated list
 
         # if the string contains key values pi, replace those with the value of pi
         elif i_val == 'p' and i_val_next == 'i':
             temp_string = [str(np.pi) if k == i else j for k, j in temp_index_chain if k != i_next]
             temp_index_chain = indexer(temp_string)
-            i = 0
             continue  # break and restart loop with the updated list
+
+        # if two negative signs are consecutive, change to a positive sign
+        elif i_val == '-' and i_val_next == '-':
+            temp_string = ['+' if k == i else j for k, j in temp_index_chain if k != i_next]
+            temp_index_chain = indexer(temp_string)
+            continue
         i += 1  # update iterator
     return temp_string
 
@@ -181,7 +185,7 @@ def ordered_parser(math_string, steps=False):
     """
     parsed_numbers = number_parser(math_string)  # fix numbers in passed string
     # if the first value of the fixed list is a '-', append to the next value, preventing interpretation as an operator
-    if parsed_numbers[0] == '-':
+    if parsed_numbers[0] in ('-', '+'):
         post_float_string = [''.join([parsed_numbers[0], parsed_numbers[1]]) if i == 0 else j for i, j in
                              indexer(parsed_numbers) if i != 1]
     else:
@@ -211,7 +215,7 @@ def ordered_parser(math_string, steps=False):
         elif (j, j_next) == ('^', '-'):
             elem = '^-'
             elem_excl.append(i_next)
-        elif (j, j_next) == ('+', '-'):
+        elif (j, j_next) == ('+', '-') or (j, j_next) == ('-', '+'):
             elem = '+-'
             elem_excl.append(i_next)
         else:  # for all other elements, define current iterative as value
@@ -373,7 +377,7 @@ def parser(math_string, steps=False):
                 print(nsf.list_to_string(temp_decom_string))
             temp_index = indexer(temp_decom_string)
             temp_bracket_idx = [[j] + [e] for j, e in temp_index if e in ('(', ')')]
-            i = 0  # reset iteration
+            i -= 1  # reset iteration
             continue
         i += 1
     else:  # if no brackets are present in iterated string, perform operations as usual per ordered_parser()

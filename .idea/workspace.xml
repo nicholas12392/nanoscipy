@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Parameter updates to DatAn">
-      <change afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/nanoscipy.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nanoscipy.iml" afterDir="false" />
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added list_to_string(). Added a mathematical parser, supporting many standard conventions and notations.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nanoscipy/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +118,7 @@
       <workItem from="1654611599939" duration="139000" />
       <workItem from="1654611745409" duration="75000" />
       <workItem from="1654611827093" duration="8082000" />
-      <workItem from="1656577826407" duration="4408000" />
+      <workItem from="1656577826407" duration="12432000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -147,7 +148,21 @@
       <option name="project" value="LOCAL" />
       <updated>1654611869939</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added list_to_string(). Added a mathematical parser, supporting many standard conventions and notations.">
+      <created>1656713812151</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1656713812151</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added list_to_string(). Added a mathematical parser, supporting many standard conventions and notations.">
+      <created>1656713959280</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1656713959280</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,6 +183,7 @@
     <MESSAGE value="PyCharm Log 1" />
     <MESSAGE value="Added modules and updated fit_data" />
     <MESSAGE value="Parameter updates to DatAn" />
-    <option name="LAST_COMMIT_MESSAGE" value="Parameter updates to DatAn" />
+    <MESSAGE value="Added list_to_string(). Added a mathematical parser, supporting many standard conventions and notations." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added list_to_string(). Added a mathematical parser, supporting many standard conventions and notations." />
   </component>
 </project>
