@@ -420,6 +420,8 @@ class DatAn:
                 Set whether uncertainties for the fits should be plotted. The default is True.
             axis : int
                 Set whether plot should have axis marked. Three different styles: 0, 1, 2. The default is None.
+            save_to : str
+                String with a path and filename to save figure to.
 
 
         Returns
@@ -673,4 +675,7 @@ class DatAn:
             legend_loc = 'best'
         ax.legend(fontsize=legend_size, loc=legend_loc)
         plt.rcParams.update({'font.family': 'Times New Roman'})
+        if 'save_to' in kwargs.keys():  # if save_to key, save to that path
+            save_to = kwargs.get('save_to')
+            plt.savefig(save_to, dpi=set_dpi)
         plt.show()
