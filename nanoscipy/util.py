@@ -19,12 +19,13 @@ elem_checker()
 
 float_to_int()
 
+replace()
+
 """
 import warnings
 import numpy as np
 import sympy as sp
 from itertools import chain
-
 
 standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF', '#42EADDFF', '#CDB599FF', '#00A4CCFF',
                      '#F95700FF', '#00203FFF', '#ADEFD1FF', '#F4DF4EFF', '#949398FF', '#ED2B33FF', '#D85A7FFF',
@@ -253,4 +254,61 @@ def float_to_int(float_element, fail_action='pass'):
             res = float_element
         elif fail_action == 'error':  # if fail action is 'error', then raise a TypeError
             raise TypeError(f'Float \'{float_element}\' cannot be converted to int.')
+    return res
+
+
+def replace(elem, rep, string):
+    """
+    Replaces the element inside the string, if the element is inside the string. Can replace sequences up to 9
+    elements.
+
+    Parameters
+        elem : str
+            The element to be replaced.
+        rep : str
+            The element to replace with.
+        string : str
+            The string in which an element is to be replaced.
+
+    Returns
+        New string with the replaced element.
+    """
+
+    pre_float_string = [i for i in string]  # decompose input string into elements in a list
+    decom_elem = [i for i in elem]  # decompose rep string
+
+    i = 0  # define initial
+    temp_string = pre_float_string
+    while i < len(temp_string):  # iterate over the length of the 1-piece list
+
+        # define surrounding iterates
+        ip1, ip2, ip3, ip4, ip5, ip6, ip7, ip8, ip9 = i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9
+        packed_indexes = [ip1, ip2, ip3, ip4, ip5, ip6, ip7, ip8, ip9]  # pack integers for compaction
+        i0_val = temp_string[i]  # define current iterative value
+
+        # define fall-back values for iterates passed current
+        ip1_val = ip2_val = ip3_val = ip4_val = ip5_val = ip6_val = ip7_val = ip8_val = ip9_val = None
+
+        try:  # try to define values for the surrounding iterations, otherwise pass at position
+            ip1_val = temp_string[ip1]
+            ip2_val = temp_string[ip2]
+            ip3_val = temp_string[ip3]
+            ip4_val = temp_string[ip4]
+            ip5_val = temp_string[ip5]
+            ip6_val = temp_string[ip6]
+            ip7_val = temp_string[ip7]
+            ip8_val = temp_string[ip8]
+            ip9_val = temp_string[ip9]
+        except IndexError:
+            pass
+
+        # define a packed index
+        packed_values = [i0_val, ip1_val, ip2_val, ip3_val, ip4_val, ip5_val, ip6_val, ip7_val, ip8_val, ip9_val]
+
+        if decom_elem == packed_values[:len(decom_elem)]:
+            temp_string = [rep if k == i else j for k, j in indexer(string) if k not in
+                           packed_indexes[:len(decom_elem) - 1]]
+            continue  # break and restart loop with the updated list
+        i += 1  # update iterative
+    res = list_to_string(temp_string)  # define result and convert to string
     return res

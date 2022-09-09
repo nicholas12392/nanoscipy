@@ -431,5 +431,6 @@ def parser(math_string, steps=False, cprint=True):
 
     # auto-print if prompted
     if cprint:
-        print(f'Result: {math_string} = {int_fixed_string}')
+        pretty_string = nsu.replace('pi', 'π', math_string)
+        print(f'Result: {pretty_string} = {int_fixed_string}')
     return int_fixed_string

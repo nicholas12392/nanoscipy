@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added string_to_int()">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/nanoscipy.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nanoscipy.iml" afterDir="false" />
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="mathpar hotfix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,7 +124,7 @@
       <workItem from="1662617191634" duration="887000" />
       <workItem from="1662639350154" duration="13146000" />
       <workItem from="1662754058019" duration="123000" />
-      <workItem from="1662754239720" duration="1172000" />
+      <workItem from="1662754239720" duration="2232000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -197,7 +196,14 @@
       <option name="project" value="LOCAL" />
       <updated>1662752577429</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="mathpar hotfix">
+      <created>1662756252640</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1662756252640</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -222,6 +228,7 @@
     <MESSAGE value="Optimizations and bug fixes to mathpar.parser(). Added find() function. Implemented parser in DatAn.mathop()" />
     <MESSAGE value="Added quick save option for DatAn.plot()" />
     <MESSAGE value="Added util.py. Fixed operation display selection (mathop and location). Moved utility functions from functions.py to util.py. Fixed (x)^(y) issue, added factorial support, fixed trigonometric functions, added print option for .parser(). Added multi_plot()." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added util.py. Fixed operation display selection (mathop and location). Moved utility functions from functions.py to util.py. Fixed (x)^(y) issue, added factorial support, fixed trigonometric functions, added print option for .parser(). Added multi_plot()." />
+    <MESSAGE value="mathpar hotfix" />
+    <option name="LAST_COMMIT_MESSAGE" value="mathpar hotfix" />
   </component>
 </project>
