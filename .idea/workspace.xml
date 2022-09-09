@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added util.py. Fixed operation display selection (mathop and location). Moved utility functions from functions.py to util.py. Fixed (x)^(y) issue, added factorial support, fixed trigonometric functions, added print option for .parser(). Added multi_plot()." />
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added string_to_int()">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/nanoscipy.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nanoscipy.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -48,18 +52,20 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/nicho/PycharmProjects/nanoscipyTestEnv",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Python"
+    "settings.editor.selected.configurable": "PyConsoleConfigurable.Python Console"
   }
 }]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
-      <console-settings module-name="nanoscipy" sdk-home="C:\Users\nicho\AppData\Local\Programs\Python\Python310\python.exe">
+      <console-settings module-name="nanoscipy" sdk-home="C:\Users\nicho\AppData\Local\Programs\Python\Python310\python.exe" is-module-sdk="true">
         <option name="mySdkHome" value="C:\Users\nicho\AppData\Local\Programs\Python\Python310\python.exe" />
+        <option name="myUseModuleSdk" value="true" />
         <option name="myModuleName" value="nanoscipy" />
       </console-settings>
     </option>
@@ -118,6 +124,8 @@
       <workItem from="1662108829573" duration="8876000" />
       <workItem from="1662617191634" duration="887000" />
       <workItem from="1662639350154" duration="13146000" />
+      <workItem from="1662754058019" duration="123000" />
+      <workItem from="1662754239720" duration="1172000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>

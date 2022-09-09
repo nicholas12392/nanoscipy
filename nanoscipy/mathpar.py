@@ -383,9 +383,6 @@ def parser(math_string, steps=False, cprint=True):
                     temp_result = np.log10(pre_temp_result)
                 id_excl = list(range(im3, i0))
             elif (im3_val, im2_val, im1_val) == ('s', 'i', 'n'):
-                temp_result = np.sin(pre_temp_result)
-                id_excl = list(range(im3, i0))
-            elif (im3_val, im2_val, im1_val) == ('c', 'o', 's'):
                 # fix sin(n*pi) numerical variation for n in NN
                 if pre_temp_result == 0:
                     temp_result = 0
@@ -395,7 +392,10 @@ def parser(math_string, steps=False, cprint=True):
                     if isinstance(nsu.float_to_int(abs(equationSinPiSolution[0])), int):
                         temp_result = 0
                     else:
-                        temp_result = sp.sin(pre_temp_result)
+                        temp_result = np.sin(pre_temp_result)
+                id_excl = list(range(im3, i0))
+            elif (im3_val, im2_val, im1_val) == ('c', 'o', 's'):
+                temp_result = np.cos(pre_temp_result)
                 id_excl = list(range(im3, i0))
             elif (im3_val, im2_val, im1_val) == ('t', 'a', 'n'):
                 temp_result = np.tan(pre_temp_result)
