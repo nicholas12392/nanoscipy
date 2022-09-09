@@ -1,7 +1,8 @@
 # nanoscipy
 
 nanoscipy has been made, to ease the more heavy data-handling, -processing, and - analysis. 
-This package is being readily updated at the moment, so be sure to keep up, as new and useful additions and fixes are very likely to be included.
+This package is being readily updated at the moment, so be sure to keep up, as new and useful additions and fixes are 
+very likely to be included.
 
 ## Installation and updating
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install nanoscipy like below. 
@@ -13,19 +14,31 @@ For package updates, use:
 ```bash
 pip install --upgrade nanoscipy
 ```
-Note that if you're using anaconda, you might have to install the module from the anaconda terminal instead (or use conda rather than pip)
+Note that if you're using anaconda, you might have to install the module from the anaconda terminal instead (or use 
+conda rather than pip)
 ## Usage
 ### Import
-Do note that the module currently consists of three sub-modules, and so unless you are importing the entire module, you will need to specify either
+Currently, the package consists of four distinct modules:
 ```bash
-import nanoscipy.functions
+nanoscipy.functions
 ```
+Contains most of the practical functions of nanoscipy. 
+
 ```bash
-import nanoscipy.modules
+nanoscipy.modules
 ```
-or
+Contains all classes of nanoscipy.
+
 ```bash
-import nanoscipy.mathpar
+nanoscipy.util
 ```
-Note that the .functions sub-module contains all basic functions of this package, whilst the .modules sub-module contains all python classes of the package.
+Contains all utility functions and lists used within nanoscipy. Different modules use functions from this module. 
+Note that some of these functions may be of practical use, but many are simply throw-away functions to increase 
+readability.
+
+```bash
+nanoscipy.mathpar
+```
+The module with the mathematical parser of nanoscipy. Specifically, this contains the practical function parser(), which
+is the collective parser itself.
 
