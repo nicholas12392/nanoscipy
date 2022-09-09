@@ -7,14 +7,7 @@ from scipy.optimize import curve_fit
 import scipy.odr as sco
 from itertools import chain
 import nanoscipy.mathpar as nsp
-
-standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF',
-                     '#42EADDFF', '#CDB599FF', '#00A4CCFF', '#F95700FF',
-                     '#00203FFF', '#ADEFD1FF', '#F4DF4EFF', '#949398FF',
-                     '#ED2B33FF', '#D85A7FFF', '#2C5F2D', '#97BC62FF',
-                     '#00539CFF', '#EEA47FFF', '#D198C5FF', '#E0C568FF']
-alphabetSequence = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-                    'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+import nanoscipy.util as nsu
 
 
 class DatAn:
@@ -193,12 +186,12 @@ class DatAn:
                 list of lists. The default is 1.
             sec_opr : str, optional
                 Perform a secondary operation on the primary operation. This type is denoted as a string, with the 
-                primary operation denoted as 'x', e.g., 'x^-1'. Supported operations: '^', '*', '/', '+', '-', 'ln', 
-                 'log' (this is log10), 'exp', 'sin', 'cos', 'tan', 'pi'. The default is None.
+                primary operation denoted as 'x', e.g., 'x^-1'. Supported operations: '^', '*', '/', '+', '-', 'ln',
+                'log' (this is log10), 'exp', 'sin', 'cos', 'tan', 'pi'. The default is None.
             oprint : str, optional
-                Print the results from the operation. If 'all', print results for operation on all fitted functions, if
-                a letter, print result for that particular fitted function, else does not print. Note that if the
-                functions has customized labels, these can be called as well to specify. The default is 'all'.
+                Print the results from the operation. If 'all', print results for operation on all fitted functions.
+                Else, has to be a string containing the data label of the particular graph (set in .plot). The default
+                is 'all'.
 
         Return
             oprRes : list
@@ -237,10 +230,9 @@ class DatAn:
             raise TypeError(f'Operation, {operation}, is invalid.')
 
         # perform secondary operation if any is given
-        opr_res = []
         if sec_opr:
             decomposed_sec_opr = [i for i in sec_opr]  # decompose string into list
-            prim_opr_id = nsf.find(decomposed_sec_opr, 'x')  # find indexes for 'x'
+            prim_opr_id = nsu.find(decomposed_sec_opr, 'x')  # find indexes for 'x'
 
             # determine whether the found 'x' is part of 'exp'
             fixed_opr_id = []
@@ -260,29 +252,29 @@ class DatAn:
 
             # replace 'x' with the primary operation result
             replaced_decom_string = [
-                [[k if i in fixed_opr_id else j for i, j in nsf.indexer(decomposed_sec_opr)] for
+                [[k if i in fixed_opr_id else j for i, j in nsu.indexer(decomposed_sec_opr)] for
                  k in l] for l in oprResPre]
 
             # convert list back to a string, and execute operations in parser
-            oprRes = [[nsp.parser(nsf.list_to_string(j)) for j in i] for i in replaced_decom_string]
-            finalOperation = nsf.list_to_string([operation if i in fixed_opr_id else e for i, e in
-                                                 nsf.indexer(decomposed_sec_opr)])
+            oprRes = [[nsp.parser(nsu.list_to_string(j)) for j in i] for i in replaced_decom_string]
+            finalOperation = nsu.list_to_string([operation if i in fixed_opr_id else e for i, e in
+                                                 nsu.indexer(decomposed_sec_opr)])
         else:
             finalOperation = operation
             oprRes = oprResPre
 
         # print results if oprint is set to valid value
-        #   first, check if costum data labels have been defined from .plot()
+        #   first, check if custom data labels have been defined from .plot()
+
+        # define list of the standard labels, corresponding to fed data sets
+        standardLabels = nsu.alphabetSequence[0:dataLength]
+
         try:
             dataLabels = self.__data_labels__
+            all_labels = dataLabels
         except AttributeError:
-            dataLabels = None
-
-        # define labels for results
-        if dataLabels:
-            resLabels = [f'{i}' for i in self.__data_labels__[0:dataLength]]
-        else:
-            resLabels = [f'{i}' for i in alphabetSequence[0:dataLength]]
+            dataLabels = []
+            all_labels = standardLabels
 
         # determine what to print, and check if passed oprint is valid
         if not oprint:
@@ -290,16 +282,18 @@ class DatAn:
         else:
             print(f':::Result from operation: {finalOperation}:::')
             if oprint == 'all':
-                for i, j in zip(resLabels, oprRes):
+                for i, j in zip(all_labels, oprRes):  # iterate through all computations and print
                     print(f'{i}): {j}')
-            elif oprint in resLabels:
-                oprintValId = resLabels.index(oprint)
-                print(f'{oprint}): {oprRes[oprintValId]}')
-            elif oprint in alphabetSequence[0:dataLength]:  # allow usage of automatic denotation for selection of graph
-                oprintValId = alphabetSequence.index(oprint)
-                print(f'{resLabels[oprintValId]}): {oprRes[oprintValId]}')
+            elif nsu.elem_checker(nsu.nest_checker(oprint), [standardLabels, dataLabels])[0]:
+                # else find selected values and display those only, sorted by lowest index
+                unsorted_values, unsorted_indexes = nsu.elem_checker(nsu.nest_checker(oprint),
+                                                                     [dataLabels, standardLabels], overwrite=True)
+                sorted_values = [v for i, v in sorted(zip(unsorted_indexes, unsorted_values))]
+                sorted_indexes = [i for i, v in sorted(zip(unsorted_indexes, unsorted_values))]
+                for i, j in zip(sorted_values, sorted_indexes):
+                    print(f'{i}): {oprRes[j]}')
             else:
-                raise ValueError(f'There is no function/graph named: {oprint}.')
+                raise ValueError(f'There is no corresponding function/graph \'{oprint}\'.')
         return oprRes
 
     def locate(self, x, oprint='all'):
@@ -335,19 +329,21 @@ class DatAn:
             locVal = [[functionType(i, *j) for i in position] for j in varConstants]
         elif fitType == 'odr':
             locVal = [[functionType(j, i) for i in position] for j in varConstants]
+        else:
+            raise ValueError(f'Fit-type undefined: \'{fitType}\'')
 
         # print results if oprint is set to valid value
-        #   first, check if costum data labels have been defined from .plot()
+        #   first, check if custom data labels have been defined from .plot()
+
+        # define list of the standard labels, corresponding to fed data sets
+        standardLabels = nsu.alphabetSequence[0:dataLength]
+
         try:
             dataLabels = self.__data_labels__
+            all_labels = dataLabels
         except AttributeError:
-            dataLabels = None
-
-        # define labels for results
-        if dataLabels:
-            resLabels = [f'{i}' for i in self.__data_labels__[0:dataLength]]
-        else:
-            resLabels = [f'{i}' for i in alphabetSequence[0:dataLength]]
+            dataLabels = []
+            all_labels = standardLabels
 
         # determine what to print, and check if passed oprint is valid
         if not oprint:
@@ -355,16 +351,17 @@ class DatAn:
         else:
             print(f':::Located y-values from x-values: {x}:::')
             if oprint == 'all':
-                for i, j in zip(resLabels, locVal):
+                for i, j in zip(all_labels, locVal):
                     print(f'{i}): {j}')
-            elif oprint in resLabels:
-                oprintValId = resLabels.index(oprint)
-                print(f'{oprint}): {locVal[oprintValId]}')
-            elif oprint in alphabetSequence[0:dataLength]:  # allow usage of automatic denotation for selection of graph
-                oprintValId = alphabetSequence.index(oprint)
-                print(f'{resLabels[oprintValId]}): {locVal[oprintValId]}')
+            elif nsu.elem_checker(nsu.nest_checker(oprint), [standardLabels, dataLabels])[0]:
+                unsorted_values, unsorted_indexes = nsu.elem_checker(nsu.nest_checker(oprint),
+                                                                     [dataLabels, standardLabels], overwrite=True)
+                sorted_values = [v for i, v in sorted(zip(unsorted_indexes, unsorted_values))]
+                sorted_indexes = [i for i, v in sorted(zip(unsorted_indexes, unsorted_values))]
+                for i, j in zip(sorted_values, sorted_indexes):
+                    print(f'{i}): {locVal[j]}')
             else:
-                raise ValueError(f'There is no function/graph named: {oprint}.')
+                raise ValueError(f'There is no corresponding function/graph \'{oprint}\'.')
         return locVal
 
     def plot(self, **kwargs):
@@ -489,9 +486,9 @@ class DatAn:
                 warnings.warn(
                     f'Color list length ({len(data_colors)}) does not match the data ({data_length}) or data and fit '
                     f'length ({data_length * 2}), reverting to standard colors.', stacklevel=2)
-                color_match_list = standardColorsHex[0:data_length] * 2
+                color_match_list = nsu.standardColorsHex[0:data_length] * 2
         else:
-            color_match_list = standardColorsHex[0:data_length] * 2
+            color_match_list = nsu.standardColorsHex[0:data_length] * 2
 
         # define standard plot params from kwargs and error handling
 
@@ -505,8 +502,8 @@ class DatAn:
         else:
             y_lab = None
         if 'dlab' not in kwargs.keys():  # labels for data points
-            data_labels = [r'$' + f'{i}' + r'_{dat}$' for i in alphabetSequence[0:data_length]] + [
-                r'$' + f'{i}' + r'_{fit}$' for i in alphabetSequence[0:data_length]]
+            data_labels = [r'$' + f'{i}' + r'_{dat}$' for i in nsu.alphabetSequence[0:data_length]] + [
+                r'$' + f'{i}' + r'_{fit}$' for i in nsu.alphabetSequence[0:data_length]]
         else:
             if not isinstance(kwargs.get('dlab'), (list, np.ndarray)):  # error if not a list/array of labels are given
                 raise ValueError('Data labels must be packed in type list.')
@@ -517,6 +514,7 @@ class DatAn:
                     data_labels = kwargs.get('dlab') + [f'{i}' + r'$_{fit}$' for i in kwargs.get('dlab')]
                 else:
                     data_labels = kwargs.get('dlab')
+            self.__data_labels__ = data_labels
 
         # graph/data/plot params
         if 'mkz' not in kwargs.keys():

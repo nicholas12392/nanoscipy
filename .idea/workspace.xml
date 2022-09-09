@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Optimizations and bug fixes to mathpar.parser(). Added find() function. Implemented parser in DatAn.mathop()">
-      <change beforePath="$PROJECT_DIR$/.idea/nanoscipy.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nanoscipy.iml" afterDir="false" />
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added util.py. Fixed operation display selection (mathop and location). Moved utility functions from functions.py to util.py">
+      <change afterPath="$PROJECT_DIR$/nanoscipy/util.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,19 +51,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.pyOptions&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Python"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="nanoscipy" sdk-home="C:\Users\nicho\AppData\Local\Programs\Python\Python310\python.exe">
@@ -117,7 +121,11 @@
       <workItem from="1654611745409" duration="75000" />
       <workItem from="1654611827093" duration="8082000" />
       <workItem from="1656577826407" duration="13897000" />
-      <workItem from="1656924718087" duration="1324000" />
+      <workItem from="1656924718087" duration="6842000" />
+      <workItem from="1660132713242" duration="7323000" />
+      <workItem from="1662108829573" duration="8876000" />
+      <workItem from="1662617191634" duration="887000" />
+      <workItem from="1662639350154" duration="12377000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -175,7 +183,14 @@
       <option name="project" value="LOCAL" />
       <updated>1656849936431</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Added quick save option for DatAn.plot()">
+      <created>1656930043878</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1656930043878</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,6 +213,7 @@
     <MESSAGE value="Parameter updates to DatAn" />
     <MESSAGE value="Added list_to_string(). Added a mathematical parser, supporting many standard conventions and notations." />
     <MESSAGE value="Optimizations and bug fixes to mathpar.parser(). Added find() function. Implemented parser in DatAn.mathop()" />
-    <option name="LAST_COMMIT_MESSAGE" value="Optimizations and bug fixes to mathpar.parser(). Added find() function. Implemented parser in DatAn.mathop()" />
+    <MESSAGE value="Added quick save option for DatAn.plot()" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added quick save option for DatAn.plot()" />
   </component>
 </project>

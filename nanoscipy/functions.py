@@ -3,13 +3,11 @@ All modular functions of nanoscipy.
 
 Contains
 ----------
+multi_plot()
+
 plot_grid()
 
 plot_data()
-
-string_to_float()
-
-string_to_int()
 
 file_select()
 
@@ -28,18 +26,210 @@ from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
 import scipy.odr as sco
 import FlowCal
-
-standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF',
-                     '#42EADDFF', '#CDB599FF', '#00A4CCFF', '#F95700FF',
-                     '#00203FFF', '#ADEFD1FF', '#F4DF4EFF', '#949398FF',
-                     '#ED2B33FF', '#D85A7FFF', '#2C5F2D', '#97BC62FF',
-                     '#00539CFF', '#EEA47FFF', '#D198C5FF', '#E0C568FF']
+import nanoscipy.util as nsu
 
 
 # from https://www.designwizard.com/blog/design-trends/colour-combination
 
+def multi_plot(grid, plotds, xs, ys, tight=True, **kwargs):
+    """
+    Create a multi-plot with different graphs designated to each plot.
+
+    Parameters
+        grid : str
+            Define the grid of the multiplot. Has to be denoted as 'rows x columns' e.g., '3x2'.
+        plotds : tuple
+            Define where each plot should be designated, e.g., (2, 3) if the first graph should be placed in plot number
+            2, and the second graph in plot number 3.
+        xs : list
+            X-values.
+        ys : list
+            Y-values.
+        tight : bool, optional
+            Set layout to be tight. The default is True.
+
+
+    Kwargs
+        num : int
+            Set figure number. The default is automatically generated.
+        dpi : float
+            Set dpi of the figure. The default is 300.
+        figsize : tuple
+            Define the dimensions of the figure. The default is (6, 2.5).
+        ttl : str or list
+            Set the title for the plots. If str set an overall title. If list set titles for those subplots. The default
+            is None.
+        xlab : str or list
+            Set the x label for the plots. If str set a single label for all subplots and share the x-axis. If list set
+            labels for individual subplots and do not share axis.
+        ylab : str or list
+            Set the y label for the plots. If str set a single label for all subplots and share the x-axis. If list set
+            labels for individual subplots and do not share axis.
+        dcol : str or list
+            Color of the data sets. A string value sets a color for all
+        ms : str or list
+            Set the marker style of the markers. If str set value for all markers. If list set value for only elements
+            given. The default is 'o'.
+        mz : float or list
+            Set the size of the markers. If float set value for all markers. If list set value for only those elements.
+            The default is 1.
+        lw : float or list
+            Set line width of the given data. The default is 0.
+        ls : str or list
+            Set line style of given data. The default is 'solid'.
+        alpha : float
+            Set the alpha of the depicted data.
+        dlab : list
+            Name the depicted data sets. The default is automatically generated.
+        lfsize : float or list
+            Set label font size. If float set value for all labels. If list set value for only those elements.
+            The default is 8.
+        lloc : str or list
+            Set the location of the labels. The default is 'best'.
+
+
+    """
+    global __FIGURE_NUMBER_NANOSCIPY_PYPLOT__
+
+    # define empty list if no figure number has previously been used
+    if '__FIGURE_NUMBER_NANOSCIPY_PYPLOT__' not in globals():
+        __FIGURE_NUMBER_NANOSCIPY_PYPLOT__ = [0]
+
+    # determine figure number
+    if 'num' in kwargs.keys():
+        plot_number = kwargs.get('num')
+    else:
+        plot_number = max(__FIGURE_NUMBER_NANOSCIPY_PYPLOT__) + 1
+
+    # update list of figure numbers if plot_number not already defined
+    if plot_number not in __FIGURE_NUMBER_NANOSCIPY_PYPLOT__:
+        __FIGURE_NUMBER_NANOSCIPY_PYPLOT__ += [plot_number]
+
+    # define variables for sharing of axis
+    x_share_key = y_share_key = False
+    if isinstance(kwargs.get('xlab'), str):
+        x_share_key = True
+    if isinstance(kwargs.get('ylab'), str):
+        y_share_key = True
+
+    # if this option proves desirable, use optional parameter ax_share=None, and add to doc_string:
+    #   ax_share : str, optional
+    #       Define whether axis should be shared amongst the different plots. Options: 'x', 'y', 'xy'. The default is
+    #       None.
+    # if ax_share in ('x', 'xy', 'yx', 'both'):
+    #     x_share_key = True
+    # else:
+    #     x_share_key = False
+    # if ax_share in ('y', 'xy', 'yx', 'both'):
+    #     y_share_key = True
+    # else:
+    #     y_share_key = False
+
+    # define kwargs for the grid
+    kwargs_std_keys = ('dpi', 'figsize')
+    kwargs_std_vals = (300, (6, 4))
+    kwargs_new_vals = [kwargs.get(i) if i in kwargs.keys() else j for i, j in zip(kwargs_std_keys, kwargs_std_vals)]
+
+    # define rows and columns of the plots in the figure
+    grid_rows, grid_columns = [int(i) for i in grid.split('x')]
+    psize = grid_rows * grid_columns
+
+    # construct the figure according to the defined grid
+    fig, axs = plt.subplots(grid_rows, grid_columns, num=plot_number, sharex=x_share_key, sharey=y_share_key,
+                            dpi=kwargs_new_vals[0], figsize=kwargs_new_vals[1])
+
+    # define large dummy-plot for legends if necessary
+    # if any(isinstance(kwargs.get(i), str) for i in ('xlab', 'ylab')):
+    if x_share_key or y_share_key:
+        ax = fig.add_subplot(111, frameon=False)
+        ax.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    # fix x and y lists
+    # check whether x-list data is of correct shape, otherwise try to fix, if failed, py dim error is raised
+    #   first check whether the x_data and y_data has same dimensions
+    if len(xs) == len(ys) and np.array(xs).shape == np.array(ys).shape:
+        try:  # if they do, try to convert all data to a list, if data is list of lists
+            xlist = [[i for i in j] for j in xs]
+        except TypeError:  # if data is a list of floats pack list into list
+            xlist = [[i for i in xs]]
+    else:
+        xlist = [[i for i in xs]] * len(ys)  # if x and y data have different dimensions, try convert
+
+    # check whether y-list data is of correct shape, otherwise try to fix, if failed, py dim error is raised
+    try:  # try to convert all data to a list, if data is list of lists
+        ylist = [[i for i in j] for j in ys]
+    except TypeError:  # if data is a list of floats pack list into list
+        ylist = [[i for i in ys]]
+
+    # define function to handle kwargs
+    def __kwarg_handler__(kwarg_keys, kwarg_vals, ksize):
+        kwarg_list_vals = [[i] * ksize if not isinstance(i, (list, tuple)) else i for i in kwarg_vals]
+        handled_kwargs = []
+        for i, j in zip(kwarg_keys, kwarg_list_vals):
+            if i not in kwargs.keys():
+                list_elem = j
+            else:
+                elem_val = kwargs.get(i)
+                if not isinstance(elem_val, (tuple, list, np.ndarray)):
+                    list_elem = [elem_val] * ksize
+                else:
+                    list_elem = [e for e in elem_val] + j[len(elem_val) - 1:]
+            handled_kwargs.append(list_elem)
+        return handled_kwargs
+
+    # define plotting kwargs
+    dsize = len(ylist)  # define the amount of data sets
+    plots_std_keys = ('dcol', 'ms', 'mz', 'lw', 'ls', 'alpha', 'dlab')
+    plots_std_vals = (nsu.standardColorsHex[: dsize], 'o', 1, 0, 'solid', 1, nsu.alphabetSequence[: dsize])
+    lists_new_vals = __kwarg_handler__(plots_std_keys, plots_std_vals, dsize)
+
+    # plot xs and ys in figure according to the plot id
+    for pid, x, y, color, mks, mkz, lw, ls, aa, lab in zip(plotds, xlist, ylist, *lists_new_vals):
+        axs[pid].plot(x, y, c=color, marker=mks, markersize=mkz, linewidth=lw, linestyle=ls, alpha=aa, label=lab)
+
+    # define and execute legend parameters
+    legs_std_keys = ('lfsize', 'lloc')
+    legs_std_vals = (8, 'best')
+    legs_new_vals = __kwarg_handler__(legs_std_keys, legs_std_vals, psize)
+
+    for pid, lfs, lloc in zip(range(psize), *legs_new_vals):
+        axs[pid].legend(fontsize=lfs, loc=lloc)
+
+    # set axis labels dependent on share keys if in dict
+    if 'xlab' in kwargs.keys():
+        xlab_kwarg = kwargs.get('xlab')
+        if x_share_key:
+            ax.set_xlabel(xlab_kwarg)
+        else:
+            for pid, label in zip(range(psize), xlab_kwarg):
+                axs[pid].set_xlabel(label)
+    if 'ylab' in kwargs.keys():
+        ylab_kwarg = kwargs.get('ylab')
+        if y_share_key:
+            ax.set_ylabel(ylab_kwarg)
+        else:
+            for pid, label in zip(range(psize), ylab_kwarg):
+                axs[pid].set_ylabel(label)
+
+    # set layout fit
+    if tight:
+        plt.tight_layout()
+
+    # set plot titles according to given input
+    if 'ttl' in kwargs.keys():
+        title_kwarg = kwargs.get('ttl')
+        if isinstance(title_kwarg, str):
+            fig.suptitle(title_kwarg)
+        else:
+            for i, j in zip(title_kwarg, range(psize)):
+                axs[j].set_title(i)
+
+    plt.rcParams.update({'font.family': 'Times New Roman'})
+    plt.show()
+
+
 def plot_grid(plot_nr=None, plot_row=None, plot_col=None, share=0, set_dpi=300, fig_size=(6, 2.5)):
-    '''
+    """
     Defines a grid of figures to plot in with plot_data().
 
     Parameters
@@ -48,10 +238,10 @@ def plot_grid(plot_nr=None, plot_row=None, plot_col=None, share=0, set_dpi=300, 
         The specific figure-unit number (plot_data() inherits this value).
         The default is 0.
     plot_row : int, optional
-        Defines the numnber of rows of plots within the figure. The default is
+        Defines the number of rows of plots within the figure. The default is
         1.
     plot_col : TYPE, optional
-        Defines the numnber of columns of plots within the figure.
+        Defines the number of columns of plots within the figure.
         The default is 1.
     share : int or string, optional
         0; shares no axis, 'x' or 1, shares x-axis amongst different plots,
@@ -60,13 +250,13 @@ def plot_grid(plot_nr=None, plot_row=None, plot_col=None, share=0, set_dpi=300, 
     set_dpi : int, optional
         Sets dpi for the entire figure. The default is 300.
     fig_size : list, optional
-        Set hight and width for the figure. The default is (6,2.5).
+        Set height and width for the figure. The default is (6,2.5).
 
     Returns
     -------
     Global variables used by plot_data().
 
-    '''
+    """
     global __FIGURE_GLOBAL_OUTPUT__
     global __AX_GLOBAL_OUTPUT__
     global __FIGURE_NUMBER_GLOBAL_OUTPUT__
@@ -121,7 +311,7 @@ def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=
     else:
         axs = __AX_GLOBAL_OUTPUT__
 
-    # chek for correct list input, and try fix if data-list is not in list
+    # check for correct list input, and try fix if data-list is not in list
     if not isinstance(xs, (list, np.ndarray)):
         raise ValueError('xs must be a list or numpy.ndarray.')
 
@@ -154,11 +344,11 @@ def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=
     non = np.repeat(None, data_length)
     ones = np.repeat(1, data_length)
 
-    if len(standardColorsHex) <= data_length:
+    if len(nsu.standardColorsHex) <= data_length:
         raise AssertionError(
-            'Too many standard colors needed, use costum colors via dcol.')
+            'Too many standard colors needed, use custom colors via dcol.')
 
-    color_list = standardColorsHex[0:data_length]
+    color_list = nsu.standardColorsHex[0:data_length]
     opt_vars = [dlab, mark, ms, lw, dcol, ls, trsp]
     opt_vars_default = [non, ['.'] * data_length, ones, ones, color_list,
                         ['solid'] * data_length, ones]
@@ -261,109 +451,10 @@ def plot_data(p, xs, ys, ttl=None, dlab=None, xlab=None, ylab=None, ms=None, lw=
     plt.show()
 
 
-def string_to_float(potential_float):
-    """
-    Converts string to float if possible (that is unless ValueError is encountered).
-
-    Parameters
-    ----------
-    potential_float : str
-        String to be converted to float.
-
-    Returns
-    -------
-    float or str
-        If successful, input is now float, if unsuccessful, str is still str.
-
-    """
-    try:
-        set_float = float(potential_float)
-        return set_float
-    except (ValueError, TypeError):
-        return potential_float
-
-
-def string_to_int(potential_int):
-    """
-    Converts string to int if possible (that is unless ValueError is encountered).
-
-    Parameters
-    ----------
-    potential_int : str
-        String to be converted to int.
-
-    Returns
-    -------
-    int or str
-        If successful, input is now int, if unsuccessful, str is still str.
-
-    """
-    try:
-        set_int = int(potential_int)
-        return set_int
-    except (ValueError, TypeError):
-        return potential_int
-
-
-def list_to_string(subject_list, sep=''):
-    """
-    Converts a list to a string.
-
-    Parameters
-    ----------
-    subject_list : list
-        List to be converted to a string.
-    sep : str, optional
-        Delimiter in between list elements in the string. The default value is ''.
-
-    Returns
-    -------
-    String from the list elements with the set delimiter in between.
-
-    """
-    fixed_list = [str(i) if not isinstance(i, str) else i for i in subject_list]  # fix non-str elements to str type
-    stringified_list = sep.join(fixed_list)  # construct string
-    return stringified_list
-
-def indexer(list_to_index):
-    """
-    When the built-in enumerate does not work as intended, this will.
-
-    Parameters
-        list_to_index : list
-            Elements will be indexed starting from zero and from left to right.
-
-    Returns
-        The indexed list. A list containing each previous element as a list, consisting of the index/id as the first
-        value, and the list-element as the second value.
-    """
-    indexed_list = [[k] + [j] for k, j in zip(list(range(len(list_to_index))), list_to_index)]
-    return indexed_list
-
-
-def find(list_subject, index_item):
-    """
-    An improved version of the native index function. Finds all indexes for the given value if present.
-
-    Parameters 
-        list_subject : list
-            The input list in which the index item should be located.
-        index_item : var
-            Any variable desired to be found in the list. If not in the list, output will be empty.
-
-    Returns 
-        A list of ints corresponding to the indexes of the given item in the list.
-    """
-    indexed_items = [i for i, e in indexer(list_subject) if e == index_item]
-    if not indexed_items:  # warn user, if no such item is in the list
-        warnings.warn(f'Index item {index_item} is not in the given list.', stacklevel=2)
-    return indexed_items
-
-
 def file_select(path, set_cols=None, cut_rows=None, **kwargs):
     """
     This function selects and extracts data, from a file at a specified path. It can be useful to index multiple data 
-    files in a way, that allows for easy extration in a for-loop.
+    files in a way, that allows for easy extraction in a for-loop.
 
     Parameters
         path : string
@@ -378,9 +469,9 @@ def file_select(path, set_cols=None, cut_rows=None, **kwargs):
 
     Keyword Arguments
         separator : string, optional
-            Define the deliminter of the data set (if nescessary). The default is if .csv; \',\', if .txt; \'\\t\'.
+            Define the delimiter of the data set (if necessary). The default is if .csv; \',\', if .txt; \'\\t\'.
         py_axlist : bool, optional
-            Constructs a regular python list, consisting of lists of all values of a certian variable, instead of 
+            Constructs a regular python list, consisting of lists of all values of a certain variable, instead of
             gaining rows of value-sets. The default is False.
         as_matrix : bool, optional
             Allows for loading of data as a matrix via numpy.loadtxt; note that this is only valid for .txt files. The 
@@ -388,14 +479,14 @@ def file_select(path, set_cols=None, cut_rows=None, **kwargs):
 
     Returns
         data : list
-            List (or list of lists) with the data from the selected file under the specified conditions.
+            The list (or list of lists) with the data from the selected file under the specified conditions.
         data_axlist : list
             Instead of containing data points from the data set, contains what corresponds to an x-, y-, z- etc. lists. 
-            Only relavant if py_axlist = True; then the function yields both data and data_axlist.
+            Only relevant if py_axlist = True; then the function yields both data and data_axlist.
 
     """
     assert path, 'Missing file path.'  # assert if missing path
-    if not set_cols:  # define standard column selection if no costum selection is defined
+    if not set_cols:  # define standard column selection if no custom selection is defined
         set_columns = [0, 1]
     else:
         if isinstance(set_cols, int):
@@ -435,11 +526,11 @@ def file_select(path, set_cols=None, cut_rows=None, **kwargs):
             data = np.loadtxt(fname=path, delimiter=separator, skiprows=cut_rows)
         else:
             data = pd.read_csv(path, header=cut_rows, usecols=set_columns, sep=separator).to_numpy()
-    elif file_extension in ('.fcs'):
+    elif file_extension == '.fcs':
         data = FlowCal.io.FCSData(path)
     if 'py_axlist' not in kwargs.keys() or ('py_axlist' in kwargs.keys() and kwargs.get('py_axlist')):
         data_axlist = [data[:, i].tolist() for i in range(len(data[0]))]
-        data_axlist_fix = [[string_to_float(i) for i in data_axlist[j]]
+        data_axlist_fix = [[nsu.string_to_float(i) for i in data_axlist[j]]
                            for j in range(len(data_axlist))]
         result = data_axlist_fix
     else:
@@ -575,7 +666,7 @@ def fit_data(func, x_list, y_list, g_list, method='curve_fit', **kwargs):
 def step_finder(x_data, y_data, delta=30, lin=0.005, err=0.005):
     """
     Determine averages of linear-horizontal data determined by delta, with a
-    set horizontal liniarity and maximum error.
+    set horizontal linearity and maximum error.
 
     Parameters
     ----------
@@ -619,17 +710,17 @@ def step_finder(x_data, y_data, delta=30, lin=0.005, err=0.005):
 
 # def data_extrema(data,pos_index=False,pos_range=None):
 #     """
-#     Determines extremas in a selected region. Can also identify the
+#     Determines extremes in a selected region. Can also identify the
 #     list-position of the extrema. Note that by extrema; it finds only the
-#     global extremas, as these are the maximum and minimum values of the data
+#     global extremes, as these are the maximum and minimum values of the data
 #     set.
 
 #     Parameters
 #     ----------
 #     data : list
-#         Data for determining extremas.
+#         Data for determining extremes.
 #     pos_index : bool, optional
-#         Determines whether the extremas should have their list positions
+#         Determines whether the extremes should have their list positions
 #         indexed. This yields an additional output list; index_list.
 #         The default is False.
 #     pos_range : list of ints, optional
@@ -639,10 +730,10 @@ def step_finder(x_data, y_data, delta=30, lin=0.005, err=0.005):
 #     Returns
 #     -------
 #     min_val : int
-#         The minimum of the data_lengthet (packed as a list with the maximum).
+#         The minimum of the data_length (packed as a list with the maximum).
 #     max_val : int
 #         The maximum of the data set (packed as a list with the minimum).
-#     indes_list : list
+#     index_list : list
 #         Contains the index of the minimum and the maximum (in that order).
 
 #     """
@@ -656,6 +747,6 @@ def step_finder(x_data, y_data, delta=30, lin=0.005, err=0.005):
 #     if pos_index is False:
 #         return [min_val,max_val]
 #     if pos_index is True:
-#         index_raw = [np.where(data[:,0] == min_val[0]),np.where(data[:,0] == max_val[0])] # index extremas
+#         index_raw = [np.where(data[:,0] == min_val[0]),np.where(data[:,0] == max_val[0])] # index extremes
 #         index_list = [[index_raw[0][0][0]],[index_raw[1][0][0]]]
 #         return [min_val,max_val], index_list
