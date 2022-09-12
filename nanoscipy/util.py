@@ -24,7 +24,6 @@ replace()
 """
 import warnings
 import numpy as np
-import sympy as sp
 from itertools import chain
 
 standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF', '#42EADDFF', '#CDB599FF', '#00A4CCFF',
@@ -154,23 +153,23 @@ def nest_checker(element, otype='list'):
 
     # check whether element is a string. If true, pack into list, if false try iterate
     if isinstance(element, str):
-        resElem = [element]
+        res_elem = [element]
     else:
         try:
-            resElem = [i for i in element]
+            res_elem = [i for i in element]
         except AttributeError:  # if iteration fails (not a packaged type element), pack into list
-            resElem = [element]
+            res_elem = [element]
 
     # convert the list into the desired output type
     if otype == 'list':
-        resNest = resElem
+        res_nest = res_elem
     elif otype == 'tuple':
-        resNest = tuple(resElem)
+        res_nest = tuple(res_elem)
     elif otype == 'ndarray':
-        resNest = np.array(resElem)
+        res_nest = np.array(res_elem)
     else:
         raise ValueError(f'Output type \'{otype}\' is not supported.')
-    return resNest
+    return res_nest
 
 
 def elem_checker(elems, lists, flat=False, overwrite=False):
@@ -192,7 +191,7 @@ def elem_checker(elems, lists, flat=False, overwrite=False):
             The default is False.
 
     Returns
-        List of all elements found in the passed lists, along with the indexes in the respective passed lists.
+        List of all elements found in the provided lists, along with the indexes in the respective passed lists.
     """
 
     value_list = []
@@ -266,25 +265,29 @@ def float_to_int(float_element, fail_action='pass'):
     return res
 
 
-def replace(elem, rep, string):
+def replace(elems, reps, string):
     """
-    Replaces the element inside the string, if the element is inside the string. Can replace sequences up to 9
-    elements.
+    Replaces the element(s) inside the string, if the element(s) is(are) inside the string. Can replace sequences up to
+    10 letters.
 
     Parameters
-        elem : str
-            The element to be replaced.
-        rep : str
-            The element to replace with.
+        elem : str or tuple
+            The element(s) to be replaced. If tuple, replaces those elements in the tuple.
+        rep : str or tuple
+            The element(s) to replace with.
         string : str
             The string in which an element is to be replaced.
 
     Returns
-        New string with the replaced element.
+        New string with the replaced element(s).
     """
 
+    # make sure that elems and reps are indeed tuples
+    elems = nest_checker(elems, 'tuple')
+    reps = nest_checker(reps, 'tuple')
+
     pre_float_string = [i for i in string]  # decompose input string into elements in a list
-    decom_elem = [i for i in elem]  # decompose rep string
+    decom_elems = [[i for i in j] for j in elems]  # decompose rep string
 
     i = 0  # define initial
     temp_string = pre_float_string
@@ -314,10 +317,10 @@ def replace(elem, rep, string):
         # define a packed index
         packed_values = [i0_val, ip1_val, ip2_val, ip3_val, ip4_val, ip5_val, ip6_val, ip7_val, ip8_val, ip9_val]
 
-        if decom_elem == packed_values[:len(decom_elem)]:
-            temp_string = [rep if k == i else j for k, j in indexer(string) if k not in
-                           packed_indexes[:len(decom_elem) - 1]]
-            continue  # break and restart loop with the updated list
+        for es, o in zip(decom_elems, reps):
+            if es == packed_values[:len(es)]:
+                temp_string = [o if k == i else j for k, j in indexer(temp_string) if k not in
+                               packed_indexes[:len(es) - 1]]
         i += 1  # update iterative
     res = list_to_string(temp_string)  # define result and convert to string
     return res

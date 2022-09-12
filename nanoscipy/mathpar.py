@@ -403,7 +403,7 @@ def parser(math_string, steps=False, cprint=True):
                 else:
                     arbitrary_x = sp.symbols('arbitraryX')
                     equation_sin_pi_solution = sp.solve(pre_temp_result / arbitrary_x - np.pi)
-                    if isinstance(nsu.float_to_int(abs(equation_sin_pi_solution[0])), int):
+                    if isinstance(nsu.float_to_int(equation_sin_pi_solution[0]), int):
                         temp_result = 0
                     else:
                         temp_result = np.sin(pre_temp_result)
@@ -445,6 +445,11 @@ def parser(math_string, steps=False, cprint=True):
 
     # auto-print if prompted
     if cprint:
-        pretty_string = nsu.replace('pi', 'π', math_string)
-        print(f'Result: {pretty_string} = {int_fixed_string}')
+        pretty_string = nsu.replace(('pi', '_hbar', '_NA', '_c', '_h', '*', '_Rc', '_kB'),
+                                    ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'Rᴄ', 'kᴮ'), math_string)
+        if isinstance(nsu.float_to_int(int_fixed_string / np.pi), int):
+            pi_fixed_string = str(nsu.float_to_int(int_fixed_string / np.pi)) + 'π'
+        else:
+            pi_fixed_string = int_fixed_string
+        print(f'Result: {pretty_string} = {pi_fixed_string}')
     return int_fixed_string
