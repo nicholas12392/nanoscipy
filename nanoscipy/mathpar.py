@@ -313,7 +313,8 @@ def product_parser(math_string):
                 (isinstance(nsu.string_to_float(i0_val), float) and (ip1_val, ip2_val, ip3_val) == ('e', 'x', 'p')) or \
                 (i0_val == ')' and ip1_val in (*nsu.alphabetSequence, *nsu.alphabetSequenceCap)) or \
                 ((i0_val, ip1_val) == (')', '_')) or \
-                (isinstance(nsu.string_to_float(i0_val), float) and ip1_val == '_'):
+                (isinstance(nsu.string_to_float(i0_val), float) and ip1_val == '_') or \
+                (i0_val in (*nsu.alphabetSequence, *nsu.alphabetSequenceCap) and ip1_val == '_'):
             temp_decom_string = temp_decom_string[: ip1] + ['*'] + temp_decom_string[ip1:]
         elif (i0_val, ip1_val, ip2_val) == ('p', 'i', '('):
             temp_decom_string = temp_decom_string[: ip2] + ['*'] + temp_decom_string[ip2:]
