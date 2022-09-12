@@ -3,9 +3,6 @@ import numpy as np
 import sympy as sp
 import scipy.constants as spc
 
-alphabetSequence = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-                    'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-
 
 def basic_operations(operator, fir_int, sec_int=None):
     """
@@ -133,64 +130,77 @@ def number_parser(math_string):
     temp_string = pre_float_string
     temp_index_chain = pre_index_chain
     while i < len(temp_string):  # iterate over the length of the 1-piece list
-        i_val = temp_string[i]  # i'th value of the 1-piece list
-        i_next, i_pre, i_con = i + 1, i - 1, i + 2  # define surrounding i´th values
-        i_val_pre = i_val_next = i_val_con = ''
+        i0_val = temp_string[i]  # i'th value of the 1-piece list
+        ip1, im1, ip2, ip3, ip4 = i + 1, i - 1, i + 2, i + 3, i + 4  # define surrounding i´th values
+        im1_val = ip1_val = ip2_val = ip3_val = ip4_val = ''
         try:  # try to find the surrounding values, if no such values, pass
-            i_val_pre = temp_string[i_pre]
+            im1_val = temp_string[im1]
         except IndexError:
             pass
         try:
-            i_val_next = temp_string[i_next]
-            i_val_con = temp_string[i_con]
+            ip1_val = temp_string[ip1]
+            ip2_val = temp_string[ip2]
+            ip3_val = temp_string[ip3]
+            ip4_val = temp_string[ip4]
         except IndexError:
             pass
 
         # if the current value is an int and next value is an int or a dot, concatenate the two 1-pieces and make a new
         #   updated list with the concatenated element
-        if isinstance(nsu.string_to_float(i_val), float) and (isinstance(nsu.string_to_int(i_val_next),
-                                                                         int) or i_val_next == '.'):
-            temp_string = [''.join([i_val, i_val_next]) if k == i else j for k, j in temp_index_chain if k != i_next]
+        if isinstance(nsu.string_to_float(i0_val), float) and (isinstance(nsu.string_to_int(ip1_val), int) or
+                                                               ip1_val == '.'):
+            temp_string = [''.join([i0_val, ip1_val]) if k == i else j for k, j in temp_index_chain if k != ip1]
             temp_index_chain = nsu.indexer(temp_string)
             continue  # break and restart loop with the updated list
 
         # if the current string value's last element is a dot, and the next element is an int, concatenate and update
-        elif [h for h in i_val][-1] == '.' and isinstance(nsu.string_to_int(i_val_next), int):
-            temp_string = [''.join([i_val, i_val_next]) if k == i else j for k, j in temp_index_chain if k != i_next]
+        elif [h for h in i0_val][-1] == '.' and isinstance(nsu.string_to_int(ip1_val), int):
+            temp_string = [''.join([i0_val, ip1_val]) if k == i else j for k, j in temp_index_chain if k != ip1]
             temp_index_chain = nsu.indexer(temp_string)
             continue  # break and restart loop with the updated list
 
         # if the current string value has a consecutive e-/+[int], join
-        elif i_val == 'e' and (i_val_next in ('+', '-') or isinstance(nsu.string_to_int(i_val_next), int)):
-            if i_val_next in ('+', '-'):
-                temp_string = [''.join([i_val_pre, i_val, i_val_next, i_val_con]) if k == i else j for k, j in
-                               temp_index_chain if k not in (i_pre, i_next, i_con)]
-            elif isinstance(nsu.string_to_int(i_val_next), int):
-                temp_string = [''.join([i_val_pre, i_val, i_val_next]) if k == i else j for k, j in temp_index_chain if
-                               k not in (i_pre, i_next)]
+        elif i0_val == 'e' and (ip1_val in ('+', '-') or isinstance(nsu.string_to_int(ip1_val), int)):
+            if ip1_val in ('+', '-'):
+                temp_string = [''.join([im1_val, i0_val, ip1_val, ip2_val]) if k == i else j for k, j in
+                               temp_index_chain if k not in (im1, ip1, ip2)]
+            elif isinstance(nsu.string_to_int(ip1_val), int):
+                temp_string = [''.join([im1_val, i0_val, ip1_val]) if k == i else j for k, j in temp_index_chain if
+                               k not in (im1, ip1)]
             temp_index_chain = nsu.indexer(temp_string)
             i -= 1
             continue  # break and restart loop with the updated list
 
         # if the string contains key values pi, replace those with the value of pi
-        elif i_val == 'p' and i_val_next == 'i':
-            temp_string = [str(np.pi) if k == i else j for k, j in temp_index_chain if k != i_next]
+        elif i0_val == 'p' and ip1_val == 'i':
+            temp_string = [str(np.pi) if k == i else j for k, j in temp_index_chain if k != ip1]
             temp_index_chain = nsu.indexer(temp_string)
             continue  # break and restart loop with the updated list
 
         # replace natural constants
-        elif i_val == '_':
-            if (i_val_next, i_val_con) == ('N', 'A'):
-                temp_string = [str(spc.N_A) if k == i else j for k, j in temp_index_chain if k not in (i_next, i_con)]
-            elif (i_val_next, i_val_con) == ('k', 'B'):
-                temp_string = [str(spc.k) if k == i else j for k, j in temp_index_chain if k not in (i_next, i_con)]
+        elif i0_val == '_':
+            if (ip1_val, ip2_val, ip3_val, ip4_val) == ('h', 'b', 'a', 'r'):
+                temp_string = [str(spc.hbar) if k == i else j for k, j in temp_index_chain if k not in (ip1, ip2, ip3,
+                                                                                                        ip4)]
+            elif (ip1_val, ip2_val) == ('N', 'A'):
+                temp_string = [str(spc.N_A) if k == i else j for k, j in temp_index_chain if k not in (ip1, ip2)]
+            elif (ip1_val, ip2_val) == ('k', 'B'):
+                temp_string = [str(spc.k) if k == i else j for k, j in temp_index_chain if k not in (ip1, ip2)]
+            elif (ip1_val, ip2_val) == ('R', 'c'):
+                temp_string = [str(spc.R) if k == i else j for k, j in temp_index_chain if k not in (ip1, ip2)]
+            elif ip1_val == 'c':
+                temp_string = [str(spc.c) if k == i else j for k, j in temp_index_chain if k != ip1]
+            elif ip1_val == 'h':
+                temp_string = [str(spc.h) if k == i else j for k, j in temp_index_chain if k != ip1]
+            elif ip1_val == 'e':
+                temp_string = [str(spc.e) if k == i else j for k, j in temp_index_chain if k != ip1]
             else:
                 raise ValueError('Constant is not defined in parser.')
             temp_index_chain = nsu.indexer(temp_string)
 
         # if two negative signs are consecutive, change to a positive sign
-        elif i_val == '-' and i_val_next == '-':
-            temp_string = ['+' if k == i else j for k, j in temp_index_chain if k != i_next]
+        elif i0_val == '-' and ip1_val == '-':
+            temp_string = ['+' if k == i else j for k, j in temp_index_chain if k != ip1]
             temp_index_chain = nsu.indexer(temp_string)
             continue
         i += 1  # update iterator
@@ -296,10 +306,14 @@ def product_parser(math_string):
 
         # determine in which positions to add a '*' and add it
         if (i0_val, ip1_val) == (')', '(') or (isinstance(nsu.string_to_float(i0_val), float) and ip1_val in
-                                               (*[i for i in alphabetSequence if i != 'e'], '(')) or \
-                (i0_val in (*alphabetSequence, ')') and isinstance(nsu.string_to_float(ip1_val), float)) or \
+                                               (*[i for i in nsu.alphabetSequence if i != 'e'],
+                                                *nsu.alphabetSequenceCap, '(')) or \
+                (i0_val in (*[i for i in nsu.alphabetSequence if i != 'e'], *nsu.alphabetSequenceCap, ')') and
+                 isinstance(nsu.string_to_float(ip1_val), float)) or \
                 (isinstance(nsu.string_to_float(i0_val), float) and (ip1_val, ip2_val, ip3_val) == ('e', 'x', 'p')) or \
-                (i0_val == ')' and ip1_val in alphabetSequence):
+                (i0_val == ')' and ip1_val in (*nsu.alphabetSequence, *nsu.alphabetSequenceCap)) or \
+                ((i0_val, ip1_val) == (')', '_')) or \
+                (isinstance(nsu.string_to_float(i0_val), float) and ip1_val == '_'):
             temp_decom_string = temp_decom_string[: ip1] + ['*'] + temp_decom_string[ip1:]
         elif (i0_val, ip1_val, ip2_val) == ('p', 'i', '('):
             temp_decom_string = temp_decom_string[: ip2] + ['*'] + temp_decom_string[ip2:]
@@ -387,9 +401,9 @@ def parser(math_string, steps=False, cprint=True):
                 if pre_temp_result == 0:
                     temp_result = 0
                 else:
-                    arbitraryX = sp.symbols('arbitraryX')
-                    equationSinPiSolution = sp.solve(pre_temp_result / arbitraryX - np.pi)
-                    if isinstance(nsu.float_to_int(abs(equationSinPiSolution[0])), int):
+                    arbitrary_x = sp.symbols('arbitraryX')
+                    equation_sin_pi_solution = sp.solve(pre_temp_result / arbitrary_x - np.pi)
+                    if isinstance(nsu.float_to_int(abs(equation_sin_pi_solution[0])), int):
                         temp_result = 0
                     else:
                         temp_result = np.sin(pre_temp_result)

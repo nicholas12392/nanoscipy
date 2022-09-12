@@ -32,6 +32,8 @@ standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF', '#42EAD
                      '#2C5F2D', '#97BC62FF', '#00539CFF', '#EEA47FFF', '#D198C5FF', '#E0C568FF']
 alphabetSequence = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                     'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+alphabetSequenceCap = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+                       'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 
 
 def string_to_float(potential_float):
@@ -244,7 +246,12 @@ def float_to_int(float_element, fail_action='pass'):
         float_element = float(float_element)
 
     float_string = str(float_element)
-    float_decimals = float_string[float_string.index('.'):]
+    try:  # try to find the decimal dot in the float
+        float_decimals = float_string[float_string.index('.'):]
+    except ValueError:  # this should only fail, if the float_element is in scientific notation, with no decimals
+        # this will then fail, as float_element is then a float without a decimal
+        # upon this exception, float_element cannot be converted to an int, so the function stops and returns initial.
+        return float_element
 
     # if all decimals are zero, then set the given float as an int
     if all(i == '0' for i in float_decimals[1:]):
@@ -254,6 +261,8 @@ def float_to_int(float_element, fail_action='pass'):
             res = float_element
         elif fail_action == 'error':  # if fail action is 'error', then raise a TypeError
             raise TypeError(f'Float \'{float_element}\' cannot be converted to int.')
+        else:
+            raise ValueError(f'There is no such fail action, \'{fail_action}\'.')
     return res
 
 
