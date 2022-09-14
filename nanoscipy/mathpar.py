@@ -446,9 +446,9 @@ def parser(math_string, steps=False, cprint=True):
 
     # auto-print if prompted
     if cprint:
-        pretty_string = nsu.replace(('pi', '_hbar', '_NA', '_c', '_h', '*', '_Rc', '_kB'),
-                                    ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'Rᴄ', 'kᴮ'), math_string)
-        if isinstance(nsu.float_to_int(int_fixed_string / np.pi), int):
+        pretty_string = nsu.replace(('pi', '_hbar', '_NA', '_c', '_h', '*', '_Rc', '_kB', '_e'),
+                                    ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'Rᴄ', 'kᴮ', 'e'), math_string)
+        if isinstance(nsu.float_to_int(int_fixed_string / np.pi), int) and int_fixed_string != 0:
             pi_fixed_string = str(nsu.float_to_int(int_fixed_string / np.pi)) + 'π'
         else:
             pi_fixed_string = int_fixed_string

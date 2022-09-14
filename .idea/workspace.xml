@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added pi-prettify to parser(). replace() now supports replacement of multiple elements." />
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Natural constants implicit multiplication hotfix">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -214,7 +217,14 @@
       <option name="project" value="LOCAL" />
       <updated>1663010365770</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Natural constants implicit multiplication hotfix">
+      <created>1663010893635</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1663010893635</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -242,6 +252,7 @@
     <MESSAGE value="mathpar hotfix" />
     <MESSAGE value="Added more natural constants. Fixed natural constant implicit multiplication with parentheses and numbers. Fixed issue with float_to_int() with scientific notation." />
     <MESSAGE value="Added pi-prettify to parser(). replace() now supports replacement of multiple elements." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added pi-prettify to parser(). replace() now supports replacement of multiple elements." />
+    <MESSAGE value="Natural constants implicit multiplication hotfix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Natural constants implicit multiplication hotfix" />
   </component>
 </project>
