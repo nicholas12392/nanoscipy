@@ -24,6 +24,7 @@ replace()
 """
 import warnings
 import numpy as np
+import itertools
 from itertools import chain
 
 standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF', '#42EADDFF', '#CDB599FF', '#00A4CCFF',
@@ -157,7 +158,7 @@ def nest_checker(element, otype='list'):
     else:
         try:
             res_elem = [i for i in element]
-        except AttributeError:  # if iteration fails (not a packaged type element), pack into list
+        except (AttributeError, TypeError):  # if iteration fails (not a packaged type element), pack into list
             res_elem = [element]
 
     # convert the list into the desired output type
@@ -265,7 +266,7 @@ def float_to_int(float_element, fail_action='pass'):
     return res
 
 
-def replace(elems, reps, string):
+def replace(elems, reps, string, exclusions=None):
     """
     Replaces the element(s) inside the string, if the element(s) is(are) inside the string. Can replace sequences up to
     10 letters.
@@ -277,6 +278,9 @@ def replace(elems, reps, string):
             The element(s) to replace with.
         string : str
             The string in which an element is to be replaced.
+        exclusions : str or tuple, optional
+            If there is a particular sequence (or sequences) of the string, which should not be affected by the initial
+            replacement, these should be specified here.
 
     Returns
         New string with the replaced element(s).
@@ -286,7 +290,43 @@ def replace(elems, reps, string):
     elems = nest_checker(elems, 'tuple')
     reps = nest_checker(reps, 'tuple')
 
-    pre_float_string = [i for i in string]  # decompose input string into elements in a list
+    fixed_index_excl_list = []  # set exclusions to be empty, and redefine if any are present
+    if exclusions:
+
+        # if only a single exclusion, make iterable
+        exclusions = nest_checker(exclusions, 'tuple')
+
+        exclusion_id_relist = []  # empty list for indexes of exclusions in string
+        for exclusion in exclusions:  # iterate through all exclusions
+            if exclusion in string:
+                temp_string = string.split(exclusion)  # split string around exclusion
+
+                # for each split (but the last), define an index for that list, and iterate through the lists
+                for elem_id, list_elem in indexer(temp_string[:-1]):
+                    # define first index for the exclusion
+                    temp_insert_id = len(list(chain.from_iterable(temp_string[:elem_id + 1])))
+
+                    # define index boundaries for the exclusion
+                    lower_boundary = temp_insert_id + len(exclusion) * elem_id
+                    upper_boundary = temp_insert_id + len(exclusion) * (1 + elem_id)
+
+                    # append the found indexes to a list, with an index per element
+                    exclusion_id_relist.append([[i] + [j] for i, j in
+                                                zip(list(range(lower_boundary, upper_boundary)), exclusion)])
+
+        # flatten the list, and remove all duplicate elements
+        flat_index_excl_list = list(chain.from_iterable(exclusion_id_relist))
+        flat_index_excl_list.sort()
+        fixed_index_excl_list = list(k for k, _ in itertools.groupby(flat_index_excl_list))
+
+        # define updated string, with the exclusions temporarily removed
+        excl_string = [[i] + [e] if i not in [k[0] for k in fixed_index_excl_list] else [i] + [''] for i, e in
+                       indexer(string)]
+        print(excl_string)
+    else:
+        excl_string = indexer(string)
+
+    pre_float_string = [i[1] for i in excl_string]  # decompose input string into elements in a list
     decom_elems = [[i for i in j] for j in elems]  # decompose rep string
 
     i = 0  # define initial
@@ -318,10 +358,25 @@ def replace(elems, reps, string):
         packed_values = [i0_val, ip1_val, ip2_val, ip3_val, ip4_val, ip5_val, ip6_val, ip7_val, ip8_val, ip9_val]
 
         for es, o in zip(decom_elems, reps):
+
+            # if the element is found within the provided string, replace with replacement at the current index, and
+            # fill in blanks at any other index within the replacement frame
             if es == packed_values[:len(es)]:
-                temp_string = [o if k == i else j for k, j in indexer(temp_string) if k not in
-                               packed_indexes[:len(es) - 1]]
+                temp_string = [o if k == i else '' if k in packed_indexes[:len(es) - 1] else j for k, j in
+                               indexer(temp_string)]
                 break  # break out of the for loop, preventing overwriting
         i += 1  # update iterative
-    res = list_to_string(temp_string)  # define result and convert to string
+
+    # reintroduce the exclusions if any
+    if fixed_index_excl_list:
+
+        # index the string with the replacements in it, and remove all blanks
+        index_rem_string = [[i] + [j] for i, j in indexer(temp_string) if j != '']
+
+        # append the fixed new string with indexes, with the exclusion index list
+        appended_string = index_rem_string + fixed_index_excl_list
+        appended_string.sort()  # sort the string according to the index
+        res = list_to_string([j for i, j in appended_string])  # remove the indexes and convert the list to a string
+    else:
+        res = list_to_string(temp_string)  # define result and convert to string
     return res
