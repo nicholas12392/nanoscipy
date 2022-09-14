@@ -321,6 +321,7 @@ def replace(elems, reps, string):
             if es == packed_values[:len(es)]:
                 temp_string = [o if k == i else j for k, j in indexer(temp_string) if k not in
                                packed_indexes[:len(es) - 1]]
+                break  # break out of the for loop, preventing overwriting
         i += 1  # update iterative
     res = list_to_string(temp_string)  # define result and convert to string
     return res
