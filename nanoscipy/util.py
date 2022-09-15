@@ -322,7 +322,6 @@ def replace(elems, reps, string, exclusions=None):
         # define updated string, with the exclusions temporarily removed
         excl_string = [[i] + [e] if i not in [k[0] for k in fixed_index_excl_list] else [i] + [''] for i, e in
                        indexer(string)]
-        print(excl_string)
     else:
         excl_string = indexer(string)
 
