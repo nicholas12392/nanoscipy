@@ -184,16 +184,16 @@ def number_parser(math_string):
                                                                                                         ip4)]
             elif (ip1_val, ip2_val) == ('N', 'A'):
                 temp_string = [str(spc.N_A) if k == i else j for k, j in temp_index_chain if k not in (ip1, ip2)]
-            elif (ip1_val, ip2_val) == ('k', 'B'):
-                temp_string = [str(spc.k) if k == i else j for k, j in temp_index_chain if k not in (ip1, ip2)]
-            elif (ip1_val, ip2_val) == ('R', 'c'):
-                temp_string = [str(spc.R) if k == i else j for k, j in temp_index_chain if k not in (ip1, ip2)]
             elif ip1_val == 'c':
                 temp_string = [str(spc.c) if k == i else j for k, j in temp_index_chain if k != ip1]
             elif ip1_val == 'h':
                 temp_string = [str(spc.h) if k == i else j for k, j in temp_index_chain if k != ip1]
             elif ip1_val == 'e':
                 temp_string = [str(spc.e) if k == i else j for k, j in temp_index_chain if k != ip1]
+            elif ip1_val == 'R':
+                temp_string = [str(spc.R) if k == i else j for k, j in temp_index_chain if k != ip1]
+            elif ip1_val == 'k':
+                temp_string = [str(spc.k) if k == i else j for k, j in temp_index_chain if k != ip1]
             else:
                 raise ValueError('Constant is not defined in parser.')
             temp_index_chain = nsu.indexer(temp_string)
@@ -446,8 +446,8 @@ def parser(math_string, steps=False, cprint=True):
 
     # auto-print if prompted
     if cprint:
-        pretty_string = nsu.replace(('pi', '_hbar', '_NA', '_c', '_h', '*', '_Rc', '_kB', '_e'),
-                                    ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'Rᴄ', 'kᴮ', 'e'), math_string)
+        pretty_string = nsu.replace(('pi', '_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e'),
+                                    ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e'), math_string)
         if isinstance(nsu.float_to_int(int_fixed_string / np.pi), int) and int_fixed_string != 0:
             pi_fixed_string = str(nsu.float_to_int(int_fixed_string / np.pi)) + 'π'
         else:

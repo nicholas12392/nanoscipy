@@ -677,3 +677,98 @@ class DatAn:
             save_to = kwargs.get('save_to')
             plt.savefig(save_to, dpi=set_dpi)
         plt.show()
+
+
+class NumAn:
+    """
+    This class acts as a numerical calculator, in which one may define constants and use them for computations.
+
+    Parameters
+        cons : str
+            Constants are defined here, either in the format 'x = 3, y = 1/2' or 'x : 3; y : 1/2' (or any mixture of
+            the two types).
+    """
+
+    def __init__(self, cons):
+
+        # define lists mapping constant keys and constant values
+        con_vals, con_keys = [], []
+        for k in [h.replace('=', ':').split(':') for h in nsu.replace((' ', ';'), ('', ','), cons).split(',')]:
+            con_keys.append(k[0])
+            con_vals.append(k[1])
+
+        self.constant_values = con_vals
+        self.constant_keys = con_keys
+
+    def calc(self, math_string, cprint=True, cnstprint=False):
+        """
+        This is the computational part of the script. Computations are based on the mathpar.parser(). For any defined
+        constants, these will be used. Note that implicit multiplication only works between constants and numbers. The
+        expression '2x' will be read as '2*x', whereas '2xy' will be read as '2*xy'. This is done to allow constants of
+        multiple letters to be defined.
+
+        Parameters
+            math_string : str
+                The mathematical expression needed to be computed. See doc-string for mathpar.parser() for more
+                information.
+            cprint : bool, optional
+                Determines whether the computational result should be printed in the python console. The default is
+                True.
+            cnstprint : bool, optional
+                Determines whether the computations done on the provided constants (if needed), should have their
+                result printed in the python console. The default is False.
+
+        Returns
+            The result of the computation.
+        """
+
+        # replace constants with their values, without replacing functions
+        con_vals = self.constant_values
+        con_keys = self.constant_keys
+
+        # check if constants are defined as equations or floats
+        re_con_vals = []
+        for i in con_vals:
+            if not isinstance(nsu.string_to_float(i), float):  # try to compute if not float
+                re_con_vals.append(nsp.parser(i, cprint=cnstprint))
+            else:
+                re_con_vals.append(i)
+
+        temp_string = [e for e in math_string]
+
+        # loop over the string and add implicit multiplication
+        i = 0
+        while i < len(temp_string):
+            im1, ip1 = i - 1, i + 1
+            i0_val = temp_string[i]
+            im1_val = ip1_val = None
+
+            try:
+                im1_val = temp_string[im1]
+            except IndexError:
+                pass
+
+            try:
+                ip1_val = temp_string[ip1]
+            except IndexError:
+                pass
+
+            if i0_val in (nsu.alphabetSequence + nsu.alphabetSequenceCap) and i0_val != 'e' and \
+                    isinstance(nsu.string_to_int(im1_val), int):
+                temp_string = temp_string[: i] + ['*'] + temp_string[i:]
+            elif i0_val in (nsu.alphabetSequence + nsu.alphabetSequenceCap) and i0_val != 'e' and \
+                    isinstance(nsu.string_to_int(ip1_val), int):
+                temp_string = temp_string[: ip1] + ['*'] + temp_string[ip1:]
+            i += 1
+
+        # convert the temporary list[str] back to a string
+        product_fixed_string = nsu.list_to_string(temp_string)
+
+        # replace the constants with their values, respecting the exclusions
+        exclusions = ('exp', 'sin', 'cos', 'tan', 'arc', 'ln', 'rad', 'deg', 'log')
+        replaced_string = nsu.replace(con_keys, re_con_vals, product_fixed_string, exclusions)
+
+        # compute the expression with mathpar.parser()
+        computation = nsp.parser(replaced_string, cprint=cprint)
+
+        return computation
