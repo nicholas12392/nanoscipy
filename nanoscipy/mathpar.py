@@ -354,7 +354,13 @@ def parser(math_string, steps=False, cprint=True):
     while temp_bracket_idx:
         # if two consecutive brackets are a pair, execute operations through ordered_parser(), append the result to the
         #   given string, update it and reiterate. This ensures that the parentheses are read in the correct order
-        if temp_bracket_idx[i][1] == '(' and temp_bracket_idx[i + 1][1] == ')':
+
+        try:  # check for missing closing parenthesis
+            closing_bracket = temp_bracket_idx[i + 1][1]
+        except IndexError:
+            raise ValueError('Missing closing bracket somewhere.')
+
+        if temp_bracket_idx[i][1] == '(' and closing_bracket == ')':
             i0, i1 = temp_bracket_idx[i][0], temp_bracket_idx[i + 1][0]  # define current i'th values
             im1, im2, im3, im4, im5, im6 = i0 - 1, i0 - 2, i0 - 3, i0 - 4, i0 - 5, i0 - 6  # define consecutive -i's
             ip1 = i1 + 1  # define consecutive +i's
