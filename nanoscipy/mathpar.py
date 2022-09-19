@@ -20,6 +20,12 @@ def basic_operations(operator, fir_int, sec_int=None):
     Returns
         Product of the operation.
     """
+
+    # check if any of the variables are of type nan
+    if 'n' in (fir_int, sec_int):
+        # if true, output nan result
+        return np.float64('nan')
+
     if operator == '+':
         opr_res = fir_int + sec_int
     elif operator in ('-', '+-'):
