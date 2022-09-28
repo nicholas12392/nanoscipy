@@ -754,7 +754,7 @@ class NumAn:
                 pass
 
             if i0_val in (nsu.alphabetSequence + nsu.alphabetSequenceCap) and i0_val != 'e' and \
-                    isinstance(nsu.string_to_int(im1_val), int):
+                    isinstance(nsu.string_to_int(im1_val), int) and i != 0:
                 temp_string = temp_string[: i] + ['*'] + temp_string[i:]
             elif i0_val in (nsu.alphabetSequence + nsu.alphabetSequenceCap) and i0_val != 'e' and \
                     isinstance(nsu.string_to_int(ip1_val), int):
