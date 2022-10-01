@@ -700,7 +700,7 @@ class NumAn:
         self.constant_values = con_vals
         self.constant_keys = con_keys
 
-    def calc(self, math_string, cprint=True, cnstprint=False):
+    def calc(self, math_string, cprint='symc'):
         """
         This is the computational part of the script. Computations are based on the mathpar.parser(). For any defined
         constants, these will be used. Note that implicit multiplication only works between constants and numbers. The
@@ -711,12 +711,11 @@ class NumAn:
             math_string : str
                 The mathematical expression needed to be computed. See doc-string for mathpar.parser() for more
                 information.
-            cprint : bool, optional
-                Determines whether the computational result should be printed in the python console. The default is
-                True.
-            cnstprint : bool, optional
-                Determines whether the computations done on the provided constants (if needed), should have their
-                result printed in the python console. The default is False.
+            cprint : str (or False), optional
+                Determines whether the computational result should be printed in the python console. There are four
+                options: 'num' will display input string with constants replaced with values, 'sym' will display input
+                string with constants as symbols, 'symc' has same functionality as the latter, but also prints the
+                given constants, False will disable result print. The default is 'symc'.
 
         Returns
             The result of the computation.
@@ -730,10 +729,9 @@ class NumAn:
         re_con_vals = []
         for i in con_vals:
             if not isinstance(nsu.string_to_float(i), float):  # try to compute if not float
-                re_con_vals.append(nsp.parser(i, cprint=cnstprint))
+                re_con_vals.append(nsp.parser(i, cprint=False))
             else:
                 re_con_vals.append(i)
-
         temp_string = [e for e in math_string]
 
         # loop over the string and add implicit multiplication
@@ -765,10 +763,31 @@ class NumAn:
         product_fixed_string = nsu.list_to_string(temp_string)
 
         # replace the constants with their values, respecting the exclusions
-        exclusions = ('exp', 'sin', 'cos', 'tan', 'arc', 'ln', 'rad', 'deg', 'log')
+        exclusions = ('sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(',
+                      'deg(', 'log(', 'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(', 'arctanh(')
         replaced_string = nsu.replace(con_keys, re_con_vals, product_fixed_string, exclusions)
 
-        # compute the expression with mathpar.parser()
-        computation = nsp.parser(replaced_string, cprint=cprint)
+        # compute the expression with mathpar.parser(), with fixed cprint value
+        if cprint == 'symc':
+            parser_cprint = 'sym'
+        else:
+            parser_cprint = cprint
+        computation = nsp.parser(replaced_string, cprint=parser_cprint, true_string=math_string)
+
+        # if cprint is set to symbolic with constants, rewrite input string and constants to symbols and
+        if cprint == 'symc':
+            # make con_keys into a easily splittable string
+            con_string = ';'.join(con_keys)
+
+            # replace symbols with identifier
+            replacement_keys = nsu.alphabetSequenceGreekLetters + nsu.alphabetSequenceGreekLettersCap
+            replacement_vals = nsu.alphabetSequenceGreek + nsu.alphabetSequenceGreekCap
+            sorted_replacements = nsu.string_sorter(replacement_keys, replacement_vals, reverse=True, otype='tuple')
+            pretty_constants = nsu.replace(sorted_replacements[0], sorted_replacements[1], con_string)
+
+            # re-list con_keys with replaced symbols and print
+            rep_con_keys = pretty_constants.split(';')
+            for i, j in zip(rep_con_keys, re_con_vals):
+                print(f'| {i} = {j}')
 
         return computation

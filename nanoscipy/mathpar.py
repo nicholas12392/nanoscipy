@@ -328,7 +328,7 @@ def product_parser(math_string):
     return temp_decom_string
 
 
-def parser(math_string, steps=False, cprint=True):
+def parser(math_string, steps=False, cprint='num', **kwargs):
     """
     Takes care of the additional rules and conventions of mathematical operations. Handles parentheses along with
     operators that require parentheses, such as trigonometric functions (sin, cos, tan, ...) and log, exp, etc.
@@ -338,8 +338,14 @@ def parser(math_string, steps=False, cprint=True):
             The mathematical string to parse through the interpreter.
         steps : bool, optional
             If True, displays balances from the script, whilst performing the operations. The default is False.
-        cprint : bool, optional
-            If True, prints the calculation and result. The default is True.
+        cprint : str (or False), optional
+                Determines whether the computational result should be printed in the python console. There are four
+                options: 'num' will display input string with constants replaced with values, 'sym' will display input
+                string with constants as symbols, False will disable result print. The default is 'num'.
+
+    Keyword Arguments
+        true_string : str
+            A true input string, used when cprint is set, to swap symbols in etc. or simply for a prettier cprint.
 
     Returns
         The result from the performed operations on the given mathematical string as a float.
@@ -362,7 +368,9 @@ def parser(math_string, steps=False, cprint=True):
 
         if temp_bracket_idx[i][1] == '(' and closing_bracket == ')':
             i0, i1 = temp_bracket_idx[i][0], temp_bracket_idx[i + 1][0]  # define current i'th values
-            im1, im2, im3, im4, im5, im6 = i0 - 1, i0 - 2, i0 - 3, i0 - 4, i0 - 5, i0 - 6  # define consecutive -i's
+
+            # define consecutive -i's
+            im1, im2, im3, im4, im5, im6, im7 = i0 - 1, i0 - 2, i0 - 3, i0 - 4, i0 - 5, i0 - 6, i0 - 7
             ip1 = i1 + 1  # define consecutive +i's
             bracket_excl = list(range(i0 + 1, ip1))  # define the bracket clause as an exclusion
             new_string = nsu.list_to_string(temp_decom_string[i0 + 1: i1])  # string consisting only of the clause
@@ -371,7 +379,7 @@ def parser(math_string, steps=False, cprint=True):
             # define temporary lists/values
             id_excl = []
             temp_result = pre_temp_result
-            im6_val = im5_val = im4_val = im3_val = im2_val = im1_val = ip1_val = None
+            im7_val = im6_val = im5_val = im4_val = im3_val = im2_val = im1_val = ip1_val = None
             try:  # try to define values for the surrounding iterations, otherwise pass at position
                 im1_val = temp_decom_string[im1]
                 im2_val = temp_decom_string[im2]
@@ -379,6 +387,7 @@ def parser(math_string, steps=False, cprint=True):
                 im4_val = temp_decom_string[im4]
                 im5_val = temp_decom_string[im5]
                 im6_val = temp_decom_string[im6]
+                im7_val = temp_decom_string[im7]
             except IndexError:
                 pass
             try:
@@ -388,18 +397,36 @@ def parser(math_string, steps=False, cprint=True):
 
             # if preceding iterations or upcoming operations leads to an identifier, perform special operation on the
             #   clause, respecting order. From here, define temporary result to append, along with index for exclusions
-            if (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 's', 'i', 'n') or \
-                    (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('s', 'i', 'n', '^', '-', '1'):
+            if (im7_val, im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 's', 'i', 'n', 'h'):
+                temp_result = np.arcsinh(pre_temp_result)
+                id_excl = list(range(im7, i0))
+            elif (im7_val, im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 'c', 'o', 's', 'h'):
+                temp_result = np.arccosh(pre_temp_result)
+                id_excl = list(range(im7, i0))
+            elif (im7_val, im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 't', 'a', 'n', 'h'):
+                temp_result = np.arctanh(pre_temp_result)
+                id_excl = list(range(im7, i0))
+            elif (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 's', 'i', 'n'):
                 temp_result = np.arcsin(pre_temp_result)
                 id_excl = list(range(im6, i0))
-            elif (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 'c', 'o', 's') or \
-                    (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('c', 'o', 's', '^', '-', '1'):
+            elif (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 'c', 'o', 's'):
                 temp_result = np.arccos(pre_temp_result)
                 id_excl = list(range(im6, i0))
-            elif (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 't', 'a', 'n') or \
-                    (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('t', 'a', 'n', '^', '-', '1'):
+            elif (im6_val, im5_val, im4_val, im3_val, im2_val, im1_val) == ('a', 'r', 'c', 't', 'a', 'n'):
                 temp_result = np.tan(pre_temp_result)
                 id_excl = list(range(im6, i0))
+            elif (im4_val, im3_val, im2_val, im1_val) == ('s', 'i', 'n', 'h'):
+                temp_result = np.sinh(pre_temp_result)
+                id_excl = list(range(im4, i0))
+            elif (im4_val, im3_val, im2_val, im1_val) == ('c', 'o', 's', 'h'):
+                temp_result = np.cosh(pre_temp_result)
+                id_excl = list(range(im4, i0))
+            elif (im4_val, im3_val, im2_val, im1_val) == ('t', 'a', 'n', 'h'):
+                temp_result = np.tanh(pre_temp_result)
+                id_excl = list(range(im4, i0))
+            elif (im4_val, im3_val, im2_val, im1_val) == ('s', 'q', 'r', 't'):
+                temp_result = pre_temp_result ** (1 / 2)
+                id_excl = list(range(im4, i0))
             elif (im3_val, im2_val, im1_val) == ('e', 'x', 'p'):
                 temp_result = np.exp(pre_temp_result)
                 id_excl = list(range(im3, i0))
@@ -458,11 +485,32 @@ def parser(math_string, steps=False, cprint=True):
 
     # auto-print if prompted
     if cprint:
-        pretty_string = nsu.replace(('pi', '_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e'),
-                                    ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e'), math_string)
+        # pi-prettify if cprint has any value
         if isinstance(nsu.float_to_int(int_fixed_string / np.pi), int) and int_fixed_string != 0:
             pi_fixed_string = str(nsu.float_to_int(int_fixed_string / np.pi)) + 'π'
         else:
             pi_fixed_string = int_fixed_string
+
+        # check whether a true input string has been given
+        if 'true_string' in kwargs.keys():
+            true_string = kwargs.get('true_string')
+        else:
+            true_string = math_string
+
+        # define specific set of replacement keys/values depending on cprint type
+        if cprint == 'num':
+            replacement_keys = ('pi', '_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e')
+            replacement_vals = ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e')
+        elif cprint == 'sym':
+            replacement_keys = ['_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e'] + nsu.alphabetSequenceGreekLetters + \
+                               nsu.alphabetSequenceGreekLettersCap
+            replacement_vals = ['ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e'] + nsu.alphabetSequenceGreek + \
+                               nsu.alphabetSequenceGreekCap
+        else:
+            raise ValueError(f'Computation print type \'{cprint}\' is not supported.')
+
+        # sort the replacements with their keys, replace them and print
+        sorted_replacements = nsu.string_sorter(replacement_keys, replacement_vals, reverse=True, otype='tuple')
+        pretty_string = nsu.replace(sorted_replacements[0], sorted_replacements[1], true_string)
         print(f'Result: {pretty_string} = {pi_fixed_string}')
     return int_fixed_string

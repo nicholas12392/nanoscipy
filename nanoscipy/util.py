@@ -21,11 +21,14 @@ float_to_int()
 
 replace()
 
+string_sorter()
+
 """
 import warnings
 import numpy as np
 import itertools
 from itertools import chain
+from operator import itemgetter
 
 standardColorsHex = ['#5B84B1FF', '#FC766AFF', '#5F4B8BFF', '#E69A8DFF', '#42EADDFF', '#CDB599FF', '#00A4CCFF',
                      '#F95700FF', '#00203FFF', '#ADEFD1FF', '#F4DF4EFF', '#949398FF', '#ED2B33FF', '#D85A7FFF',
@@ -34,6 +37,16 @@ alphabetSequence = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 
                     'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 alphabetSequenceCap = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
                        'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+alphabetSequenceGreek = ['α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ',
+                         'υ', 'φ', 'χ', 'ψ', 'ω']
+alphabetSequenceGreekCap = ['Α', 'B', 'Γ', 'Δ', 'E', 'Ζ', 'H', 'Θ', 'Ι', 'K', 'Λ', 'M', 'N', 'Ξ', '	Ο', 'Π', 'P', 'Σ',
+                            'T', 'Y', 'Φ', 'X', 'Ψ', 'Ω']
+alphabetSequenceGreekLetters = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa',
+                                'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi',
+                                'chi', 'psi', 'omega']
+alphabetSequenceGreekLettersCap = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota',
+                                   'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau',
+                                   'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega']
 
 
 def string_to_float(potential_float):
@@ -379,3 +392,47 @@ def replace(elems, reps, string, exclusions=None):
     else:
         res = list_to_string(temp_string)  # define result and convert to string
     return res
+
+
+def string_sorter(*lists, stype='size', reverse=False, otype='list'):
+    """
+    Sorts any amount of given lists of strings, according to the first list given, depending on the sorting type.
+
+    Parameters
+        *lists : list
+            The lists of strings in need of being sorted. Sorts all lists according to the strings in the first list.
+        stype : str, optional
+            Determines which sorting type should be used. If 'size', sorts after size of the string (in order of
+            smallest to largest). If 'alphabetic', sorts strings alphabetically. The default is 'size'.
+        reverse : bool, optional
+            Reverses the sorting order. The default is False.
+        otype : str, optional
+            Determines the output type. If 'list', a list of lists is created. If 'tuple' a tuple of tuples is created.
+            The default is 'list'.
+
+    Returns
+        A list/tuple of lists/tuples with the sorted strings. The output list/tuple sequence matches input.
+    """
+
+    # if sorting type is size, construct a uniform list including a corresponding size-list as first list
+    if stype == 'size':
+        uniform_list = list(zip([len(i) for i in lists[0]], *lists))
+        sorted_lists_pre = sorted(uniform_list, key=itemgetter(0), reverse=reverse)  # sort lists
+        sorted_lists = [i[1:] for i in sorted_lists_pre]  # remove size-list
+
+    # if sorting type is alphabetic, construct a uniform list from the given lists and conduct sorting
+    elif stype in ('alpha', 'alphabetic', 'alphabet'):
+        uniform_list = list(zip(*lists))
+        sorted_lists = sorted(uniform_list, key=itemgetter(0), reverse=reverse)  # sort lists
+    else:  # raise error if sorting type is unknown
+        raise ValueError(f'Sorting type \'{stype}\' is undefined.')
+
+    # define the output according to the output type
+    if otype == 'tuple':
+        output_lists = tuple(zip(*sorted_lists))
+    elif otype == 'list':
+        output_lists = [list(i) for i in list(zip(*sorted_lists))]
+    else:
+        raise ValueError(f'Output type \'{otype}\' is undefined.')
+
+    return output_lists
