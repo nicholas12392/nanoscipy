@@ -686,7 +686,19 @@ class NumAn:
     Parameters
         cons : str
             Constants are defined here, either in the format 'x = 3, y = 1/2' or 'x : 3; y : 1/2' (or any mixture of
-            the two types).
+            the two types). The same natural constants supported in mathpar.parser() are supported.
+
+    Attributes
+        ans : float
+            Gives the result from the previous computation when called.
+        add_cns() : function
+            Adds a constant to the class, which may be used in calculations. Note importantly, for this attribute,
+            constants that have already been defined either in init or previous add_cns() instances may be used.
+        calc() : function
+            Takes a mathematical expression and computes it via mathpar.parser(). Pre-defined constants are meant to be
+            used here.
+        add_res() : function
+            Adds the previously computed result via calc() as a constant with the given name.
     """
 
     def __init__(self, cons):
@@ -697,10 +709,61 @@ class NumAn:
             con_keys.append(k[0])
             con_vals.append(k[1])
 
-        self.constant_values = con_vals
-        self.constant_keys = con_keys
+        # define constant exclusions, which cannot be replaced as a constant
+        constant_exclusions = ('pi', '_hbar', '_NA', '_c', '_h', '_R', '_k', '_e')
+        function_exclusions = ('sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(',
+                               'deg(', 'log(', 'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(',
+                               'arctanh(')
+        base_exclusions = constant_exclusions + function_exclusions
 
-    def calc(self, math_string, cprint='symc'):
+        # define attributes
+        self.ans = None
+        self.__exclusions__ = base_exclusions
+        self.__cns_vals__ = con_vals
+        self.__cns_keys__ = con_keys
+
+    def add_cns(self, cons):
+        """
+
+        Parameters
+            cons : str
+                Additional constants are defined here, either in the format 'x = 3, y = 1/2' or 'x : 3; y : 1/2' (or any
+                mixture of the two types). The same natural constants supported in mathpar.parser() are supported.
+
+        Returns
+            An updated value table with the new constants.
+
+        """
+
+        # save previous defined constants as easily accessible variable
+        old_con_vals = self.__cns_vals__
+        old_con_keys = self.__cns_keys__
+
+        # map new constants
+        add_con_vals, add_con_keys = [], []
+        for k in [h.replace('=', ':').split(':') for h in nsu.replace((' ', ';'), ('', ','), cons).split(',')]:
+            add_con_keys.append(k[0])
+            add_con_vals.append(k[1])
+
+        # check for implicit multiplication and replace previously defined constants
+        base_exclusions = self.__exclusions__
+        collective_items = base_exclusions + tuple(old_con_keys)
+        product_fixed_string = [nsp.product_parser(i, collective_items) for i in add_con_vals]
+        replaced_strings = [nsu.replace(old_con_keys, old_con_vals, i, base_exclusions) for i in product_fixed_string]
+
+        # check if constants are defined as equations or floats
+        re_con_vals = []
+        for i in replaced_strings:
+            if not isinstance(nsu.string_to_float(i), float):  # try to compute if not float
+                re_con_vals.append(nsp.parser(i, cprint=False))
+            else:
+                re_con_vals.append(i)
+
+        # update the attributes concerning the constants
+        self.__cns_vals__ = old_con_vals + re_con_vals
+        self.__cns_keys__ = old_con_keys + add_con_keys
+
+    def calc(self, math_string, add_res=False, cprint='symc'):
         """
         This is the computational part of the script. Computations are based on the mathpar.parser(). For any defined
         constants, these will be used. Note that implicit multiplication only works between constants and numbers. The
@@ -711,6 +774,9 @@ class NumAn:
             math_string : str
                 The mathematical expression needed to be computed. See doc-string for mathpar.parser() for more
                 information.
+            add_res : str (or False)
+                Add the computational result as a constant to the table with the specified name. If False, do not add
+                result as a constant. The default is False.
             cprint : str (or False), optional
                 Determines whether the computational result should be printed in the python console. There are four
                 options: 'num' will display input string with constants replaced with values, 'sym' will display input
@@ -722,8 +788,8 @@ class NumAn:
         """
 
         # replace constants with their values, without replacing functions
-        con_vals = self.constant_values
-        con_keys = self.constant_keys
+        con_vals = self.__cns_vals__
+        con_keys = self.__cns_keys__
 
         # check if constants are defined as equations or floats
         re_con_vals = []
@@ -732,40 +798,14 @@ class NumAn:
                 re_con_vals.append(nsp.parser(i, cprint=False))
             else:
                 re_con_vals.append(i)
-        temp_string = [e for e in math_string]
 
-        # loop over the string and add implicit multiplication
-        i = 0
-        while i < len(temp_string):
-            im1, ip1 = i - 1, i + 1
-            i0_val = temp_string[i]
-            im1_val = ip1_val = None
-
-            try:
-                im1_val = temp_string[im1]
-            except IndexError:
-                pass
-
-            try:
-                ip1_val = temp_string[ip1]
-            except IndexError:
-                pass
-
-            if i0_val in (nsu.alphabetSequence + nsu.alphabetSequenceCap) and i0_val != 'e' and \
-                    isinstance(nsu.string_to_int(im1_val), int) and i != 0:
-                temp_string = temp_string[: i] + ['*'] + temp_string[i:]
-            elif i0_val in (nsu.alphabetSequence + nsu.alphabetSequenceCap) and i0_val != 'e' and \
-                    isinstance(nsu.string_to_int(ip1_val), int):
-                temp_string = temp_string[: ip1] + ['*'] + temp_string[ip1:]
-            i += 1
-
-        # convert the temporary list[str] back to a string
-        product_fixed_string = nsu.list_to_string(temp_string)
+        # add implicit multiplication symbols
+        base_exclusions = self.__exclusions__
+        collective_items = base_exclusions + tuple(con_keys)
+        product_fixed_string = nsp.product_parser(math_string, collective_items)
 
         # replace the constants with their values, respecting the exclusions
-        exclusions = ('sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(',
-                      'deg(', 'log(', 'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(', 'arctanh(')
-        replaced_string = nsu.replace(con_keys, re_con_vals, product_fixed_string, exclusions)
+        replaced_string = nsu.replace(con_keys, re_con_vals, product_fixed_string, base_exclusions)
 
         # compute the expression with mathpar.parser(), with fixed cprint value
         if cprint == 'symc':
@@ -774,9 +814,25 @@ class NumAn:
             parser_cprint = cprint
         computation = nsp.parser(replaced_string, cprint=parser_cprint, true_string=math_string)
 
+        # update the answer attribute with the result
+        self.ans = computation
+
+        # if add result as constant is called
+        if add_res:
+
+            # check if name is indeed a string and not a float or int
+            if not isinstance(add_res, str):
+                raise ValueError(f'Constant name must be a type str, not \'{type(add_res)}\'.')
+            elif isinstance(nsu.string_to_float(add_res), float):
+                raise ValueError('Constant must not be a value.')
+
+            # add name and result to the constant keys and values, respectively
+            self.__cns_keys__ += [add_res]
+            self.__cns_vals__ += [computation]
+
         # if cprint is set to symbolic with constants, rewrite input string and constants to symbols and
         if cprint == 'symc':
-            # make con_keys into a easily splittable string
+            # make con_keys into an easily splittable string
             con_string = ';'.join(con_keys)
 
             # replace symbols with identifier
@@ -791,3 +847,25 @@ class NumAn:
                 print(f'| {i} = {j}')
 
         return computation
+
+    def add_res(self, name):
+        """
+        Simple attribute that allows for just computed result to immediately be added to the table of constants.
+
+        Parameters
+            name : str
+                Provide a name for the constant.
+        """
+
+        # define the previous computation result from attribute
+        prev_comp_res = self.ans
+
+        # check if name is indeed a string and not a float or int
+        if not isinstance(name, str):
+            raise ValueError(f'Constant name must be a type str, not \'{type(name)}\'.')
+        elif isinstance(nsu.string_to_float(name), float):
+            raise ValueError('Constant must not be a value.')
+
+        # add name and result to the constant keys and values, respectively
+        self.__cns_keys__ += [name]
+        self.__cns_vals__ += [prev_comp_res]

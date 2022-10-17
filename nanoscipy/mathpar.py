@@ -2,6 +2,7 @@ import nanoscipy.util as nsu
 import numpy as np
 import sympy as sp
 import scipy.constants as spc
+from itertools import chain
 
 
 def basic_operations(operator, fir_int, sec_int=None):
@@ -25,6 +26,10 @@ def basic_operations(operator, fir_int, sec_int=None):
     if 'n' in (fir_int, sec_int):
         # if true, output nan result
         return np.float64('nan')
+    elif isinstance(fir_int, str):
+        raise ValueError(f'No value found for \'{fir_int}\'.')
+    elif isinstance(sec_int, str):
+        raise ValueError(f'No value found for \'{sec_int}\'.')
 
     if operator == '+':
         opr_res = fir_int + sec_int
@@ -286,46 +291,60 @@ def ordered_parser(math_string, steps=False):
     return o4_opr_string[0]
 
 
-def product_parser(math_string):
+def product_parser(string, items):
     """
-    Parser that detects implicit multiplication and adds appropriate operators in those positions.
+        Parser that detects implicit multiplication and adds multiplication operator in those positions. Note
+        importantly that this script works by splitting the string around every exclusion (the largest exclusion first -
+        once an exclusion has been split, it cannot be further split), and then adding an operator in every gap in the
+        new list, if the last value of the current string is not a mathematical symbol, and the first value of the next
+        string is not a mathematical symbol.
 
-    Parameters
-        math_string : string
-            The mathematical string to search for implicit multiplication.
+        Parameters
+            string : str
+                The mathematical string to search for implicit multiplication.
+            items : str, tuple
+                Items that implicit multiplication will be done around if appropriate.
 
-    Returns
-        Updated list with the implicit multiplication as explicit.
-    """
-    temp_decom_string = [e for e in math_string]  # temp string to be updated
-    i = 0  # initial iteration
-    while i < len(temp_decom_string):
-        i0_val = temp_decom_string[i]  # define current iteration value
-        ip1, ip2, ip3 = i + 1, i + 2, i + 3  # define consecutive iterations
-        ip1_val = ip2_val = ip3_val = None  # provide standard values for those iterations
-        try:  # try to find values for those iterations
-            ip1_val = temp_decom_string[ip1]
-            ip2_val = temp_decom_string[ip2]
-            ip3_val = temp_decom_string[ip3]
-        except IndexError:  # if index is surpassed, pass clause at position
-            pass
+        Returns
+            Updated string with the implicit multiplication as explicit.
+        """
 
-        # determine in which positions to add a '*' and add it
-        if (i0_val, ip1_val) == (')', '(') or (isinstance(nsu.string_to_float(i0_val), float) and ip1_val in
-                                               (*[i for i in nsu.alphabetSequence if i != 'e'],
-                                                *nsu.alphabetSequenceCap, '(')) or \
-                (i0_val in (*[i for i in nsu.alphabetSequence if i != 'e'], *nsu.alphabetSequenceCap, ')') and
-                 isinstance(nsu.string_to_float(ip1_val), float)) or \
-                (isinstance(nsu.string_to_float(i0_val), float) and (ip1_val, ip2_val, ip3_val) == ('e', 'x', 'p')) or \
-                (i0_val == ')' and ip1_val in (*nsu.alphabetSequence, *nsu.alphabetSequenceCap)) or \
-                ((i0_val, ip1_val) == (')', '_')) or \
-                (isinstance(nsu.string_to_float(i0_val), float) and ip1_val == '_') or \
-                (i0_val in (*nsu.alphabetSequence, *nsu.alphabetSequenceCap) and ip1_val == '_'):
-            temp_decom_string = temp_decom_string[: ip1] + ['*'] + temp_decom_string[ip1:]
-        elif (i0_val, ip1_val, ip2_val) == ('p', 'i', '('):
-            temp_decom_string = temp_decom_string[: ip2] + ['*'] + temp_decom_string[ip2:]
-        i += 1  # update iterator
-    return temp_decom_string
+    # split the given string around the given items, making sure that the largest items are iterated through first
+    sorted_items = nsu.string_sorter(items + (')', ), reverse=True)
+    split_list = nsu.multi_split(string, sorted_items, False)
+
+    # remove any blank fields if present
+    no_blanks_itr_str = [i for i in split_list if i != '']
+
+    # add implicit multiplication for every gap in list, if the adjacent elements are not mathematical symbols
+    i0 = 0
+    temp_list = no_blanks_itr_str
+    while i0 < len(temp_list):
+
+        # define initial values
+        ip1 = i0 + 1
+        i0_val = temp_list[i0]
+
+        # try to define real values, and break if not possible (as there is then no more elements)
+        try:
+            ip1_val = temp_list[ip1]
+        except IndexError:
+            break
+
+        # define mathematical symbols
+        math_symbols_gen = ('-', '+', '/', '*', '^')
+        math_symbols_i0 = ('(',) + math_symbols_gen
+        math_symbols_ip1 = ('!', ')') + math_symbols_gen
+
+        # if i0_val and ip1_val does not have conflicting mathematical symbols, add '*' to i0_val and update i0
+        if i0_val[-1] not in math_symbols_i0 and ip1_val[0] not in math_symbols_ip1:
+            temp_list[i0] = i0_val + '*'
+        i0 += 1
+
+    # revert list to a string
+    result_string = nsu.list_to_string(temp_list)
+
+    return result_string
 
 
 def parser(math_string, steps=False, cprint='num', **kwargs):
@@ -351,7 +370,13 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
         The result from the performed operations on the given mathematical string as a float.
     """
     # define temporary lists/values to be updated from while loop
-    temp_decom_string = product_parser(math_string)
+    # first define items for product_parser
+    constant_items = ('pi', '_hbar', '_NA', '_c', '_h', '_R', '_k', '_e')
+    function_items = ('sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(',
+                           'deg(', 'log(', 'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(', 'arctanh(')
+    collective_items = constant_items + function_items
+
+    temp_decom_string = product_parser(math_string, collective_items)
     temp_index = nsu.indexer(temp_decom_string)
     temp_bracket_idx = [[j] + [e] for j, e in temp_index if e in ('(', ')')]  # find and index open/close brackets
     if steps:

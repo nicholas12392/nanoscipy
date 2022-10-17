@@ -39,7 +39,8 @@ alphabetSequenceCap = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L
                        'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 alphabetSequenceGreek = ['α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ',
                          'υ', 'φ', 'χ', 'ψ', 'ω']
-alphabetSequenceGreekCap = ['Α', 'B', 'Γ', 'Δ', 'E', 'Ζ', 'H', 'Θ', 'Ι', 'K', 'Λ', 'M', 'N', 'Ξ', '	Ο', 'Π', 'P', 'Σ',
+alphabetSequenceGreekCap = ['Α', 'B', 'Γ', 'Δ', 'E', 'Ζ', 'H', 'Θ', 'Ι', 'K', 'Λ', 'M', 'N', 'Ξ', '	Ο', 'Π', 'P',
+                            'Σ',
                             'T', 'Y', 'Φ', 'X', 'Ψ', 'Ω']
 alphabetSequenceGreekLetters = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa',
                                 'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi',
@@ -98,15 +99,13 @@ def list_to_string(subject_list, sep=''):
     Converts a list to a string.
 
     Parameters
-    ----------
-    subject_list : list
-        List to be converted to a string.
-    sep : str, optional
-        Delimiter in between list elements in the string. The default value is ''.
+        subject_list : list
+            The list that is to be converted to a string.
+        sep : str, optional
+            Delimiter in between list elements in the string. The default value is ''.
 
     Returns
-    -------
-    String from the list elements with the set delimiter in between.
+        String from the list elements with the set delimiter in between.
 
     """
     fixed_list = [str(i) if not isinstance(i, str) else i for i in subject_list]  # fix non-str elements to str type
@@ -435,4 +434,80 @@ def string_sorter(*lists, stype='size', reverse=False, otype='list'):
     else:
         raise ValueError(f'Output type \'{otype}\' is undefined.')
 
+    if len(output_lists) == 1:
+        output_lists = output_lists[0]
+
     return output_lists
+
+
+def split(string, delim, no_blanks=True):
+    """
+    Function that splits around a given delimiter, rather than at the given delimiter as the python .split() function.
+
+    Parameters
+        string : str
+            The string in which the splitting should be made in.
+        delim : str
+            Identifier for which a split should be made around.
+        no_blanks : bool, optional
+            In some cases, blank list elements like ['', ''] may be created, if this parameter is True, those blanks
+            are removed. The default is True.
+
+    Returns
+        A list containing the parts from the split.
+    """
+    temp_list = string.replace(delim, '𒐫𐩕𒐫').split('𒐫')
+    pre_string = [delim if i == '𐩕' else i for i in temp_list]
+
+    if no_blanks:
+        try:
+            result_string = [i for i in pre_string if i != '']
+        except ValueError:
+            result_string = pre_string
+    else:
+        result_string = pre_string
+
+    return result_string
+
+
+def multi_split(string, items, no_blanks=True):
+    """
+    An advanced version of the util.split() function. Splits the given string around every given item, and yields a
+    list with the result. Splits around items in order of occurrence, thus, no items that have already been iterated
+    through can be split again.
+
+    Parameters
+        string : str
+            The string to split in.
+        items : tuple
+            String elements that the function should split the main string around. This is a tuple of string elements.
+        no_blanks : bool, optional
+            In some cases, blank list elements can appear, this removes those elements.
+
+    Returns
+        List of the separated string parts.
+    """
+    # set initial values for iteration
+    temp_itr_str = [string]  # input string must be a list
+    iterated_items = []
+    remain_items = nest_checker(items, 'list')  # if items are not packed, pack them
+    string_wo_item = string  # define checker string, to avoid iterations, if item is not in the string
+
+    # while there are still items remaining, keep iterating
+    while remain_items:
+        item = remain_items[0]  # define the current item for checking as the first of the remaining
+
+        # if an item string is found in the main string, split the string around the item IF the item
+        #   has not already been iterated through
+        if item in string_wo_item:
+            temp_itr_str = [[i] if i in iterated_items else split(i, item, no_blanks=no_blanks) for
+                            i in temp_itr_str]
+            temp_itr_str = list(chain.from_iterable(temp_itr_str))
+
+        # update temporary lists
+        iterated_items += [item]
+        remain_items.remove(item)  # remove the current item from the remaining items
+        string_wo_item = list_to_string(string_wo_item.split(item))  # update checker string
+
+    # return result list
+    return temp_itr_str
