@@ -195,6 +195,12 @@ def number_parser(math_string):
                                                                                                         ip4)]
             elif (ip1_val, ip2_val) == ('N', 'A'):
                 temp_string = [str(spc.N_A) if k == i else j for k, j in temp_index_chain if k not in (ip1, ip2)]
+            elif (ip1_val, ip2_val) == ('m', 'e'):
+                temp_string = [str(spc.electron_mass) if k == i else j for k, j in temp_index_chain if k not in
+                               (ip1, ip2)]
+            elif (ip1_val, ip2_val) == ('m', 'p'):
+                temp_string = [str(spc.proton_mass) if k == i else j for k, j in temp_index_chain if k not in
+                               (ip1, ip2)]
             elif ip1_val == 'c':
                 temp_string = [str(spc.c) if k == i else j for k, j in temp_index_chain if k != ip1]
             elif ip1_val == 'h':
@@ -310,7 +316,7 @@ def product_parser(string, items):
         """
 
     # split the given string around the given items, making sure that the largest items are iterated through first
-    sorted_items = nsu.string_sorter(items + (')', ), reverse=True)
+    sorted_items = nsu.string_sorter(items + (')',), reverse=True)
     split_list = nsu.multi_split(string, sorted_items, False)
 
     # remove any blank fields if present
@@ -371,9 +377,9 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
     """
     # define temporary lists/values to be updated from while loop
     # first define items for product_parser
-    constant_items = ('pi', '_hbar', '_NA', '_c', '_h', '_R', '_k', '_e')
+    constant_items = ('pi', '_hbar', '_NA', '_c', '_h', '_R', '_k', '_e', '_me', '_mp')
     function_items = ('sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(',
-                           'deg(', 'log(', 'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(', 'arctanh(')
+                      'deg(', 'log(', 'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(', 'arctanh(')
     collective_items = constant_items + function_items
 
     temp_decom_string = product_parser(math_string, collective_items)
@@ -516,26 +522,27 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
         else:
             pi_fixed_string = int_fixed_string
 
-        # check whether a true input string has been given
+            # check whether a true input string has been given, along with added unit result
+        true_string, unit_res = math_string, ''
         if 'true_string' in kwargs.keys():
             true_string = kwargs.get('true_string')
-        else:
-            true_string = math_string
+        if 'unit_res' in kwargs.keys():
+            unit_res = kwargs.get('unit_res')
 
         # define specific set of replacement keys/values depending on cprint type
         if cprint == 'num':
-            replacement_keys = ('pi', '_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e')
-            replacement_vals = ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e')
+            replacement_keys = ('pi', '_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e', '_me', '_mp')
+            replacement_vals = ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e', 'mₑ', 'mₚ')
         elif cprint == 'sym':
-            replacement_keys = ['_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e'] + nsu.alphabetSequenceGreekLetters + \
-                               nsu.alphabetSequenceGreekLettersCap
-            replacement_vals = ['ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e'] + nsu.alphabetSequenceGreek + \
-                               nsu.alphabetSequenceGreekCap
+            replacement_keys = ['_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e', '_me', '_mp'] + \
+                               nsu.alphabetSequenceGreekLetters + nsu.alphabetSequenceGreekLettersCap
+            replacement_vals = ['ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e', 'mₑ', 'mₚ'] + \
+                               nsu.alphabetSequenceGreek + nsu.alphabetSequenceGreekCap
         else:
             raise ValueError(f'Computation print type \'{cprint}\' is not supported.')
 
         # sort the replacements with their keys, replace them and print
         sorted_replacements = nsu.string_sorter(replacement_keys, replacement_vals, reverse=True, otype='tuple')
         pretty_string = nsu.replace(sorted_replacements[0], sorted_replacements[1], true_string)
-        print(f'Result: {pretty_string} = {pi_fixed_string}')
+        print(f'Result: {pretty_string} = {str(pi_fixed_string) + unit_res}')
     return int_fixed_string

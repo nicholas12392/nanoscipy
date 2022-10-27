@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added new cprint options for parser() and NumAn().calc() and added support for hyperbolic trigonometric functions. Added string_sorter().">
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added split(). Updated list_to_string() doc string. Rewritten product parser. Added NumAn.add_cns(). Added add_res() functionality. Added multi_split().">
+      <change afterPath="$PROJECT_DIR$/nanoscipy/unitpar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nanoscipy/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/util.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,7 +130,7 @@
       <workItem from="1662754239720" duration="2232000" />
       <workItem from="1664385564211" duration="12422000" />
       <workItem from="1665750687937" duration="26000" />
-      <workItem from="1665764192210" duration="15347000" />
+      <workItem from="1665764192210" duration="38137000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -291,7 +293,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664655440556</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Added split(). Updated list_to_string() doc string. Rewritten product parser. Added NumAn.add_cns(). Added add_res() functionality. Added multi_split().">
+      <created>1665996924386</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1665996924386</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -329,6 +338,7 @@
     <MESSAGE value="Fix for implicit multiplication working unintended for first value in NumAn." />
     <MESSAGE value="Update setup." />
     <MESSAGE value="Added new cprint options for parser() and NumAn().calc() and added support for hyperbolic trigonometric functions. Added string_sorter()." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added new cprint options for parser() and NumAn().calc() and added support for hyperbolic trigonometric functions. Added string_sorter()." />
+    <MESSAGE value="Added split(). Updated list_to_string() doc string. Rewritten product parser. Added NumAn.add_cns(). Added add_res() functionality. Added multi_split()." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added split(). Updated list_to_string() doc string. Rewritten product parser. Added NumAn.add_cns(). Added add_res() functionality. Added multi_split()." />
   </component>
 </project>

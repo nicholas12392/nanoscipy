@@ -42,3 +42,7 @@ nanoscipy.mathpar
 The module with the mathematical parser of nanoscipy. Specifically, this contains the practical function parser(), which
 is the collective parser itself.
 
+```bash
+nanoscipy.unitpar
+```
+Contains a script that allows for computation with units. 
