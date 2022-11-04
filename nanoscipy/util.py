@@ -278,7 +278,7 @@ def float_to_int(float_element, fail_action='pass'):
     return res
 
 
-def replace(elems, reps, string, exclusions=None):
+def replace(elems, reps, string, exclusions=None, **kwargs):
     """
     Replaces the element(s) inside the string, if the element(s) is(are) inside the string. Can replace sequences up to
     10 letters.
@@ -294,6 +294,11 @@ def replace(elems, reps, string, exclusions=None):
             If there is a particular sequence (or sequences) of the string, which should not be affected by the initial
             replacement, these should be specified here.
 
+    Keyword Arguments
+        out_type : str
+            Determines how the replacement result should be as output. If 'str': uses list_to_string to convert to a str.
+            If 'list': outputs the raw list obtained from replacement. The default is 'str'.
+
     Returns
         New string with the replaced element(s).
     """
@@ -301,6 +306,11 @@ def replace(elems, reps, string, exclusions=None):
     # make sure that elems and reps are indeed tuples
     elems = nest_checker(elems, 'tuple')
     reps = nest_checker(reps, 'tuple')
+
+    # define kwargs
+    out_type = 'str'
+    if 'out_type' in kwargs.keys():
+        out_type = 'list'
 
     fixed_index_excl_list = []  # set exclusions to be empty, and redefine if any are present
     if exclusions:
@@ -387,9 +397,17 @@ def replace(elems, reps, string, exclusions=None):
         # append the fixed new string with indexes, with the exclusion index list
         appended_string = index_rem_string + fixed_index_excl_list
         appended_string.sort()  # sort the string according to the index
-        res = list_to_string([j for i, j in appended_string])  # remove the indexes and convert the list to a string
+        pre_res = [j for i, j in appended_string]  # remove the indexes and convert the list to a string
     else:
-        res = list_to_string(temp_string)  # define result and convert to string
+        pre_res = temp_string
+
+    # determine what should be output from the output type
+    if out_type == 'str':
+        res = list_to_string(pre_res)
+    elif out_type == 'list':
+        res = pre_res
+    else:
+        raise ValueError(f'Output type \'{out_type}\' is invalid.')
     return res
 
 

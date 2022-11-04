@@ -27,6 +27,7 @@ prefix_values = ('10^24', '10^21', '10^18', '10^15', '10^12', '10^9', '10^6', '1
                  '10^-2', '10^-3', '10^-6', '10^-9', '10^-12', '10^-15', '10^-18', '10^-21', '10^-24')
 math_ops = ('-', '+', '/', '*', '^', '(', ')', '^-')  # valid unit math operations
 
+
 # WILL NOT SUPPORT UNITS AS POWERS; AS THIS HAS NO PHYSICAL MEANING
 
 
@@ -442,8 +443,8 @@ def unit_solver(unit_expression, unit_list, fixed_unit_list):
         elif i0_val == '(' and (ip1_val in ('*', '+', '-') or ip1_val[0] == '^'):
             del base_units_expression[ip1]  # delete invalid symbols right of opening parenthesis
             i0 -= 1  # reset iterative
-        elif i0_val in SI_base_units + (')', ):
-            if ip1_val in SI_base_units + ('(', ):
+        elif i0_val in SI_base_units + (')',):
+            if ip1_val in SI_base_units + ('(',):
                 base_units_expression = base_units_expression[:ip1] + ['*'] + base_units_expression[ip1:]
         elif i0_val == '/':  # check also if a unit is divided and rewrite expression
             if ip1_val in SI_base_units:
@@ -631,6 +632,57 @@ def unit_handler(unit_expression):
     return temp_expression
 
 
+def unit_abbreviator(unit, delim='*'):
+    """
+    Abbreviates an SI unit expression to a simple derived unit if easily recognizable.
+
+    Parameters
+        unit : str
+            Input unit expression.
+        delim : str, optional
+            Delimiter that splits the SI unit into a list containing the SI units. The default is '*'.
+
+    Returns
+        A derived unit if successful abbreviation, else returns the input expression.
+    """
+
+    supported_abbreviations = [list(i) for i in from_SI_to_derivative]
+
+    # invert abbreviations
+    inverted_abbreviations = [], []
+    for i, j in zip(*supported_abbreviations):
+        inverted_abbreviations[1].append(j + '^-1')
+        temp_res = []
+        for k in i:
+            k_split = k.split('^')
+            if len(k_split) == 1:
+                temp_res.append(k + '^-1')
+            else:
+                if k_split[1][0] == '-':
+                    if k_split[1][1:] == '1':
+                        temp_res.append(k_split[0])
+                    else:
+                        temp_res.append(k_split[0] + '^' + k_split[1][1:])
+                else:
+                    temp_res.append(k_split[0] + '^-' + k_split[1])
+        inverted_abbreviations[0].append(temp_res)
+
+    # collect all abbreviations and sort them, so that the largest one is first, trying to reduce the expression most
+    abbreviations = supported_abbreviations[0] + inverted_abbreviations[0], supported_abbreviations[1] + \
+                    inverted_abbreviations[1]
+    sorted_abbreviations = nsu.string_sorter(*abbreviations, reverse=True)
+
+    # replace matching abbreviations in given unit set
+    split_unit = [i for i in unit.split(delim) if i != '']  # fix blank elements
+    replaced_unit_set = [e for i, e in zip(*sorted_abbreviations) if set(i) == set(split_unit)]
+
+    try:  # check if a unit replacement occurred, otherwise output initial unit
+        replaced_unit = replaced_unit_set[0]
+    except IndexError:
+        replaced_unit = unit
+    return replaced_unit
+
+
 def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
     """
     Process a mathematical string containing units, with units defined by an identifier.
@@ -655,17 +707,21 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
         supp_units : tuple
             A specific list of supported units can be given here. Note that it may not contain any units that are not
             natively supported by this script.
+        abb_unit : bool
+            Specify whether the script should attempt to condense the resulting unit into a derived SI unit.
 
     Returns
         The computed result as set by the result parameter.
     """
 
     # check and fix kwargs
-    parser_true_string, parser_print = math_string, 'num'
+    parser_true_string, parser_print, abb_unit = math_string, 'num', True
     if 'true_string' in kwargs.keys():
         parser_true_string = kwargs.get('true_string')
     if 'cprint' in kwargs.keys():
         parser_print = kwargs.get('cprint')
+    if 'abb_unit' in kwargs.keys():
+        abb_unit = kwargs.get('abb_unit')
     if 'supp_units' in kwargs.keys():
         supported_units = kwargs.get('supp_units')
     else:
@@ -815,6 +871,12 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
 
     # pass through the replaced expression in .parser()
     unit_result = nsu.list_to_string(solved_unit_expression_final)
+    if abb_unit:  # abbreviate unit result, if called
+        abb_res = unit_abbreviator(unit_result, ' ')
+        if abb_res[0] == ' ':  # fix spacing after abbreviation
+            unit_result = abb_res
+        else:
+            unit_result = ' ' + abb_res
     math_result = nsp.parser(replaced_unit_string, steps=False, cprint=parser_print, true_string=parser_true_string,
                              unit_res=unit_result)
     comp_result = str(math_result) + unit_result

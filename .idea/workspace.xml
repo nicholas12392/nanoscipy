@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added split(). Updated list_to_string() doc string. Rewritten product parser. Added NumAn.add_cns(). Added add_res() functionality. Added multi_split().">
-      <change afterPath="$PROJECT_DIR$/nanoscipy/unitpar.py" afterDir="false" />
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Added unitpar.py. Implementation in modules.NumAn. Added constants to mathpar().">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/unitpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/unitpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,20 +49,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/nicho/PycharmProjects/nanoscipyTestEnv&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/nicho/PycharmProjects/nanoscipyTestEnv",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Language Defaults"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="nanoscipy" sdk-home="C:\Users\nicho\PycharmProjects\nanoscipy\venv\Scripts\python.exe">
@@ -130,7 +129,9 @@
       <workItem from="1662754239720" duration="2232000" />
       <workItem from="1664385564211" duration="12422000" />
       <workItem from="1665750687937" duration="26000" />
-      <workItem from="1665764192210" duration="38137000" />
+      <workItem from="1665764192210" duration="41497000" />
+      <workItem from="1667244220070" duration="418000" />
+      <workItem from="1667244665837" duration="16338000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -300,7 +301,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665996924386</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Added unitpar.py. Implementation in modules.NumAn. Added constants to mathpar().">
+      <created>1666893808211</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1666893808211</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -339,6 +347,7 @@
     <MESSAGE value="Update setup." />
     <MESSAGE value="Added new cprint options for parser() and NumAn().calc() and added support for hyperbolic trigonometric functions. Added string_sorter()." />
     <MESSAGE value="Added split(). Updated list_to_string() doc string. Rewritten product parser. Added NumAn.add_cns(). Added add_res() functionality. Added multi_split()." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added split(). Updated list_to_string() doc string. Rewritten product parser. Added NumAn.add_cns(). Added add_res() functionality. Added multi_split()." />
+    <MESSAGE value="Added unitpar.py. Implementation in modules.NumAn. Added constants to mathpar()." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added unitpar.py. Implementation in modules.NumAn. Added constants to mathpar()." />
   </component>
 </project>

@@ -297,7 +297,7 @@ def ordered_parser(math_string, steps=False):
     return o4_opr_string[0]
 
 
-def product_parser(string, items):
+def product_parser(string, items, exclusions=None):
     """
         Parser that detects implicit multiplication and adds multiplication operator in those positions. Note
         importantly that this script works by splitting the string around every exclusion (the largest exclusion first -
@@ -310,14 +310,23 @@ def product_parser(string, items):
                 The mathematical string to search for implicit multiplication.
             items : str, tuple
                 Items that implicit multiplication will be done around if appropriate.
+            exclusions : str, tuple
+                Elements that should not be considered to have fixed products.
 
         Returns
             Updated string with the implicit multiplication as explicit.
         """
 
     # split the given string around the given items, making sure that the largest items are iterated through first
-    sorted_items = nsu.string_sorter(items + (')',), reverse=True)
-    split_list = nsu.multi_split(string, sorted_items, False)
+    math_ops = ('(', ')', '+', '-', '/', '*', '^', '!')
+    sorted_items = nsu.string_sorter(items + math_ops, reverse=True)
+    split_list = nsu.multi_split(string, sorted_items)
+
+    # fix exclusions to tuple
+    if exclusions:
+        exclusions = nsu.nest_checker(exclusions, 'tuple')
+    else:
+        exclusions = []
 
     # remove any blank fields if present
     no_blanks_itr_str = [i for i in split_list if i != '']
@@ -337,13 +346,9 @@ def product_parser(string, items):
         except IndexError:
             break
 
-        # define mathematical symbols
-        math_symbols_gen = ('-', '+', '/', '*', '^')
-        math_symbols_i0 = ('(',) + math_symbols_gen
-        math_symbols_ip1 = ('!', ')') + math_symbols_gen
-
         # if i0_val and ip1_val does not have conflicting mathematical symbols, add '*' to i0_val and update i0
-        if i0_val[-1] not in math_symbols_i0 and ip1_val[0] not in math_symbols_ip1:
+        if ip1_val not in math_ops[1:] and i0_val not in exclusions and i0_val not in math_ops[2:] and \
+                i0_val[-1] != '(':
             temp_list[i0] = i0_val + '*'
         i0 += 1
 
@@ -532,11 +537,11 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
         # define specific set of replacement keys/values depending on cprint type
         if cprint == 'num':
             replacement_keys = ('pi', '_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e', '_me', '_mp')
-            replacement_vals = ('π', 'ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e', 'mₑ', 'mₚ')
+            replacement_vals = ('π', 'ħ', 'Nᴀ', 'c', 'h', '·', 'R', 'k', 'e', 'mₑ', 'mₚ')
         elif cprint == 'sym':
             replacement_keys = ['_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e', '_me', '_mp'] + \
                                nsu.alphabetSequenceGreekLetters + nsu.alphabetSequenceGreekLettersCap
-            replacement_vals = ['ħ', 'Nᴀ', 'c', 'h', '⋅', 'R', 'k', 'e', 'mₑ', 'mₚ'] + \
+            replacement_vals = ['ħ', 'Nᴀ', 'c', 'h', '·', 'R', 'k', 'e', 'mₑ', 'mₚ'] + \
                                nsu.alphabetSequenceGreek + nsu.alphabetSequenceGreekCap
         else:
             raise ValueError(f'Computation print type \'{cprint}\' is not supported.')
