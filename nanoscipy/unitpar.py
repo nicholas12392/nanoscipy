@@ -13,7 +13,12 @@ from_derivative_to_SI = (('g', 'N', 'C', 'kat', 'Hz', 'Bq', 'J', 'Pa', 'W', 'Gy'
                           'kg*s^-2*A^-1', str(spc.e) + '*kg*m^2*s^-2', '10^-10*m', str(spc.atomic_mass) + '*kg',
                           str(spc.u) + '*kg', str(spc.u) + '*kg', '10^-3*m^3', '4.18400*kg*m^2*s^-2',
                           '101325*kg*m^-1*s^-2', '60*s', '10^5*kg*m^-1*s^-2', '133.322368421*kg*m^-1*s^-2'))
-from_SI_to_derivative = ((), ())
+from_SI_to_derivative = ((('kg', 'm', 's^-2'), ('A', 's'), ('mol', 's^-1'), ('kg', 'm^2', 's^-2'),
+                          ('kg', 'm^-1', 's^-2'), ('kg', 'm^2', 's^-3'), ('kg', 'm^2', 's^-3', 'A^-1'),
+                          ('kg', 'm^2', 's^-2', 'A^-1'), ('kg', 'm^2', 's^-3', 'A^-2'),
+                          ('kg^-1', 'm^-2', 's^4', 'A^2'), ('m^-2', 'kg^-1', 's^3', 'A^2'), ('m^2', 'kg', 's^-2, A^-2'),
+                          ('kg', 's^-2', 'A^-1')),
+                         ('N', 'C', 'kat', 'J', 'Pa', 'W', 'V', 'Wb', 'Ω', 'F', 'S', 'H', 'T'))
 
 # print(list(zip(*from_derivative_to_SI)))  # check derived unit against base
 # these are the base units that the script supports
