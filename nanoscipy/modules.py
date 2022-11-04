@@ -888,7 +888,7 @@ class NumAn:
         # add implicit multiplication symbols
         base_exclusions = self.__exclusions__
         collective_items = base_exclusions + con_keys + phys_cns_keys
-        product_fixed_string = nsp.product_parser(math_string, collective_items, supported_units)
+        product_fixed_string = nsp.product_parser(math_string, collective_items, tuple(supported_units))
 
         # replace the constants with their values, respecting the exclusions
         phys_cns_vals = self.__phys_cns_vals__

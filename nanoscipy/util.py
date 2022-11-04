@@ -312,6 +312,10 @@ def replace(elems, reps, string, exclusions=None, **kwargs):
     if 'out_type' in kwargs.keys():
         out_type = 'list'
 
+    # check if replacements matches amount of elements, if not, try extend replacements
+    if len(elems) != len(reps):
+        reps = tuple([reps[0] for i in range(len(elems))])
+
     fixed_index_excl_list = []  # set exclusions to be empty, and redefine if any are present
     if exclusions:
 
