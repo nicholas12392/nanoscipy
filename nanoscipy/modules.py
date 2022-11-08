@@ -816,7 +816,7 @@ class NumAn:
 
         # replace constants prior to parsing with .parser()
         phys_cns_vals = self.__phys_cns_vals__
-        replacements_sorted = nsu.string_sorter(old_con_keys + phys_cns_keys, old_con_vals + phys_cns_vals,
+        replacements_sorted = nsu.list_sorter(old_con_keys + phys_cns_keys, old_con_vals + phys_cns_vals,
                                                 reverse=True)
         replaced_strings = [nsu.replace(replacements_sorted[0], replacements_sorted[1], i, base_exclusions) for i in
                             product_fixed_string]
@@ -864,6 +864,10 @@ class NumAn:
         supported_units = self.supported_units
         phys_cns_keys = self.__phys_cns_keys__
 
+        # respond with proper error, if no expression is given, when .calc is called
+        if not math_string:
+            raise ValueError('Provide an expression for calculation.')
+
         # check if constants are defined as equations or floats (if any constants)
         re_con_vals, re_con_disp = [], []
         for i, d in zip(con_vals, con_disp):
@@ -892,13 +896,13 @@ class NumAn:
 
         # replace the constants with their values, respecting the exclusions
         phys_cns_vals = self.__phys_cns_vals__
-        replacements_sorted = nsu.string_sorter(con_keys + phys_cns_keys, re_con_vals + phys_cns_vals,
+        replacements_sorted = nsu.list_sorter(con_keys + phys_cns_keys, re_con_vals + phys_cns_vals,
                                                 reverse=True)
         replaced_string = nsu.replace(replacements_sorted[0], replacements_sorted[1], product_fixed_string,
                                       base_exclusions)
 
         # ensure that there are no undefined constants, otherwise raise error
-        checkers_sorted = nsu.string_sorter(base_exclusions + tuple(supported_units) + ('e-', 'e', 'e+'), reverse=True)
+        checkers_sorted = nsu.list_sorter(base_exclusions + tuple(supported_units) + ('e-', 'e', 'e+'), reverse=True)
         replaced_string_checker = nsu.replace(checkers_sorted, '', replaced_string, out_type='list')
         for i in replaced_string_checker:
             if i in nsu.alphabetSequenceCap + nsu.alphabetSequence:
@@ -933,20 +937,34 @@ class NumAn:
             self.__cns_disp__ += (str(computation) + unit_result,)
 
         # if cprint is set to symbolic with constants, rewrite input string and constants to symbols and
-        if cprint in ('symc', 'symc_ex'):
-            con_string = ';'.join(con_keys)  # make con_keys into an easily splittable string
+        if cprint in ('symc', 'symc_ex') and con_keys:
 
-            # replace symbols with identifier
-            replacement_keys = nsu.alphabetSequenceGreekLetters + nsu.alphabetSequenceGreekLettersCap
-            replacement_vals = nsu.alphabetSequenceGreek + nsu.alphabetSequenceGreekCap
-            sorted_replacements = nsu.string_sorter(replacement_keys, replacement_vals, reverse=True, otype='tuple')
-            pretty_constants = nsu.replace(sorted_replacements[0], sorted_replacements[1], con_string)
+            # check which constants are being used in the expression, and collect
+            sort_keys_disp = nsu.list_sorter(con_keys, con_disp, reverse=True)
+            used_keys, used_disp = [], []
+            temp_expression = math_string
+            for i, j in zip(sort_keys_disp[0], sort_keys_disp[1]):
 
-            # re-list con_keys with replaced symbols and print
-            rep_con_keys = pretty_constants.split(';')
-            for i, j in zip(rep_con_keys, re_con_disp):
-                print(f'| {i} = {j}')
+                # if key is in expression, map it and display value to list, and remove key from expression to prevent
+                #   overlap of constants
+                if i in temp_expression:
+                    used_keys.append(i)
+                    used_disp.append(j)
+                    temp_expression = temp_expression.replace(i, '')
 
+            if used_keys:  # if any constants were used in the expression, prettify and print them
+                con_string = ';'.join(con_keys)  # make con_keys into an easily splittable string
+
+                # replace symbols with identifier
+                replacement_keys = nsu.alphabetSequenceGreekLetters + nsu.alphabetSequenceGreekLettersCap
+                replacement_vals = nsu.alphabetSequenceGreek + nsu.alphabetSequenceGreekCap
+                sorted_replacements = nsu.list_sorter(replacement_keys, replacement_vals, reverse=True, otype='tuple')
+                pretty_constants = nsu.replace(sorted_replacements[0], sorted_replacements[1], con_string)
+
+                # re-list con_keys with replaced symbols and print
+                rep_con_keys = pretty_constants.split(';')
+                for i, j in zip(rep_con_keys, re_con_disp):
+                    print(f'| {i} = {j}')
         return computation
 
     def add_res(self, name):

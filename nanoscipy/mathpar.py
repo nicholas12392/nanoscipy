@@ -541,7 +541,7 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
         elif cprint == 'sym':
             replacement_keys = ['_hbar', '_NA', '_c', '_h', '*', '_R', '_k', '_e', '_me', '_mp'] + \
                                nsu.alphabetSequenceGreekLetters + nsu.alphabetSequenceGreekLettersCap
-            replacement_vals = ['ħ', 'Nᴀ', 'c', 'h', '·', 'R', 'k', 'e', 'mₑ', 'mₚ'] + \
+            replacement_vals = ['ħ', 'Nᴀ', 'c', 'h', '·', 'R', 'kᴮ', 'e', 'mₑ', 'mₚ'] + \
                                nsu.alphabetSequenceGreek + nsu.alphabetSequenceGreekCap
         else:
             raise ValueError(f'Computation print type \'{cprint}\' is not supported.')

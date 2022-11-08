@@ -336,7 +336,7 @@ def unit_replacer(math_string, unit_list, unit_scalar_list, SI_unit_list):
     """
 
     # size-sort both the SI units, found units and scalars depending on size of the found units
-    sorted_units = nsu.string_sorter(unit_list, unit_scalar_list, SI_unit_list, reverse=True)
+    sorted_units = nsu.list_sorter(unit_list, unit_scalar_list, SI_unit_list, reverse=True)
 
     # check whether the base/SI-unit conversions contain further scalars, and add those if that is the case
     sorted_scalars = []
@@ -455,6 +455,9 @@ def unit_solver(unit_expression, unit_list, fixed_unit_list):
             if ip1_val in SI_base_units:
                 base_units_expression[i0] = '*'
                 base_units_expression = base_units_expression[:ip1 + 1] + ['^-1'] + base_units_expression[ip1 + 1:]
+        # look for missing multiplication after powers (they have been collected at this point)
+        elif i0_val[0] == '^' and (ip1_val == '(' or ip1_val in SI_base_units):
+            base_units_expression = base_units_expression[:ip1] + ['*'] + base_units_expression[ip1:]
         i0 += 1  # update iterative
 
     # can probably be incorporated in the upper loop for increased efficiency
@@ -675,7 +678,7 @@ def unit_abbreviator(unit, delim='*'):
     # collect all abbreviations and sort them, so that the largest one is first, trying to reduce the expression most
     abbreviations = supported_abbreviations[0] + inverted_abbreviations[0], supported_abbreviations[1] + \
                     inverted_abbreviations[1]
-    sorted_abbreviations = nsu.string_sorter(*abbreviations, reverse=True)
+    sorted_abbreviations = nsu.list_sorter(*abbreviations, reverse=True)
 
     # replace matching abbreviations in given unit set
     split_unit = [i for i in unit.split(delim) if i != '']  # fix blank elements
@@ -737,7 +740,7 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
         supported_units += [unit_identifier + i for i in supported_special_units]
 
     # define list of all supported values for the unit isolated list
-    supported_units_and_mo = tuple(nsu.string_sorter(supported_units + list(math_ops), reverse=True))
+    supported_units_and_mo = tuple(nsu.list_sorter(supported_units + list(math_ops), reverse=True))
     separated_units = unit_separator(math_string, supported_units_and_mo, unit_identifier)
     unit_list_contained, unit_list_scalars, unit_list_SI = unit_converter(separated_units, unit_identifier)
 
@@ -858,7 +861,7 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
         # sort the units so that negative powers are last
         power_split_units = [i.split('^') for i in solved_unit_expression_split]
         relist_split_unit = list(zip(*power_split_units))
-        sorted_unit_expression = nsu.string_sorter(relist_split_unit[1], relist_split_unit[0])
+        sorted_unit_expression = nsu.list_sorter(relist_split_unit[1], relist_split_unit[0])
         sorted_unit_expression_split = [i + '^' + j for i, j in zip(sorted_unit_expression[1],
                                                                     sorted_unit_expression[0])]
 

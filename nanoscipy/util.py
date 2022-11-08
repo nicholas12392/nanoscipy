@@ -96,7 +96,7 @@ def string_to_int(potential_int):
 
 def list_to_string(subject_list, sep=''):
     """
-    Converts a list to a string.
+    Converts a list to a string regardless of element type.
 
     Parameters
         subject_list : list
@@ -109,8 +109,8 @@ def list_to_string(subject_list, sep=''):
 
     """
     fixed_list = [str(i) if not isinstance(i, str) else i for i in subject_list]  # fix non-str elements to str type
-    stringified_list = sep.join(fixed_list)  # construct string
-    return stringified_list
+    list_string = sep.join(fixed_list)  # construct string
+    return list_string
 
 
 def indexer(list_to_index):
@@ -125,7 +125,11 @@ def indexer(list_to_index):
         The indexed list. A list containing each previous element as a list, consisting of the index/id as the first
         value, and the list-element as the second value.
     """
-    indexed_list = [[k] + [j] for k, j in zip(list(range(len(list_to_index))), list_to_index)]
+    indexed_list = []
+    i0 = 0
+    for i in list_to_index:
+        indexed_list.append([i0, i])
+        i0 += 1
     return indexed_list
 
 
@@ -280,8 +284,7 @@ def float_to_int(float_element, fail_action='pass'):
 
 def replace(elems, reps, string, exclusions=None, **kwargs):
     """
-    Replaces the element(s) inside the string, if the element(s) is(are) inside the string. Can replace sequences up to
-    10 letters.
+    Replaces the element(s) inside the string, if the element(s) is(are) inside the string.
 
     Parameters
         elem : str or tuple
@@ -300,119 +303,116 @@ def replace(elems, reps, string, exclusions=None, **kwargs):
             If 'list': outputs the raw list obtained from replacement. The default is 'str'.
 
     Returns
-        New string with the replaced element(s).
+        New string (or list) with the replaced element(s).
     """
-
-    # make sure that elems and reps are indeed tuples
-    elems = nest_checker(elems, 'tuple')
-    reps = nest_checker(reps, 'tuple')
 
     # define kwargs
     out_type = 'str'
     if 'out_type' in kwargs.keys():
         out_type = 'list'
 
-    # check if replacements matches amount of elements, if not, try extend replacements
+    # make sure that elems and reps are indeed tuples and that there is an actual string
+    elems = nest_checker(elems, 'tuple')
+    reps = nest_checker(reps, 'tuple')
+    if not string:
+        raise ValueError(f'Provide expression to replace in; \'string\' is empty.')
+
+    # check if replacements matches amount of elements, if not, try to extend replacements
     if len(elems) != len(reps):
         reps = tuple([reps[0] for i in range(len(elems))])
 
-    fixed_index_excl_list = []  # set exclusions to be empty, and redefine if any are present
+    # isolate exclusions from string to insert later
     if exclusions:
-
-        # if only a single exclusion, make iterable
-        exclusions = nest_checker(exclusions, 'tuple')
-
-        exclusion_id_relist = []  # empty list for indexes of exclusions in string
-        for exclusion in exclusions:  # iterate through all exclusions
-            if exclusion in string:
-                temp_string = string.split(exclusion)  # split string around exclusion
-
-                # for each split (but the last), define an index for that list, and iterate through the lists
-                for elem_id, list_elem in indexer(temp_string[:-1]):
-                    # define first index for the exclusion
-                    temp_insert_id = len(list(chain.from_iterable(temp_string[:elem_id + 1])))
-
-                    # define index boundaries for the exclusion
-                    lower_boundary = temp_insert_id + len(exclusion) * elem_id
-                    upper_boundary = temp_insert_id + len(exclusion) * (1 + elem_id)
-
-                    # append the found indexes to a list, with an index per element
-                    exclusion_id_relist.append([[i] + [j] for i, j in
-                                                zip(list(range(lower_boundary, upper_boundary)), exclusion)])
-
-        # flatten the list, and remove all duplicate elements
-        flat_index_excl_list = list(chain.from_iterable(exclusion_id_relist))
-        flat_index_excl_list.sort()
-        fixed_index_excl_list = list(k for k, _ in itertools.groupby(flat_index_excl_list))
-
-        # define updated string, with the exclusions temporarily removed
-        excl_string = [[i] + [e] if i not in [k[0] for k in fixed_index_excl_list] else [i] + [''] for i, e in
-                       indexer(string)]
+        excl_list = nest_checker(exclusions, 'list')
+        sort_excl = string_sorter(excl_list, reverse=True)
+        excl_split_list = multi_split(string, sort_excl, no_blanks=True)
+        found_excl, pure_list = [], []
+        for i, e in enumerate(excl_split_list):
+            if e in excl_list:
+                found_excl.append([i, e])
+            else:
+                pure_list.append([i, e])
     else:
-        excl_string = indexer(string)
+        found_excl, pure_list = None, indexer([string])
 
-    pre_float_string = [i[1] for i in excl_string]  # decompose input string into elements in a list
-    decom_elems = [[i for i in j] for j in elems]  # decompose rep string
+    # perform replacements for each string element
+    rep_list = []
+    for i, e in pure_list:
+        e_split = multi_split(e, elems)
+        rep_elem = [reps[elems.index(j)] if j in elems else j for j in e_split]
+        rep_list.append([i, list_to_string(rep_elem)])
 
-    i = 0  # define initial
-    temp_string = pre_float_string
-    while i < len(temp_string):  # iterate over the length of the 1-piece list
-
-        # define surrounding iterates
-        ip1, ip2, ip3, ip4, ip5, ip6, ip7, ip8, ip9 = i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9
-        packed_indexes = [ip1, ip2, ip3, ip4, ip5, ip6, ip7, ip8, ip9]  # pack integers for compaction
-        i0_val = temp_string[i]  # define current iterative value
-
-        # define fall-back values for iterates passed current
-        ip1_val = ip2_val = ip3_val = ip4_val = ip5_val = ip6_val = ip7_val = ip8_val = ip9_val = None
-
-        try:  # try to define values for the surrounding iterations, otherwise pass at position
-            ip1_val = temp_string[ip1]
-            ip2_val = temp_string[ip2]
-            ip3_val = temp_string[ip3]
-            ip4_val = temp_string[ip4]
-            ip5_val = temp_string[ip5]
-            ip6_val = temp_string[ip6]
-            ip7_val = temp_string[ip7]
-            ip8_val = temp_string[ip8]
-            ip9_val = temp_string[ip9]
-        except IndexError:
-            pass
-
-        # define a packed index
-        packed_values = [i0_val, ip1_val, ip2_val, ip3_val, ip4_val, ip5_val, ip6_val, ip7_val, ip8_val, ip9_val]
-
-        for es, o in zip(decom_elems, reps):
-
-            # if the element is found within the provided string, replace with replacement at the current index, and
-            # fill in blanks at any other index within the replacement frame
-            if es == packed_values[:len(es)]:
-                temp_string = [o if k == i else '' if k in packed_indexes[:len(es) - 1] else j for k, j in
-                               indexer(temp_string)]
-                break  # break out of the for loop, preventing overwriting
-        i += 1  # update iterative
-
-    # reintroduce the exclusions if any
-    if fixed_index_excl_list:
-
-        # index the string with the replacements in it, and remove all blanks
-        index_rem_string = [[i] + [j] for i, j in indexer(temp_string) if j != '']
-
-        # append the fixed new string with indexes, with the exclusion index list
-        appended_string = index_rem_string + fixed_index_excl_list
-        appended_string.sort()  # sort the string according to the index
-        pre_res = [j for i, j in appended_string]  # remove the indexes and convert the list to a string
+    # insert exclusions back into the string, depending on whether exclusions were defined
+    if found_excl:
+        init_list = found_excl + rep_list
+        init_list_fix = list(zip(*init_list))
+        sort_list = list_sorter(init_list_fix[0], init_list_fix[1], stype='int_size')
     else:
-        pre_res = temp_string
+        sort_list = list(zip(*rep_list))
 
-    # determine what should be output from the output type
+    # determine the output type
     if out_type == 'str':
-        res = list_to_string(pre_res)
+        string_list = list_to_string(sort_list[1])
     elif out_type == 'list':
-        res = pre_res
+        string_list = sort_list[1]
     else:
         raise ValueError(f'Output type \'{out_type}\' is invalid.')
-    return res
+
+    # return result list
+    return string_list
+
+
+def list_sorter(*lists, stype='str_size', reverse=False, otype='list'):
+    """
+    Sorts any amount of given lists, according to the first list given, depending on the sorting type.
+
+    Parameters
+        *lists : list
+            The lists in need of being sorted. Sorts all lists according to the elements in the first list.
+        stype : str, optional
+            Determines which sorting type should be used. If 'str_size', sorts after size of strings (in order of
+            smallest to largest). If 'alphabetic', sorts strings alphabetically. If 'int_size', sorts after integer size
+            from smallest to largest. The default is 'str_size'.
+        reverse : bool, optional
+            Reverses the sorting order. The default is False.
+        otype : str, optional
+            Determines the output type. If 'list', a list of lists is created. If 'tuple' a tuple of tuples is created.
+            The default is 'list'.
+
+    Returns
+        A list/tuple of lists/tuples with the sorted lists. The output list/tuple sequence matches input.
+    """
+
+    # if sorting type is string size, construct a uniform list including a corresponding size-list as first list
+    if stype == 'str_size':
+        uniform_list = list(zip([len(i) for i in lists[0]], *lists))
+        sorted_lists_pre = sorted(uniform_list, key=itemgetter(0), reverse=reverse)  # sort lists
+        sorted_lists = [i[1:] for i in sorted_lists_pre]  # remove size-list
+
+    # if sorting type is int size, then assume the list to be of integers already
+    elif stype == 'int_size':
+        uniform_list = list(zip(*lists))
+        sorted_lists = sorted(uniform_list, key=itemgetter(0), reverse=reverse)  # sort lists
+
+    # if sorting type is alphabetic, construct a uniform list from the given lists and conduct sorting
+    elif stype in ('alpha', 'alphabetic', 'alphabet'):
+        uniform_list = list(zip(*lists))
+        sorted_lists = sorted(uniform_list, key=itemgetter(0), reverse=reverse)  # sort lists
+    else:  # raise error if sorting type is unknown
+        raise ValueError(f'Sorting type {stype} is undefined.')
+
+    # define the output according to the output type
+    if otype == 'tuple':
+        output_lists = tuple(zip(*sorted_lists))
+    elif otype == 'list':
+        output_lists = [list(i) for i in list(zip(*sorted_lists))]
+    else:
+        raise ValueError(f'Output type {otype} is undefined.')
+
+    if len(output_lists) == 1:
+        output_lists = output_lists[0]
+
+    return output_lists
 
 
 def string_sorter(*lists, stype='size', reverse=False, otype='list'):
@@ -434,6 +434,9 @@ def string_sorter(*lists, stype='size', reverse=False, otype='list'):
     Returns
         A list/tuple of lists/tuples with the sorted strings. The output list/tuple sequence matches input.
     """
+
+    warnings.warn('Use \'list_sorter()\' function instead. This function is outdated and will be removed in upcoming '
+                  'patch.')
 
     # if sorting type is size, construct a uniform list including a corresponding size-list as first list
     if stype == 'size':

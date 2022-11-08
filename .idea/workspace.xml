@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="change setup">
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="bug fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/unitpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/unitpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,7 +131,7 @@
       <workItem from="1665750687937" duration="26000" />
       <workItem from="1665764192210" duration="41497000" />
       <workItem from="1667244220070" duration="418000" />
-      <workItem from="1667244665837" duration="18402000" />
+      <workItem from="1667244665837" duration="29020000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -325,7 +329,14 @@
       <option name="project" value="LOCAL" />
       <updated>1667592015284</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="bug fix">
+      <created>1667592959719</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1667592959719</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -343,7 +354,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="PyCharm Log 1" />
     <MESSAGE value="Added modules and updated fit_data" />
     <MESSAGE value="Parameter updates to DatAn" />
     <MESSAGE value="Added list_to_string(). Added a mathematical parser, supporting many standard conventions and notations." />
@@ -368,6 +378,7 @@
     <MESSAGE value="Improved mathpar print symbols. Added unit_abbreviator(). Fixed constant replacement error. Improved unit reading in .product_parser(). Fixed unit_identifier issue. Fixed implicit multiplication issue. Updated .replace(). Fixed error messages." />
     <MESSAGE value="Added feature to .replace()." />
     <MESSAGE value="change setup" />
-    <option name="LAST_COMMIT_MESSAGE" value="change setup" />
+    <MESSAGE value="bug fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="bug fix" />
   </component>
 </project>
