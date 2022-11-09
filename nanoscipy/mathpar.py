@@ -319,7 +319,7 @@ def product_parser(string, items, exclusions=None):
 
     # split the given string around the given items, making sure that the largest items are iterated through first
     math_ops = ('(', ')', '+', '-', '/', '*', '^', '!')
-    sorted_items = nsu.string_sorter(items + math_ops, reverse=True)
+    sorted_items = nsu.list_sorter(items + math_ops, reverse=True)
     split_list = nsu.multi_split(string, sorted_items)
 
     # fix exclusions to tuple
@@ -547,7 +547,7 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
             raise ValueError(f'Computation print type \'{cprint}\' is not supported.')
 
         # sort the replacements with their keys, replace them and print
-        sorted_replacements = nsu.string_sorter(replacement_keys, replacement_vals, reverse=True, otype='tuple')
+        sorted_replacements = nsu.list_sorter(replacement_keys, replacement_vals, reverse=True, otype='tuple')
         pretty_string = nsu.replace(sorted_replacements[0], sorted_replacements[1], true_string)
         print(f'Result: {pretty_string} = {str(pi_fixed_string) + unit_res}')
     return int_fixed_string

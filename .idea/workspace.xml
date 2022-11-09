@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.4">
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.5">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/unitpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/unitpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,7 +131,7 @@
       <workItem from="1665750687937" duration="26000" />
       <workItem from="1665764192210" duration="41497000" />
       <workItem from="1667244220070" duration="418000" />
-      <workItem from="1667244665837" duration="30458000" />
+      <workItem from="1667244665837" duration="39517000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -339,7 +343,21 @@
       <option name="project" value="LOCAL" />
       <updated>1667904336144</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="Update 3.0.5">
+      <created>1667990383306</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1667990383306</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Update 3.0.5">
+      <created>1667990406762</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1667990406762</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -357,7 +375,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Parameter updates to DatAn" />
     <MESSAGE value="Added list_to_string(). Added a mathematical parser, supporting many standard conventions and notations." />
     <MESSAGE value="Optimizations and bug fixes to mathpar.parser(). Added find() function. Implemented parser in DatAn.mathop()" />
     <MESSAGE value="Added quick save option for DatAn.plot()" />
@@ -382,6 +399,7 @@
     <MESSAGE value="change setup" />
     <MESSAGE value="bug fix" />
     <MESSAGE value="Update 3.0.4" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.4" />
+    <MESSAGE value="Update 3.0.5" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.5" />
   </component>
 </project>

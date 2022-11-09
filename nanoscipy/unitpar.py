@@ -407,6 +407,13 @@ def unit_solver(unit_expression, unit_list, fixed_unit_list):
     i0 = 0
     while i0 < max_iteration:
         i0_val = unit_expression[i0]  # define current value
+        ip1_val = ip2_val = None  # define initial right values
+        try:
+            ip1_val = unit_expression[i0 + 1]
+            ip2_val = unit_expression[i0 + 2]
+        except IndexError:
+            pass
+
         if i0_val in unit_list:
 
             # at the same time expand expression around multiplication, and place it in parentheses if not already
@@ -414,15 +421,15 @@ def unit_solver(unit_expression, unit_list, fixed_unit_list):
                 im1_val = unit_expression[i0 - 1]
             except IndexError:
                 im1_val = None
-            try:
-                ip1_val = unit_expression[i0 + 1]
-            except IndexError:
-                ip1_val = None
 
             if im1_val == '(' and ip1_val == ')':
                 base_units_expression += nsu.split([fixed_unit_list[unit_list.index(i0_val)]][0], '*')
             else:
                 base_units_expression += ['('] + nsu.split([fixed_unit_list[unit_list.index(i0_val)]][0], '*') + [')']
+        elif (i0_val, ip1_val, ip2_val) == ('/', '(', ')'):
+            i0 += 2
+        elif (i0_val, ip1_val) == ('(', ')'):
+            i0 += 1
         else:
             base_units_expression += [i0_val]
         i0 += 1

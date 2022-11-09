@@ -21,7 +21,7 @@ float_to_int()
 
 replace()
 
-string_sorter()
+list_sorter()
 
 """
 import warnings
@@ -324,7 +324,7 @@ def replace(elems, reps, string, exclusions=None, **kwargs):
     # isolate exclusions from string to insert later
     if exclusions:
         excl_list = nest_checker(exclusions, 'list')
-        sort_excl = string_sorter(excl_list, reverse=True)
+        sort_excl = list_sorter(excl_list, reverse=True)
         excl_split_list = multi_split(string, sort_excl, no_blanks=True)
         found_excl, pure_list = [], []
         for i, e in enumerate(excl_split_list):
