@@ -803,9 +803,11 @@ class NumAn:
                 old_con_vals_re.append(j)
                 old_con_disp_re.append(k)
             else:
-                warnings.warn(
-                    f'Constant \'{i} = {j[1:-1]}\' has been changed to \'{add_con_vals[old_con_keys.index(i)]}\'.',
-                    stacklevel=2)
+                cur_val = add_con_vals[add_con_keys.index(i)]
+                old_val = j[1:-1]
+                if cur_val != old_val:
+                    print(
+                        f'Constant \'{i} = {j[1:-1]}\' has been changed to \'{add_con_vals[add_con_keys.index(i)]}\'.')
         old_con_keys, old_con_vals, old_con_disp = tuple(old_con_keys_re), tuple(old_con_vals_re), tuple(
             old_con_disp_re)
 
