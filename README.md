@@ -18,6 +18,8 @@ Note that if you're using anaconda, you might have to install the module from th
 conda rather than pip)
 
 ## Import
+<details><summary>Click for details</summary>
+<p>
 Currently, the package consists of four distinct modules:
 ```bash
 nanoscipy.functions
@@ -46,8 +48,12 @@ is the collective parser itself.
 nanoscipy.unitpar
 ```
 Contains a script that allows for computation with units. 
+</p>
+</details>
 
 ## Getting started with unit computations
+<details><summary>Click for details</summary>
+<p>
 There are two main functions of concern here; `mathpar.parser()` and `unitpar.unit_parser()`, but the focus will be on 
 the module `modules.NumAn` as this is what is meant to be the 'calculator'. This section will serve as an explanation of how 
 it works and how it may be used for different purposes.
@@ -411,3 +417,5 @@ Note importantly that this guide may not be completely up-to-date with the newes
 of time to re-write and keep an overview of what is in and what is missing. Therefore, I will always recommend to check 
 out the [patch notes](https://github.com/nicholas12392/nanoscipy/releases). 
 It is noted in the beginning of the guide, which version the guide is currently up-to-date with. 
+</p>
+</details>
