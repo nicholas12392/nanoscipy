@@ -1,6 +1,7 @@
 # nanoscipy
 
-nanoscipy has been made, to ease the more heavy data-handling, -processing, and - analysis. 
+nanoscipy has been made, to ease the data-handling, -processing, and - analysis. Additionally, it also provides a 
+simple way to perform numerical calculations with units.
 This package is being readily updated at the moment, so be sure to keep up, as new and useful additions and fixes are 
 very likely to be included.
 
