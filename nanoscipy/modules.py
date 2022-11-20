@@ -780,6 +780,8 @@ class NumAn:
         self.__cns_vals__ = con_vals
         self.__cns_keys__ = con_keys
         self.__cns_disp__ = con_disp
+        self.ans = 'No computation has been done.'
+        self.__ans_unit__ = 'No computation has been done.'
         self.__unit_id__ = unit_identifier
         self.__phys_cns_vals__ = tuple(physical_constants_values)
         self.__phys_cns_keys__ = supported_physical_constants
@@ -923,7 +925,7 @@ class NumAn:
                 if unit_res == 'a.u.':
                     unit_res = ''
                 if unit_res:  # ensure that unit ids are only added, if the result has a unit
-                    re_con_vals.append('(' + str(math_res) + unit_id + unit_res[1:] + ')')
+                    re_con_vals.append('(' + str(math_res) + unit_id.join(unit_res.split(' ')) + ')')
                     re_con_disp.append(str(math_res) + unit_res)
                 else:
                     re_con_vals.append('(' + str(math_res) + ')')
@@ -995,16 +997,16 @@ class NumAn:
             # add name and result to the constant keys and values, respectively
             if add_res in con_keys:  # if the constant is already defined, then overwrite
                 res_id = con_keys.index(add_res)
-                res_val = '(' + str(computation) + unit_id + unit_result[1:] + ')'
+                res_val = '(' + str(computation) + unit_id.join(unit_result.split(' ')) + ')'
                 res_disp = str(computation) + unit_result
-                old_disp = con_disp[res_id]
-                if res_disp != old_disp:  # inform about overwritten constant if necessary
-                    print(f'Constant \'{add_res} = {old_disp}\' has been changed to \'{res_disp}\'.')
+                old_val = con_vals[res_id]
+                if res_val != old_val:
+                    print(f'Constant \'{add_res} = {old_val[1:-1]}\' has been changed to \'{res_val[1:-1]}\'.')
                 self.__cns_vals__[res_id] = res_val
                 self.__cns_disp__[res_id] = res_disp
             else:  # otherwise just add the constant
                 self.__cns_keys__ += [add_res]
-                self.__cns_vals__ += ['(' + str(computation) + unit_id + unit_result[1:] + ')']
+                self.__cns_vals__ += ['(' + str(computation) + unit_id.join(unit_result.split(' ')) + ')']
                 self.__cns_disp__ += [str(computation) + unit_result]
 
         # if cprint is set to symbolic with constants, rewrite input string and constants to symbols and
@@ -1018,7 +1020,7 @@ class NumAn:
 
                 # if key is in expression, map it and display value to list, and remove key from expression to prevent
                 #   overlap of constants
-                if i in nsu.replace(base_exclusions, '', temp_expression):
+                if i in nsu.replace(base_exclusions + tuple(supported_units), '', temp_expression):
                     used_keys.append(i)
                     try:
                         used_disp.append(' '.join(j.split(unit_id)))
@@ -1029,7 +1031,7 @@ class NumAn:
                     break
 
             if used_keys:  # if any constants were used in the expression, prettify and print them
-                con_string = ';'.join(con_keys)  # make con_keys into an easily splittable string
+                con_string = ';'.join(used_keys)  # make con_keys into an easily splittable string
 
                 # replace symbols with identifier
                 replacement_keys = nsu.alphabetSequenceGreekLetters + nsu.alphabetSequenceGreekLettersCap
@@ -1041,7 +1043,7 @@ class NumAn:
                 rep_con_keys = pretty_constants.split(';')
                 for i, j in zip(rep_con_keys, used_disp):
                     if sf:  # fix significant figures for printing
-                        j_split = j.split(' ')
+                        j_split = j.split(' ', 1)  # separate unit from value
                         with mpmath.workdps(sf):
                             try:
                                 cur_disp = str(nsu.float_to_int(mpmath.mpf(j_split[0]))) + ' ' + j_split[1]
@@ -1063,7 +1065,7 @@ class NumAn:
 
         # define the previous computation result from attribute
         con_keys = self.__cns_keys__
-        con_disp = self.__cns_disp__
+        con_vals = self.__cns_vals__
         prev_comp_res = self.ans
         prev_comp_unit = self.__ans_unit__
         unit_id = self.__unit_id__
@@ -1079,13 +1081,13 @@ class NumAn:
             raise ValueError('Constant must not be a value.')
 
         # add name and result to the constant keys and values, respectively
-        res_val = '(' + str(prev_comp_res) + unit_id + prev_comp_unit[1:] + ')'  # set result value
+        res_val = '(' + str(prev_comp_res) + unit_id.join(prev_comp_unit.split(' ')) + ')'  # set result value
         res_disp = str(prev_comp_res) + prev_comp_unit  # set result display value
         if name in con_keys:  # if the constant is already defined, then overwrite
             res_id = con_keys.index(name)
-            old_disp = con_disp[res_id]
-            if res_disp != old_disp:
-                print(f'Constant \'{name} = {old_disp}\' has been changed to \'{res_disp}\'.')
+            old_val = con_vals[res_id]
+            if res_val != old_val:
+                print(f'Constant \'{name} = {old_val[1:-1]}\' has been changed to \'{res_val[1:-1]}\'.')
             self.__cns_vals__[res_id] = res_val
             self.__cns_disp__[res_id] = res_disp
         else:  # otherwise just add the constant

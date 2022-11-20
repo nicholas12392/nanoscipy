@@ -57,7 +57,7 @@ Contains a script that allows for computation with units.
 There are two main functions of concern here; `mathpar.parser()` and `unitpar.unit_parser()`, but the focus will be on 
 the module `modules.NumAn` as this is what is meant to be the 'calculator'. This section will serve as an explanation of how 
 it works and how it may be used for different purposes.
-(Last updated: v3.0.7)
+(Last updated: v3.0.8)
 
 ### 1) The NumAn object
 When defining the NumAn object there are a few things to note. The `__init__()` function takes five different inputs, 
@@ -381,6 +381,23 @@ test.calc('23 m/2 s g')
 ```
 >>> Result: 23 m/(2 s g) = 1.15e+4 m s^-1 kg^-1
 11500
+```
+
+Note that there is currently no support for doing square-roots as `'sqrt(4 m^2)'`:
+```python
+test.calc('sqrt(4 m^2)')
+```
+```
+>>> Result: sqrt(4 m^2) = 2 m^2
+2
+```
+
+```python
+test.calc('(4 m^2)^(1/2)')
+```
+```
+>>> Result: (4 m^2)^(1/2) = 2 m
+2
 ```
 
 
