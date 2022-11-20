@@ -2,6 +2,7 @@ import nanoscipy.util as nsu
 import numpy as np
 import sympy as sp
 import scipy.constants as spc
+import mpmath
 from itertools import chain
 
 
@@ -317,16 +318,15 @@ def product_parser(string, items, exclusions=None):
             Updated string with the implicit multiplication as explicit.
         """
 
-    # split the given string around the given items, making sure that the largest items are iterated through first
-    math_ops = ('(', ')', '+', '-', '/', '*', '^', '!')
-    sorted_items = nsu.list_sorter(items + math_ops, reverse=True)
-    split_list = nsu.multi_split(string, sorted_items)
-
-    # fix exclusions to tuple
-    if exclusions:
+    if exclusions:  # fix exclusions to tuple
         exclusions = nsu.nest_checker(exclusions, 'tuple')
     else:
-        exclusions = []
+        exclusions = tuple([])
+
+    # split the given string around the given items, making sure that the largest items are iterated through first
+    math_ops = ('(', ')', '+', '-', '/', '*', '^', '!')
+    sorted_items = nsu.list_sorter(items + math_ops + exclusions, reverse=True)
+    split_list = nsu.multi_split(string, sorted_items)
 
     # remove any blank fields if present
     no_blanks_itr_str = [i for i in split_list if i != '']
@@ -347,8 +347,8 @@ def product_parser(string, items, exclusions=None):
             break
 
         # if i0_val and ip1_val does not have conflicting mathematical symbols, add '*' to i0_val and update i0
-        if ip1_val not in math_ops[1:] and i0_val not in exclusions and i0_val not in math_ops[2:] and \
-                i0_val[-1] != '(':
+        if ip1_val not in math_ops[1:] and ip1_val not in exclusions and i0_val not in exclusions and i0_val not in \
+                math_ops[2:] and i0_val[-1] != '(':
             temp_list[i0] = i0_val + '*'
         i0 += 1
 
@@ -376,6 +376,12 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
     Keyword Arguments
         true_string : str
             A true input string, used when cprint is set, to swap symbols in etc. or simply for a prettier cprint.
+        unit_res : str
+            Allows for assigning a unit to the print result.
+        sf : int
+            Sets the significant figures of the result. Uses mpmath to do so. If set to None (which is default) no
+            attempt will be made to set significant figures. Note that this only affects the result printed in the
+            console, it does not whatsoever alter the return value.
 
     Returns
         The result from the performed operations on the given mathematical string as a float.
@@ -521,18 +527,15 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
 
     # auto-print if prompted
     if cprint:
-        # pi-prettify if cprint has any value
-        if isinstance(nsu.float_to_int(int_fixed_string / np.pi), int) and int_fixed_string != 0:
-            pi_fixed_string = str(nsu.float_to_int(int_fixed_string / np.pi)) + 'π'
-        else:
-            pi_fixed_string = int_fixed_string
 
-            # check whether a true input string has been given, along with added unit result
-        true_string, unit_res = math_string, ''
+        # check whether a true input string has been given, along with added unit result and significant figures
+        true_string, unit_res, sf = math_string, '', None
         if 'true_string' in kwargs.keys():
             true_string = kwargs.get('true_string')
         if 'unit_res' in kwargs.keys():
             unit_res = kwargs.get('unit_res')
+        if 'sf' in kwargs.keys():
+            sf = kwargs.get('sf')
 
         # define specific set of replacement keys/values depending on cprint type
         if cprint == 'num':
@@ -548,6 +551,11 @@ def parser(math_string, steps=False, cprint='num', **kwargs):
 
         # sort the replacements with their keys, replace them and print
         sorted_replacements = nsu.list_sorter(replacement_keys, replacement_vals, reverse=True, otype='tuple')
-        pretty_string = nsu.replace(sorted_replacements[0], sorted_replacements[1], true_string)
-        print(f'Result: {pretty_string} = {str(pi_fixed_string) + unit_res}')
+        pretty_string = nsu.replace(sorted_replacements[0], sorted_replacements[1], true_string, 'amu')
+        if sf:
+            with mpmath.workdps(sf):
+                res = mpmath.mpf(int_fixed_string)
+                print(f'Result: {pretty_string} = {str(nsu.float_to_int(res)) + unit_res}')
+        else:
+            print(f'Result: {pretty_string} = {str(int_fixed_string) + unit_res}')
     return int_fixed_string

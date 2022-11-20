@@ -724,13 +724,17 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
             natively supported by this script.
         abb_unit : bool
             Specify whether the script should attempt to condense the resulting unit into a derived SI unit.
+        sf : int
+            Sets the significant figures of the result. Uses mpmath to do so. If set to None (which is default) no
+            attempt will be made to set significant figures. Note that this only affects the result printed in the
+            console, it does not whatsoever alter the return value.
 
     Returns
         The computed result as set by the result parameter.
     """
 
     # check and fix kwargs
-    parser_true_string, parser_print, abb_unit = math_string, 'num', True
+    parser_true_string, parser_print, abb_unit, sf = math_string, 'num', True, None
     if 'true_string' in kwargs.keys():
         parser_true_string = kwargs.get('true_string')
     if 'cprint' in kwargs.keys():
@@ -745,6 +749,8 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
             for j in [unit_identifier + i for i in prefix_scalars]:
                 supported_units.append(j + i)
         supported_units += [unit_identifier + i for i in supported_special_units]
+    if 'sf' in kwargs.keys():
+        sf = kwargs.get('sf')
 
     # define list of all supported values for the unit isolated list
     supported_units_and_mo = tuple(nsu.list_sorter(supported_units + list(math_ops), reverse=True))
@@ -754,7 +760,7 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
     # if no units are found in the expression, run expression through .parser() and exit
     if not unit_list_SI:
         unit_result = ''
-        math_result = nsp.parser(math_string, steps=False, cprint=parser_print, true_string=parser_true_string)
+        math_result = nsp.parser(math_string, steps=False, cprint=parser_print, true_string=parser_true_string, sf=sf)
         comp_result = str(math_result) + unit_result
         if result == 'math':
             return math_result
@@ -893,7 +899,7 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
         else:
             unit_result = ' ' + abb_res
     math_result = nsp.parser(replaced_unit_string, steps=False, cprint=parser_print, true_string=parser_true_string,
-                             unit_res=unit_result)
+                             unit_res=unit_result, sf=sf)
     comp_result = str(math_result) + unit_result
     if result == 'math':
         return math_result

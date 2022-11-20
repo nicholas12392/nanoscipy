@@ -1,6 +1,7 @@
 import warnings
 
 import matplotlib.pyplot as plt
+import mpmath
 import numpy as np
 import scipy.optimize as spo
 from scipy.optimize import curve_fit
@@ -702,6 +703,9 @@ class NumAn:
                 given constants, 'sym_ex' and 'symc_ex' will do the same as the respective options mentioned, but with
                 the multiplication as explicit, False will disable result print. The default is inherited from
                 'symc_ex'.
+        sf : int, optional
+            Sets the significant figures for all displayed calculations and constants from the cprint. If None, no
+            change to the significant figures is made. The default is 4.
 
     Attributes
         ans : float
@@ -716,17 +720,24 @@ class NumAn:
             Adds the previously computed result via calc() as a constant with the given name.
         del_cns() : function
             Deletes specified constants.
+        constants() : function
+            Displays all the currently defined constants.
     """
 
-    def __init__(self, cons=None, unit_identifier=' ', units=True, cprint='symc_ex'):
+    def __init__(self, cons=None, unit_identifier=' ', units=True, cprint='symc_ex', sf=4):
 
         # define lists mapping constant keys and constant values
         con_vals, con_keys, con_disp = [], [], []
         if cons:
             for k in [h.replace('=', ':').split(':') for h in nsu.replace(';', ',', cons).split(',')]:
                 con_keys.append(k[0].replace(' ', ''))
-                con_vals.append('(' + k[1] + ')')
-                con_disp.append(k[1])
+                cur_val = k[1]
+                if cur_val[0] == '(' and cur_val[-1] == ')':  # ensure that no parentheses doubles are inserted
+                    con_vals.append(cur_val)
+                    con_disp.append(cur_val[1:-1])
+                else:
+                    con_vals.append('(' + cur_val + ')')
+                    con_disp.append(cur_val)
 
         # define constant exclusions, which cannot be replaced as a constant
         function_exclusions = ('pi', 'sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(',
@@ -774,6 +785,7 @@ class NumAn:
         self.__phys_cns_keys__ = supported_physical_constants
         self.__units__ = units
         self.__cprint__ = cprint
+        self.__sig_fig__ = sf
         self.supported_units = supported_units + special_units
         self.supported_physical_constants = tuple([i + '=' + j for i, j in zip(supported_physical_constants,
                                                                                physical_constants_values)])
@@ -797,6 +809,8 @@ class NumAn:
         old_con_disp = self.__cns_disp__
         supported_units = self.supported_units
         phys_cns_keys = self.__phys_cns_keys__
+        phys_cns_vals = self.__phys_cns_vals__
+        base_exclusions = self.__exclusions__
 
         # map new constants
         add_con_vals, add_con_keys = [], []
@@ -819,29 +833,31 @@ class NumAn:
                         f'Constant \'{i} = {j[1:-1]}\' has been changed to \'{add_con_vals[add_con_keys.index(i)]}\'.')
 
         # check for implicit multiplication and replace previously defined constants
-        base_exclusions = self.__exclusions__
         collective_items = base_exclusions + tuple(old_con_keys_re) + phys_cns_keys
         product_fixed_string = [nsp.product_parser(i, collective_items, tuple(supported_units)) for i in add_con_vals]
 
         # replace constants prior to parsing with .parser()
-        phys_cns_vals = self.__phys_cns_vals__
         replacements_sorted = nsu.list_sorter(
             old_con_keys_re + list(phys_cns_keys), old_con_vals_re + list(phys_cns_vals), reverse=True)
-        replaced_strings = [nsu.replace(replacements_sorted[0], replacements_sorted[1], i, base_exclusions) for i in
-                            product_fixed_string]
+        replaced_strings = [nsu.replace(replacements_sorted[0], replacements_sorted[1], i,
+                                        base_exclusions + tuple(supported_units)) for i in product_fixed_string]
 
         # fix additions to display values and computational values
         re_con_vals, re_con_disp = [], []
         for i in replaced_strings:
-            re_con_vals.append('(' + i + ')')
-            re_con_disp.append(i)
+            if i[0] == '(' and i[-1] == ')':  # ensure that no parentheses doubles are inserted
+                re_con_vals.append(i)
+                re_con_disp.append(i[1:-1])
+            else:
+                re_con_vals.append('(' + i + ')')
+                re_con_disp.append(i)
 
         # update the attributes concerning the constants
         self.__cns_vals__ = old_con_vals_re + re_con_vals
         self.__cns_keys__ = old_con_keys_re + add_con_keys
         self.__cns_disp__ = old_con_disp_re + re_con_disp
 
-    def calc(self, math_string, add_res=False, cprint=None):
+    def calc(self, math_string, add_res=False, **kwargs):
         """
         This is the computational part of the script. Computations are based on the mathpar.parser(). For any defined
         constants, these will be used. Note that implicit multiplication only works between constants and numbers. The
@@ -855,13 +871,18 @@ class NumAn:
             add_res : str (or False)
                 Add the computational result as a constant to the table with the specified name. If False, do not add
                 result as a constant. The default is False.
-            cprint : str (or False), optional
+
+        Keyword Arguments
+            cprint : str, False or None
                 Determines whether the computational result should be printed in the python console. There are six
                 options: 'num' will display input string with constants replaced with values, 'sym' will display input
                 string with constants as symbols, 'symc' has same functionality as the latter, but also prints the
                 given constants, 'sym_ex' and 'symc_ex' will do the same as the respective options mentioned, but with
-                the multiplication as explicit, False will disable result print. The default is inherited from
+                the multiplication as explicit, False (or None) will disable result print. The default is inherited from
                 __init__().
+            sf : int or None
+                Sets the significant figures for displayed calculation and constants from the cprint. If None, no
+                change to the significant figures is made. The default is set by the global default from __init__().
 
         Returns
             The result of the computation.
@@ -874,9 +895,17 @@ class NumAn:
         unit_id = self.__unit_id__
         supported_units = self.supported_units
         phys_cns_keys = self.__phys_cns_keys__
+        phys_cns_vals = self.__phys_cns_vals__
+        base_exclusions = self.__exclusions__
 
-        if not cprint:  # set default cprint if nothing was defined
+        if 'cprint' in kwargs.keys():  # set default cprint if nothing was defined
+            cprint = kwargs.get('cprint')
+        else:
             cprint = self.__cprint__
+        if 'sf' in kwargs.keys():  # set default significant figures if nothing was defined
+            sf = kwargs.get('sf')
+        else:
+            sf = self.__sig_fig__
 
         # respond with proper error, if no expression is given, when .calc is called
         if not math_string:
@@ -885,33 +914,42 @@ class NumAn:
         # check if constants are defined as equations or floats (if any constants)
         re_con_vals, re_con_disp = [], []
         for i, d in zip(con_vals, con_disp):
-            if any(j in ('+', '-', '*', '/', '^', '!') for j in nsu.replace(
-                    [k + '^' for k in supported_units],
-                    '', i.replace('^-', '^').replace('e-', 'e').replace('e+', 'e'))):  # compute if math expression
-                math_res, unit_res = nup.unit_parser(i, unit_id, cprint=False, result='math, unit',
+            checker_list = nsu.replace(
+                [k + '^' for k in supported_units], '', i.replace('^-', '^').replace('e-', 'e').replace('e+', 'e'))
+            opr_list = ('+', '-', '*', '/', '^', '!') + base_exclusions
+            if any(j in opr_list for j in nsu.multi_split(checker_list, opr_list)):  # compute if math expression
+                math_res, unit_res = nup.unit_parser(i, unit_identifier=unit_id, cprint=False, result='math, unit',
                                                      supp_units=supported_units)
                 if unit_res == 'a.u.':
                     unit_res = ''
-                re_con_vals.append('(' + str(math_res) + unit_id + unit_res[1:] + ')')
-                re_con_disp.append(str(math_res) + unit_res)
-            else:
-                if i[0] == '(' and i[-1] == ')':
-                    re_con_vals.append(i)
+                if unit_res:  # ensure that unit ids are only added, if the result has a unit
+                    re_con_vals.append('(' + str(math_res) + unit_id + unit_res[1:] + ')')
+                    re_con_disp.append(str(math_res) + unit_res)
                 else:
-                    re_con_vals.append('(' + unit_id + i + ')')
-                re_con_disp.append(d)
+                    re_con_vals.append('(' + str(math_res) + ')')
+                    re_con_disp.append(str(math_res))
+            else:
+                if i[0] == '(' and i[-1] == ')':  # ensure that no parentheses doubles are inserted
+                    re_con_vals.append(i)
+                    re_con_disp.append(i[1:-1])
+                else:
+                    re_con_vals.append('(' + i + ')')
+                    re_con_disp.append(i)
+
+        # update constant value list and display value lists according to the computed values to avoid performing more
+        # computations than necessary
+        self.__cns_vals__ = re_con_vals
+        self.__cns_disp__ = re_con_disp
 
         # add implicit multiplication symbols
-        base_exclusions = self.__exclusions__
         collective_items = base_exclusions + tuple(con_keys) + phys_cns_keys
         product_fixed_string = nsp.product_parser(math_string, collective_items, tuple(supported_units))
 
         # replace the constants with their values, respecting the exclusions
-        phys_cns_vals = self.__phys_cns_vals__
         replacements_sorted = nsu.list_sorter(
             con_keys + list(phys_cns_keys), re_con_vals + list(phys_cns_vals), reverse=True)
         replaced_string = nsu.replace(replacements_sorted[0], replacements_sorted[1], product_fixed_string,
-                                      base_exclusions)
+                                      base_exclusions + tuple(supported_units))
 
         # ensure that there are no undefined constants, otherwise raise error
         checkers_sorted = nsu.list_sorter(base_exclusions + tuple(supported_units) + ('e-', 'e', 'e+'), reverse=True)
@@ -934,7 +972,7 @@ class NumAn:
         # compute the expression with mathpar.parser(), with fixed cprint value
         computation, unit_result = nup.unit_parser(replaced_string, unit_identifier=unit_id, cprint=parser_cprint,
                                                    result='math, unit', true_string=math_string_print,
-                                                   supp_units=supported_units)
+                                                   supp_units=supported_units, sf=sf)
         self.ans = computation
         if unit_result == 'a.u.':
             self.__ans_unit__ = ''
@@ -943,6 +981,10 @@ class NumAn:
 
         # if add result as constant is called, check if name is indeed a string and not a float or int
         if add_res:
+
+            # check if indeed a unit result, and set unit id accordingly
+            if not unit_result:
+                unit_id = ''
 
             # check if name is indeed a string and not a float or int
             if not isinstance(add_res, str):
@@ -969,17 +1011,22 @@ class NumAn:
         if cprint in ('symc', 'symc_ex') and con_keys:
 
             # check which constants are being used in the expression, and collect
-            sort_keys_disp = nsu.list_sorter(con_keys, con_disp, reverse=True)
+            sort_keys_disp = nsu.list_sorter(con_keys, re_con_disp, reverse=True)
             used_keys, used_disp = [], []
             temp_expression = math_string
             for i, j in zip(sort_keys_disp[0], sort_keys_disp[1]):
 
                 # if key is in expression, map it and display value to list, and remove key from expression to prevent
                 #   overlap of constants
-                if i in temp_expression:
+                if i in nsu.replace(base_exclusions, '', temp_expression):
                     used_keys.append(i)
-                    used_disp.append(j)
+                    try:
+                        used_disp.append(' '.join(j.split(unit_id)))
+                    except ValueError:
+                        used_disp.append(j)
                     temp_expression = temp_expression.replace(i, '')
+                if not temp_expression:  # break if temporary expression becomes empty
+                    break
 
             if used_keys:  # if any constants were used in the expression, prettify and print them
                 con_string = ';'.join(con_keys)  # make con_keys into an easily splittable string
@@ -992,8 +1039,17 @@ class NumAn:
 
                 # re-list con_keys with replaced symbols and print
                 rep_con_keys = pretty_constants.split(';')
-                for i, j in zip(rep_con_keys, re_con_disp):
-                    print(f'| {i} = {j}')
+                for i, j in zip(rep_con_keys, used_disp):
+                    if sf:  # fix significant figures for printing
+                        j_split = j.split(' ')
+                        with mpmath.workdps(sf):
+                            try:
+                                cur_disp = str(nsu.float_to_int(mpmath.mpf(j_split[0]))) + ' ' + j_split[1]
+                            except IndexError:
+                                cur_disp = str(nsu.float_to_int(mpmath.mpf(j)))
+                            print(f'| {i} = {cur_disp}')
+                    else:
+                        print(f'| {i} = {j}')
         return computation
 
     def add_res(self, name):
@@ -1011,6 +1067,10 @@ class NumAn:
         prev_comp_res = self.ans
         prev_comp_unit = self.__ans_unit__
         unit_id = self.__unit_id__
+
+        # check if indeed a unit result, and set unit id accordingly
+        if not prev_comp_unit:
+            unit_id = ''
 
         # check if name is indeed a string and not a float or int
         if not isinstance(name, str):
@@ -1033,26 +1093,26 @@ class NumAn:
             self.__cns_vals__ += [res_val]
             self.__cns_disp__ += [res_disp]
 
-    def del_cns(self, name):
+    def del_cns(self, *names):
         """
         Remove a constant from the defined library.
 
         Parameters
-            name : str, list, tuple
-                The name of the constant that is to be removed. If a list of strings, removes all elements in that list.
+            *names : str
+                The name of the constant that is to be removed.
         """
 
         current_keys = self.__cns_keys__
         current_vals = self.__cns_vals__
         current_disp = self.__cns_disp__
 
-        if isinstance(name, str):
-            name = (name, )
+        if len(names) == 1:  # check if constants are given in a single string and fix to list from delimiter
+            names = names[0].replace(';', ',').replace(' ', '').split(',')
 
         # construct a new list with the deleted constants excluded
         new_keys, new_vals, new_disp = [], [], []
         for i, j, k in zip(current_keys, current_vals, current_disp):
-            if i not in name:
+            if i not in names:
                 new_keys.append(i)
                 new_vals.append(j)
                 new_disp.append(k)
@@ -1068,7 +1128,8 @@ class NumAn:
 
         current_keys = self.__cns_keys__
         current_disp = self.__cns_disp__
+        unit_id = self.__unit_id__
 
         print('Currently defined constants:')
         for i, j in zip(current_keys, current_disp):
-            print(f'| {i} = {j}')
+            print(f"| {i} = {' '.join(j.split(unit_id))}")

@@ -244,7 +244,7 @@ def elem_checker(elems, lists, flat=False, overwrite=False):
 
 def float_to_int(float_element, fail_action='pass'):
     """
-    A more strict version of the standard int().
+    A more strict version of the standard int(). Also works for mpmath objects.
 
     Parameters
         float_element : float
