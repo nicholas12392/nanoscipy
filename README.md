@@ -92,21 +92,21 @@ cal3.add_cns('A2=4*A')
 ```
 
 The third parameter is `units`. This tells the script whether units should be used or not (explicitly). Effectively, 
-this only affects natural constants used (see [More about constants](https://github.com/nicholas12392/nanoscipy#more-about-constants)). 
+this only affects natural constants used (see [More about constants](https://github.com/nicholas12392/nanoscipy#2-more-about-constants)). 
 Therefore, the default setting is `units=True` meaning that the script will act as computations should be done with units. 
 Setting this to `False` will have the script do calculations without units (effectively). It must although be emphasized that this __only__ affects natural constants
 and so everything is still fine if no units are used initially, as long as no natural constants are used, unless it is 
 by division or multiplication, in which case it is also fine.
 
 The next parameter is `cprint`. This affects how the result from a computation is displayed (the console print), and affects all 
-computations if not anything else is set specifically per computation (see [Calculations](https://github.com/nicholas12392/nanoscipy#calculations)). 
+computations if not anything else is set specifically per computation (see [Calculations](https://github.com/nicholas12392/nanoscipy#3-calculations)). 
 There are a few options here, but the main difference is between `'num'` and `'sym'`. If set to `'num'` the result will 
 be displayed as the `mathpar.parser()` reads the expression, i.e. with only numbers and mathematical symbols. If set to `'sym'` the 
 expression will be displayed with symbols/constants rather than numbers. A variance is `'symc'`, which displays the
 constants used in the expression, along with the result. Subtypes are `'sym_ex'` and `'symc_ex'`, which will display
 the main expression with explicit multiplication (if any implicit multiplication was used). If set to `None` or `False` 
 no console print is done. Examples can be found in 
-[Calculations](https://github.com/nicholas12392/nanoscipy#calculations). The default setting is `'symc_ex'`.
+[Calculations](https://github.com/nicholas12392/nanoscipy#3-calculations). The default setting is `'symc_ex'`.
 
 The last parameter is `sf` which sets the significant figures for the console print. It is important to note that it 
 does not change the significant figures of the calculation itself nor the result. It __only__ changes the console print.
@@ -238,7 +238,7 @@ cal.constants()
 ```
 
 This also shows use of the `cprint` (local) kwarg. As opposed to setting the console print option in the `__init__()` 
-when defining the function as described in [The NumAn object](https://github.com/nicholas12392/nanoscipy#the-numan-object).
+when defining the function as described in [The NumAn object](https://github.com/nicholas12392/nanoscipy#1-the-numan-object).
 When set in `.calc()` it only changes the console print for that single calculation, and all others will follow the 
 default set in `__init__()`:
 
@@ -261,7 +261,7 @@ cal.calc('2domega')
 ```
 
 As seen in the former calculation, the significant figures in the console print differs from the output. This is due to 
-described evaluation feature `sf` ([The NumAn object](https://github.com/nicholas12392/nanoscipy#the-numan-object)). This
+described evaluation feature `sf` ([The NumAn object](https://github.com/nicholas12392/nanoscipy#1-the-numan-object)). This
 parameter can also be set locally with a kwarg per calculation: 
 
 ```python
