@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.7">
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.8">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,7 +128,7 @@
       <workItem from="1665764192210" duration="41497000" />
       <workItem from="1667244220070" duration="418000" />
       <workItem from="1667244665837" duration="57334000" />
-      <workItem from="1668634900879" duration="28276000" />
+      <workItem from="1668634900879" duration="29066000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -371,7 +368,14 @@
       <option name="project" value="LOCAL" />
       <updated>1668910446179</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="Update 3.0.8">
+      <created>1668944788721</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1668944788721</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -389,7 +393,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added quick save option for DatAn.plot()" />
     <MESSAGE value="Added util.py. Fixed operation display selection (mathop and location). Moved utility functions from functions.py to util.py. Fixed (x)^(y) issue, added factorial support, fixed trigonometric functions, added print option for .parser(). Added multi_plot()." />
     <MESSAGE value="mathpar hotfix" />
     <MESSAGE value="Added more natural constants. Fixed natural constant implicit multiplication with parentheses and numbers. Fixed issue with float_to_int() with scientific notation." />
@@ -414,6 +417,7 @@
     <MESSAGE value="Update 3.0.5" />
     <MESSAGE value="Update 3.0.6" />
     <MESSAGE value="Update 3.0.7" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.7" />
+    <MESSAGE value="Update 3.0.8" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.8" />
   </component>
 </project>

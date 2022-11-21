@@ -94,7 +94,7 @@ def unit_separator(math_string, supported_values, unit_identifier=' '):
     # clean-up symbols from scientific notation and remove excess math symbols at the end
     unit_expression = split_list.copy()
     i0 = 0
-    while i0 < len(unit_expression):
+    while unit_expression and i0 < len(unit_expression):
         i0_val = unit_expression[i0]  # define current value
         ip1 = i0 + 1  # define right value index
         try:  # try to define real right value, otherwise set to None
