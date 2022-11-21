@@ -1,6 +1,7 @@
 # nanoscipy
 
-nanoscipy has been made, to ease the more heavy data-handling, -processing, and - analysis. 
+nanoscipy has been made, to ease the data-handling, -processing, and - analysis. Additionally, it also provides a 
+simple way to perform numerical calculations with units.
 This package is being readily updated at the moment, so be sure to keep up, as new and useful additions and fixes are 
 very likely to be included.
 
@@ -171,14 +172,14 @@ simply be the natural constant value with SI units:
 
 ```python
 test = nsm.NumAn(units=False)
-test.supported_physical_constants
+print(test.supported_physical_constants)
 ```
 ```
 >>> ('_hbar=1.0545718176461565e-34', ..., '_mp=1.67262192369e-27')
 ```
 ```python
 test = nsm.NumAn(units=True)
-test.supported_physical_constants
+print(test.supported_physical_constants)
 ```
 ```
 >>> ('_hbar=(1.0545718176461565e-34 J Hz^-1)', ..., '_mp=(1.67262192369e-27 kg)')
