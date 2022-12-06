@@ -377,7 +377,7 @@ used by the script as `'A=(4 kg)`), especially as this odd functionality may cha
 to go is: 
 
 ```python
-test.calc('23 m/2 s g')
+test.calc('23 m/(2 s g)')
 ```
 ```
 >>> Result: 23 m/(2 s g) = 1.15e+4 m s^-1 kg^-1
