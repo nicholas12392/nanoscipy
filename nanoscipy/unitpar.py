@@ -1,6 +1,7 @@
 import scipy.constants as spc
 import nanoscipy.util as nsu
 import nanoscipy.mathpar as nsp
+import mpmath
 
 SI_base_units = ('s', 'm', 'kg', 'A', 'K', 'mol')  # the absolute SI units base
 
@@ -683,8 +684,8 @@ def unit_abbreviator(unit, delim='*'):
         inverted_abbreviations[0].append(temp_res)
 
     # collect all abbreviations and sort them, so that the largest one is first, trying to reduce the expression most
-    abbreviations = supported_abbreviations[0] + inverted_abbreviations[0], supported_abbreviations[1] + \
-                    inverted_abbreviations[1]
+    abbreviations = supported_abbreviations[0] + inverted_abbreviations[0], \
+                    supported_abbreviations[1] + inverted_abbreviations[1]
     sorted_abbreviations = nsu.list_sorter(*abbreviations, reverse=True)
 
     # replace matching abbreviations in given unit set
@@ -698,9 +699,11 @@ def unit_abbreviator(unit, delim='*'):
     return replaced_unit
 
 
-def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
+def unit_parser(math_string, unit_identifier=' ', result='math', cprint=True, **kwargs):
     """
-    Process a mathematical string containing units, with units defined by an identifier.
+    Process a mathematical string containing units, with units defined by an identifier. Note that unlike
+    mathpar.parser() it does not have native support for natural constants (at least not with units). This is strictly
+    meant to be a back-end function, and thus, for a user-friendly experience use modules.NumAn instead to calculate.
 
     Parameters
         math_string : str
@@ -712,18 +715,15 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
             Set the specific result output. If 'math', simply returns the float result of the computation (without
             units). If 'math + unit', returns a string with the final units appended to the float. If 'math, unit',
             gives a list that contains the math result as float and the unit result. The default is 'math'.
+        cprint : bool
+            Specify whether the result should be printed in the console.
 
     Keyword Arguments
-        true_string : str
-            Kwarg for mathpar.parser(), which is the script used to compute the numerical value of the expression.
-            Check mathpar.parser() for more information.
-        cprint : str
-            Sets the printing mode for mathpar.parser(). Again, check mathpar.parser() for more information.
         supp_units : tuple
             A specific list of supported units can be given here. Note that it may not contain any units that are not
             natively supported by this script.
         abb_unit : bool
-            Specify whether the script should attempt to condense the resulting unit into a derived SI unit.
+            Specify whether the script should attempt to condense/abbreviate the resulting unit into a derived SI unit.
         sf : int
             Sets the significant figures of the result. Uses mpmath to do so. If set to None (which is default) no
             attempt will be made to set significant figures. Note that this only affects the result printed in the
@@ -734,11 +734,7 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
     """
 
     # check and fix kwargs
-    parser_true_string, parser_print, abb_unit, sf = math_string, 'num', True, None
-    if 'true_string' in kwargs.keys():
-        parser_true_string = kwargs.get('true_string')
-    if 'cprint' in kwargs.keys():
-        parser_print = kwargs.get('cprint')
+    abb_unit, sf = True, None
     if 'abb_unit' in kwargs.keys():
         abb_unit = kwargs.get('abb_unit')
     if 'supp_units' in kwargs.keys():
@@ -760,7 +756,7 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
     # if no units are found in the expression, run expression through .parser() and exit
     if not unit_list_SI:
         unit_result = ''
-        math_result = nsp.parser(math_string, steps=False, cprint=parser_print, true_string=parser_true_string, sf=sf)
+        math_result = nsp.parser(math_string, steps=False, cprint=cprint, sf=sf)
         comp_result = str(math_result) + unit_result
         if result == 'math':
             return math_result
@@ -775,8 +771,8 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
                                                                               unit_list_scalars, unit_list_SI)
     solved_unit_expression = unit_solver(separated_units, contained_units, fixed_unit_list_SI)
 
-    temp_index = nsu.indexer(solved_unit_expression)  # index initial unit expression
-    temp_bracket_idx = [[k] + [e] for k, e in temp_index if e in ('(', ')')]  # find and index open/close brackets
+    # find and index open/close brackets
+    temp_bracket_idx = [[k] + [e] for k, e in enumerate(solved_unit_expression) if e in ('(', ')')]
 
     # solve units in parentheses first
     i0 = 0
@@ -805,10 +801,7 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
                 right_val = solved_unit_expression[cb_id + 1]
             except IndexError:
                 right_val = None
-            try:
-                left_val = solved_unit_expression[ob_id - 1]
-            except IndexError:
-                left_val = ''
+            left_val = solved_unit_expression[ob_id - 1] if ob_id != 0 else ''
 
             if left_val == '/':
                 div_par_start = ob_id - 1
@@ -854,8 +847,7 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
             else:
                 solved_unit_expression = solved_unit_expression[:div_par_start] + bracket_result + \
                                          solved_unit_expression[power_end + 1:]
-            temp_index = nsu.indexer(solved_unit_expression)
-            temp_bracket_idx = [[k] + [e] for k, e in temp_index if e in ('(', ')')]
+            temp_bracket_idx = [[k] + [e] for k, e in enumerate(solved_unit_expression) if e in ('(', ')')]
             i0 -= 1  # reset iteration
             continue
         i0 += 1
@@ -898,8 +890,16 @@ def unit_parser(math_string, unit_identifier=' ', result='math', **kwargs):
             unit_result = abb_res
         else:
             unit_result = ' ' + abb_res
-    math_result = nsp.parser(replaced_unit_string, steps=False, cprint=parser_print, true_string=parser_true_string,
-                             unit_res=unit_result, sf=sf)
+    math_result = nsp.parser(replaced_unit_string, steps=False, cprint=None)
+    if cprint:  # prettify and print
+        rep_keys, rep_vals = ('pi', '*'), ('π', '·')
+        pretty_string = nsu.replace(rep_keys, rep_vals, math_string, unit_list_contained)
+        if sf:
+            with mpmath.workdps(sf):
+                res = mpmath.mpf(math_result)
+                print(f'Result: {pretty_string} = {nsu.float_to_int(res)}')
+        else:
+            print(f'Result: {pretty_string} = {nsu.float_to_int(math_result)}')
     comp_result = str(math_result) + unit_result
     if result == 'math':
         return math_result

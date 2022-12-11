@@ -4,8 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.8">
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.9">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/unitpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/unitpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/util.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,20 +50,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/nicho/PycharmProjects/nanoscipyTestEnv",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Python"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/nicho/PycharmProjects/nanoscipyTestEnv&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Python&quot;
   }
-}]]></component>
+}</component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="nanoscipy" sdk-home="C:\Users\nicho\PycharmProjects\nanoscipy\venv\Scripts\python.exe">
@@ -128,7 +133,8 @@
       <workItem from="1665764192210" duration="41497000" />
       <workItem from="1667244220070" duration="418000" />
       <workItem from="1667244665837" duration="57334000" />
-      <workItem from="1668634900879" duration="29066000" />
+      <workItem from="1668634900879" duration="32871000" />
+      <workItem from="1670515025298" duration="22000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -375,7 +381,14 @@
       <option name="project" value="LOCAL" />
       <updated>1668944788721</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="Update 3.0.9">
+      <created>1669040848206</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1669040848206</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -393,7 +406,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added util.py. Fixed operation display selection (mathop and location). Moved utility functions from functions.py to util.py. Fixed (x)^(y) issue, added factorial support, fixed trigonometric functions, added print option for .parser(). Added multi_plot()." />
     <MESSAGE value="mathpar hotfix" />
     <MESSAGE value="Added more natural constants. Fixed natural constant implicit multiplication with parentheses and numbers. Fixed issue with float_to_int() with scientific notation." />
     <MESSAGE value="Added pi-prettify to parser(). replace() now supports replacement of multiple elements." />
@@ -418,6 +430,7 @@
     <MESSAGE value="Update 3.0.6" />
     <MESSAGE value="Update 3.0.7" />
     <MESSAGE value="Update 3.0.8" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.8" />
+    <MESSAGE value="Update 3.0.9" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.9" />
   </component>
 </project>

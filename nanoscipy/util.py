@@ -465,7 +465,7 @@ def string_sorter(*lists, stype='size', reverse=False, otype='list'):
     return output_lists
 
 
-def split(string, delim, no_blanks=True):
+def split(string, delim, rep=None, no_blanks=True):
     """
     Function that splits around a given delimiter, rather than at the given delimiter as the python .split() function.
 
@@ -475,14 +475,30 @@ def split(string, delim, no_blanks=True):
         delim : str
             Identifier for which a split should be made around.
         no_blanks : bool, optional
-            In some cases, blank list elements like ['', ''] may be created, if this parameter is True, those blanks
-            are removed. The default is True.
+            When the delimiter is either the first or last element, blank list elements like ['', ''] are created, if
+            this parameter is True, those blanks are removed. The default is True.
+        rep : any, optional
+            Allows for directly replacing the element splitting around, so that after splitting, the resulting list
+            will contain the replacement rather than the delimiter at its position. This can be multiple elements in a
+            list. The default is None.
 
     Returns
         A list containing the parts from the split.
     """
-    temp_list = string.replace(delim, '𒐫𐩕𒐫').split('𒐫')
-    pre_string = [delim if i == '𐩕' else i for i in temp_list]
+
+    if delim not in string:  # if the delimiter is not in the string, construct normalized output and exit
+        return [string]
+
+    # define re-insert depending on if replacement was set
+    true_insert = delim
+    if rep:
+        if isinstance(rep, (list, tuple)):
+            true_insert = '𒐫'.join(rep)
+        else:
+            true_insert = rep
+
+    # construct split list based on the delimiter
+    pre_string = string.replace(delim, '𒐫' + str(true_insert) + '𒐫').split('𒐫')
 
     if no_blanks:
         try:
@@ -495,7 +511,7 @@ def split(string, delim, no_blanks=True):
     return result_string
 
 
-def multi_split(string, items, no_blanks=True):
+def multi_split(string, items, reps=None, no_blanks=True):
     """
     An advanced version of the util.split() function. Splits the given string around every given item, and yields a
     list with the result. Splits around items in order of occurrence, thus, no items that have already been iterated
@@ -504,10 +520,14 @@ def multi_split(string, items, no_blanks=True):
     Parameters
         string : str
             The string to split in.
-        items : tuple
+        items : list
             String elements that the function should split the main string around. This is a tuple of string elements.
         no_blanks : bool, optional
-            In some cases, blank list elements can appear, this removes those elements.
+            When the delimiter is either the first or last element, blank list elements like ['', ''] are created, if
+            this parameter is True, those blanks are removed. The default is True.
+        reps : list
+            Allows for directly replacing the element splitting around, so that after splitting, the resulting list
+            will contain the replacement rather than the delimiter at its position.
 
     Returns
         List of the separated string parts.
@@ -516,22 +536,33 @@ def multi_split(string, items, no_blanks=True):
     temp_itr_str = [string]  # input string must be a list
     iterated_items = []
     remain_items = nest_checker(items, 'list')  # if items are not packed, pack them
+    if reps:
+        packed_reps = nest_checker(reps, 'list')  # if items are not packed, pack them
+        pr_len = len(packed_reps)
+        if pr_len != len(remain_items):
+            true_inserts = packed_reps + remain_items[pr_len:]
+        else:
+            true_inserts = packed_reps
+    else:
+        true_inserts = remain_items.copy()
     string_wo_item = string  # define checker string, to avoid iterations, if item is not in the string
 
     # while there are still items remaining, keep iterating
     while remain_items:
         item = remain_items[0]  # define the current item for checking as the first of the remaining
+        insert = true_inserts[0]
 
         # if an item string is found in the main string, split the string around the item IF the item
         #   has not already been iterated through
         if item in string_wo_item:
-            temp_itr_str = [[i] if i in iterated_items else split(i, item, no_blanks=no_blanks) for
+            temp_itr_str = [[i] if i in iterated_items else split(i, item, rep=insert, no_blanks=no_blanks) for
                             i in temp_itr_str]
             temp_itr_str = list(chain.from_iterable(temp_itr_str))
 
         # update temporary lists
-        iterated_items += [item]
+        iterated_items += [insert]
         remain_items.remove(item)  # remove the current item from the remaining items
+        true_inserts.remove(insert)
         string_wo_item = list_to_string(string_wo_item.split(item))  # update checker string
 
     # return result list
