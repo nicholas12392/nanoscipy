@@ -1033,10 +1033,9 @@ class NumAn:
         computation, unit_result = nup.unit_parser(replaced_string, unit_identifier=unit_id, cprint=None,
                                                    result='math, unit', supp_units=supported_units)
         self.ans = computation
-        if unit_result == 'a.u.':
-            self.__ans_unit__ = ''
-        else:
-            self.__ans_unit__ = unit_result
+        if unit_result in ('a.u.', ' a.u.'):
+            unit_result = ''
+        self.__ans_unit__ = unit_result
 
         # if add result as constant is called, check if name is indeed a string and not a float or int
         if add_res:
