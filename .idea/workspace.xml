@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.10">
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.11">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -390,7 +390,14 @@
       <option name="project" value="LOCAL" />
       <updated>1670769474303</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="Update 3.0.11">
+      <created>1670773707964</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1670773707964</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -408,7 +415,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added more natural constants. Fixed natural constant implicit multiplication with parentheses and numbers. Fixed issue with float_to_int() with scientific notation." />
     <MESSAGE value="Added pi-prettify to parser(). replace() now supports replacement of multiple elements." />
     <MESSAGE value="Natural constants implicit multiplication hotfix" />
     <MESSAGE value="Hotfix for replace()" />
@@ -433,6 +439,7 @@
     <MESSAGE value="Update 3.0.8" />
     <MESSAGE value="Update 3.0.9" />
     <MESSAGE value="Update 3.0.10" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.10" />
+    <MESSAGE value="Update 3.0.11" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.11" />
   </component>
 </project>

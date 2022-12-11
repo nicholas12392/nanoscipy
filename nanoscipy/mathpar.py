@@ -167,9 +167,13 @@ def ordered_parser(math_string, steps=False):
     """
 
     # if the first value of the fixed list is a '-', append to the next value, preventing interpretation as an operator
-    if math_string in ('-', '+'):
-        post_float_string = [''.join([math_string[0], math_string[1]]) if i == 0 else j for i, j in
-                             nsu.indexer(math_string) if i != 1]
+    fir_elem = math_string[0]
+    if fir_elem == '-':
+        sec_elem = math_string[1]
+        if isinstance(sec_elem, str):
+            post_float_string = ['-' + sec_elem] + math_string[2:]
+        else:
+            post_float_string = [-1 * sec_elem] + math_string[2:]
     else:
         post_float_string = math_string
     post_index_chain = nsu.indexer(post_float_string)  # define index for the fixed string
@@ -199,6 +203,9 @@ def ordered_parser(math_string, steps=False):
             elem_excl.append(i_next)
         elif (j, j_next) == ('+', '-') or (j, j_next) == ('-', '+'):
             elem = '+-'
+            elem_excl.append(i_next)
+        elif (j, j_next) == ('-', '-'):
+            elem = '+'
             elem_excl.append(i_next)
         else:  # for all other elements, define current iterative as value
             elem = j
