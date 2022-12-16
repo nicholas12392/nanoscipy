@@ -602,7 +602,8 @@ def unit_handler(unit_expression):
 
     # fix the rest of the multiplication after reducing expression
     i0 = 0
-    while i0 < len(temp_expression):
+    temp_len = len(temp_expression)
+    while i0 < temp_len:
         i0_val = temp_expression[i0]  # define current value
         ip1 = i0 + 1  # define right value
         try:  # try to define real values
@@ -611,12 +612,16 @@ def unit_handler(unit_expression):
             ip1_val = None
 
         if ip1_val == '*':
-            ip2_val = temp_expression[i0 + 2]
-            product_result = unit_operations('*', i0_val, ip2_val)
-            temp_expression[i0] = nsu.list_to_string(product_result)
-            del temp_expression[ip1:i0 + 3]
+            if ip1 + 1 < temp_len:  # if there exists a right value to the multiplication, perform operation
+                ip2_val = temp_expression[i0 + 2]
+                product_result = unit_operations('*', i0_val, ip2_val)
+                temp_expression[i0] = nsu.list_to_string(product_result)
+                del temp_expression[ip1:i0 + 3]
+            else:  # otherwise delete multiplication and stop
+                del temp_expression[ip1]
         else:
             i0 += 1
+        temp_len = len(temp_expression)
 
     # fix all addition/subtraction elements
     # note here that due to the functionality of units in general, if two summed elements does not have the same unit
@@ -690,12 +695,16 @@ def unit_abbreviator(unit, delim='*'):
 
     # replace matching abbreviations in given unit set
     split_unit = [i for i in unit.split(delim) if i != '']  # fix blank elements
-    replaced_unit_set = [e for i, e in zip(*sorted_abbreviations) if set(i) == set(split_unit)]
+    for l, a in zip(*sorted_abbreviations):
+        if all(i in split_unit for i in l):
+            split_unit = [a] + [i for i in split_unit if i not in l]
 
-    try:  # check if a unit replacement occurred, otherwise output initial unit
-        replaced_unit = replaced_unit_set[0]
-    except IndexError:
-        replaced_unit = unit
+    # place the units in order of power and reform a full unit
+    if len(split_unit) > 1:
+        replaced_unit = delim.join(nsu.list_sorter([i.split('^')[1] if '^' in i else '1' for i in split_unit],
+                                                   split_unit, reverse=True, stype='int_size')[1])
+    else:
+        replaced_unit = split_unit[0]
     return replaced_unit
 
 

@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.11">
+    <list default="true" id="6b17a766-170c-4cec-9c6b-99c464e46e59" name="Changes" comment="Update 3.0.12">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/mathpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/mathpar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/modules.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nanoscipy/unitpar.py" beforeDir="false" afterPath="$PROJECT_DIR$/nanoscipy/unitpar.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,6 +133,7 @@
       <workItem from="1667244665837" duration="57334000" />
       <workItem from="1668634900879" duration="32871000" />
       <workItem from="1670515025298" duration="22000" />
+      <workItem from="1671186208728" duration="2598000" />
     </task>
     <task id="LOCAL-00001" summary="PyCharm Log 1">
       <created>1651358031414</created>
@@ -397,7 +401,14 @@
       <option name="project" value="LOCAL" />
       <updated>1670773707964</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Update 3.0.12">
+      <created>1670782510509</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1670782510509</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -415,7 +426,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added pi-prettify to parser(). replace() now supports replacement of multiple elements." />
     <MESSAGE value="Natural constants implicit multiplication hotfix" />
     <MESSAGE value="Hotfix for replace()" />
     <MESSAGE value="Small improvements" />
@@ -440,6 +450,7 @@
     <MESSAGE value="Update 3.0.9" />
     <MESSAGE value="Update 3.0.10" />
     <MESSAGE value="Update 3.0.11" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.11" />
+    <MESSAGE value="Update 3.0.12" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update 3.0.12" />
   </component>
 </project>

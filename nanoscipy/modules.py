@@ -796,20 +796,22 @@ class NumAn:
                     con_disp.append(cur_val)
 
         # define constant exclusions, which cannot be replaced as a constant
-        function_exclusions = ('pi', 'sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(',
+        function_exclusions = ('sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(',
                                'deg(', 'log(', 'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(',
                                'arctanh(')
         # first define which units are to be used for natural constants depending on 'units'
-        supported_physical_constants = ('_hbar', '_NA', '_c', '_h', '_R', '_k', '_e', '_me', '_mp')
-        scipy_values = (spc.hbar, spc.N_A, spc.c, spc.h, spc.R, spc.k, spc.e, spc.electron_mass, spc.proton_mass)
+        supported_physical_constants = ('pi', '_hbar', '_NA', '_c', '_h', '_R', '_k', '_e', '_me', '_mp')
+        scipy_values = (spc.pi, spc.hbar, spc.N_A, spc.c, spc.h, spc.R, spc.k, spc.e, spc.electron_mass,
+                        spc.proton_mass)
         if units:
-            physical_constants_values = []
-            physical_constants_SI_units = ('J*Hz^-1', 'mol^-1', 'm*s^-1', 'J*s', 'J*mol^-1*K^-1', 'J*K^-1', 'C', 'kg',
-                                           'kg')
+            physical_constants_SI_units = (
+                '', 'J*Hz^-1', 'mol^-1', 'm*s^-1', 'J*s', 'J*mol^-1*K^-1', 'J*K^-1', 'C', 'kg',
+                'kg')
             physical_constants_SI_units_uid = [nsu.list_to_string([unit_identifier + j for j in nsu.split(i, '*')
-                                                                   if j != '*']) for i in physical_constants_SI_units]
-            for i, j in zip(scipy_values, physical_constants_SI_units_uid):
-                physical_constants_values.append('(' + str(i) + j + ')')
+                                                                   if j not in ('*', '')]) for i in
+                                               physical_constants_SI_units]
+            physical_constants_values = ['(' + str(i) + j + ')' for i, j in zip(scipy_values,
+                                                                                physical_constants_SI_units_uid)]
         else:
             physical_constants_values = [str(i) for i in scipy_values]
 
@@ -845,8 +847,12 @@ class NumAn:
         self.__cprint__ = cprint
         self.__sig_fig__ = sf
         self.supported_units = supported_units + special_units
-        self.supported_physical_constants = tuple([i + '=' + j for i, j in zip(supported_physical_constants,
-                                                                               physical_constants_values)])
+        if units:
+            self.supported_physical_constants = tuple([i + '=' + j[1:-1] for i, j in zip(supported_physical_constants,
+                                                                                         physical_constants_values)])
+        else:
+            self.supported_physical_constants = tuple([i + '=' + j for i, j in zip(supported_physical_constants,
+                                                                                   physical_constants_values)])
         if supp_prompt:
             self.__supp_prompt__ = supp_prompt.replace(' ', '').split(',')
         else:

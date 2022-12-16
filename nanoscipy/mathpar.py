@@ -7,9 +7,9 @@ from itertools import chain
 
 supported_natural_constants = ('pi', '_hbar', '_NA', '_c', '_h', '_R', '_k', '_e', '_me', '_mp')
 natural_constant_values = tuple([str(i) for i in (spc.pi, spc.hbar, spc.N_A, spc.c, spc.h, spc.R, spc.k, spc.e,
-                                          spc.electron_mass, spc.proton_mass)])
+                                                  spc.electron_mass, spc.proton_mass)])
 supported_functions = ('sinh(', 'cosh(', 'tanh(', 'exp(', 'sin(', 'cos(', 'tan(', 'ln(', 'rad(', 'deg(', 'log(',
-                      'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(', 'arctanh(')
+                       'sqrt(', 'arcsin(', 'arccos(', 'arctan(', 'arcsinh(', 'arccosh(', 'arctanh(')
 supported_symbols = ('(', ')', '+', '-', '/', '*', '^', '!')
 
 
@@ -319,7 +319,9 @@ def parser(math_string, steps=False, cprint=True, **kwargs):
 
     #  define items for product_parser
     collective_items = supported_natural_constants + supported_functions  # collect items to place product around
-    product_string = product_parser(math_string, collective_items)  # 'explicitify' products
+
+    # make products explicit, removing spaces in expression at the same time
+    product_string = product_parser(math_string.replace(' ', ''), collective_items)
     decom_string = number_parser(product_string)  # decompose string into bits that can be handled by basic parser
 
     # make sure that brackets are done correctly in the right order
