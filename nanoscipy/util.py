@@ -614,7 +614,7 @@ def xml_extract(xml_string, elems, delim='"'):
 
     # if the passed string is a file, then open it and save the tag as the xml string
     if xml_string[-4:] == '.xml':
-        with open(path, 'r') as xml_file:
+        with open(xml_string, 'r') as xml_file:
             xml_string = xml_file.read()
 
     # if there is only a single element, pack it into a list to be compatible
