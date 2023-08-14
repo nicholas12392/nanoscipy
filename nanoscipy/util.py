@@ -567,3 +567,63 @@ def multi_split(string, items, reps=None, no_blanks=True):
 
     # return result list
     return temp_itr_str
+
+
+def xml_single_extract(xml_string, elem, delim='"'):
+    """
+    Extracts values from tags in a xml string.
+    :param xml_string: xml string
+    :param elem: element to find the value for
+    :param delim: delimiter denoting a value in the xml file
+    :return: dictionary with the found values to the corresponding element
+    """
+
+    # ensure that the last element is a value indicator
+    elem_name = elem
+    if elem[-1] != '=':
+        elem += '='
+
+    # iterate over values
+    xml_string_split = xml_string.split(elem)[1:]
+    value_list = []
+    for e in xml_string_split:
+        i = 0
+
+        # ensure that the first element of the value is the actual value and not a delimiter
+        if e[i] == '"':
+            i += 1
+
+        # collect the value through iteration and save it to list
+        temp_value = ''
+        while e[i] != delim:
+            temp_value += e[i]
+            i += 1
+        value_list.append(temp_value)
+    value_dict = {elem_name:value_list}
+    return value_dict
+
+
+def xml_extract(xml_string, elems, delim='"'):
+    """
+    Extracts values from tags in a xml string (or xml file).
+    :param xml_string: xml string or target file path
+    :param elems: elements to find the value for
+    :param delim: delimiter denoting a value in the xml file
+    :return: dictionary with the found values to the corresponding elements
+    """
+
+    # if the passed string is a file, then open it and save the tag as the xml string
+    if xml_string[-4:] == '.xml':
+        with open(path, 'r') as xml_file:
+            xml_string = xml_file.read()
+
+    # if there is only a single element, pack it into a list to be compatible
+    if isinstance(elems, str):
+        elems = [elems]
+
+    # iterate over the elements and update the dictionary simultaneously
+    value_dict = {}
+    for e in elems:
+        temp_dict = xml_single_extract(xml_string, e, delim=delim)
+        value_dict.update(temp_dict)
+    return value_dict
