@@ -4,7 +4,7 @@ import numpy as np
 import pyperclip
 
 
-def mplRemSpine():
+def __mplRemSpine__():
     """
     Removes all spines from mpl figures.
     :return:
@@ -15,7 +15,7 @@ def mplRemSpine():
     mpl.rcParams['axes.spines.top'] = False
 
 
-def mplRepSpine():
+def __mplRepSpine__():
     """
     Resets all spines from mpl figures.
     :return:
@@ -157,9 +157,9 @@ def color_presets(n, preset=-1):
         plt.xlim(-0.5, n + 0.5)
         plt.ylim(-0.5, sets + 0.5)
         plt.tight_layout()
-        mplRemSpine()
+        __mplRemSpine__()
         plt.show()
-        mplRepSpine()
+        __mplRepSpine__()
     else:
         return preset_dict[preset]
 
@@ -199,9 +199,9 @@ class RandomColors:
         plt.ylim(-0.5, sets + 0.5)
         # plt.legend(frameon=False)
         plt.tight_layout()
-        mplRemSpine()
+        __mplRemSpine__()
         plt.show()
-        mplRepSpine()
+        __mplRepSpine__()
 
     def __func_clip__(self, index):
         icd = self.cdict[index]
