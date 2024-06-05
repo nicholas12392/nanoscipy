@@ -210,3 +210,31 @@ class RandomColors:
         pyperclip.copy(copy_string)
         print('Copied color generator preset to clipboard:')
         print(copy_string)
+
+def GRAY2RGB(img, rgb_col):
+    """
+    Converts a grayscale image from OpenCV into an RGB image with the specified RGB color. Effectively, the script
+    replaces the grayscale gradient with an RGB gradient.
+    :param img: grayscale image from OpenCV
+    :param rgb_col: desired RGB color in shape (r, g, b) or hex as '#HEXCODE'
+    :return: Recolored image
+    """
+
+    # check for hex color
+    if isinstance(rgb_col, str):
+        if rgb_col[0] == '#':
+            rgb_col = rgb_col.lstrip('#')
+        rgb_col = tuple(int(rgb_col[i:i + 2], 16) for i in (0, 2, 4))
+
+    # check for grayscale
+    if isinstance(img[0][0], np.ndarray):  # if image is in RGB/BGR format convert it
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    rgb_rel = np.array(rgb_col) / 255  # set relative RGB color
+    bgr_rel = np.flip(rgb_rel)  # flip to native BGR for opencv
+
+    RGB_INT_map = dict(zip(range(256), [np.uint8(bgr_rel * i) for i in range(256)]))
+    RGB_shape = np.array([RGB_INT_map.get(i) for i in range(256)])  # define indexer for matrix transform
+    RGB_matrix = RGB_shape[img]  # transform the input matrix with the RGB values
+
+    return RGB_matrix
