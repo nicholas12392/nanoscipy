@@ -25,7 +25,6 @@ import numpy as np
 from statsmodels.graphics.gofplots import qqplot
 from scipy.optimize import curve_fit
 import scipy.odr as sco
-import FlowCal
 import nanoscipy.util as nsu
 
 
@@ -501,7 +500,7 @@ def file_select(path, set_cols=None, cut_rows=None, **kwargs):
     #               cut_rows += 1
 
     # define list of passable extensions
-    allowed_extensions = ('.csv', '.txt', '.excel', '.xlsx', '.dat', '.fcs')
+    allowed_extensions = ('.csv', '.txt', '.excel', '.xlsx', '.dat')
     file_extension = os.path.splitext(path)[1]  # split input file name and save extension
 
     # check if passed extension can be handled
@@ -526,8 +525,6 @@ def file_select(path, set_cols=None, cut_rows=None, **kwargs):
             data = np.loadtxt(fname=path, delimiter=separator, skiprows=cut_rows)
         else:
             data = pd.read_csv(path, header=cut_rows, usecols=set_columns, sep=separator).to_numpy()
-    elif file_extension == '.fcs':
-        data = FlowCal.io.FCSData(path)
     if 'py_axlist' not in kwargs.keys() or ('py_axlist' in kwargs.keys() and kwargs.get('py_axlist')):
         data_axlist = [data[:, i].tolist() for i in range(len(data[0]))]
         data_axlist_fix = [[nsu.string_to_float(i) for i in data_axlist[j]]
