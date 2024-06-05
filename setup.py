@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='nanoscipy',
-    version='3.0.15',
+    version='3.0.16',
     author='Nicholas Hansen',
     author_email='nicholas.2000@live.dk',
     description='A package containing compiled functions, to make data-handling and -analysis easier.',
@@ -17,5 +17,5 @@ setuptools.setup(
     },
     license='MIT',
     packages=['nanoscipy'],
-    install_requires=['requests'],
+    install_requires=['requests', 'scipy', 'numpy', 'statsmodels', 'pandas', 'matplotlib', 'mpmath', 'sympy', 'opencv-python'],
 )
